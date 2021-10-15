@@ -16,6 +16,7 @@ namespace EngimaSimulator.Controllers
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
+            _logger.LogInformation("Test");
         }
 
         public IActionResult Index()
