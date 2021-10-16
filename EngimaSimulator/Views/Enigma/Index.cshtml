@@ -1,0 +1,11 @@
+﻿@model EngimaSimulator.Models.Enigma.MainViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+@if (Model.enigmaModel == null)
+{
+    <div class="text-center">
+        <p>Please go to the Configuration tab to configure your enigma</p>
+    </div>
+}
+

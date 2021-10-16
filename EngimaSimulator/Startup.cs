@@ -1,3 +1,4 @@
+using EngimaSimulator.Configuration.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -38,7 +39,11 @@ namespace EngimaSimulator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            
+
+            var physicalSettings = new PhysicalConfiguration();
+            Configuration.Bind("PhysicalConfiguration", physicalSettings);
+            services.AddSingleton(physicalSettings);
+
             services.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug);
         }
 
