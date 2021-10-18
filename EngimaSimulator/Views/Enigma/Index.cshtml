@@ -9,3 +9,31 @@
     </div>
 }
 
+<table>
+    <thead>
+        <tr>
+            <th>Reflector</th>
+            @for (int i =1;i< Model.enigmaModel.rotors.Count;i++)
+            {
+                <th>Rotor @i</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.enigmaModel.reflector.rotor.name</td>
+            @foreach (var r in Model.enigmaModel.rotors)
+            {
+                <td>@r.rotor.name</td>
+            }
+        </tr>
+        <tr>
+            <td>NA</td>
+            @foreach (var r in Model.enigmaModel.rotors)
+            {
+                <td>@r.rotation</td>
+            }
+        </tr>
+    </tbody>
+</table>
+
