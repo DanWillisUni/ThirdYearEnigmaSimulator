@@ -11,6 +11,10 @@ namespace EngimaSimulator.Models.Enigma
         {
             this.enigmaModel = enigmaModel;
         }
+        public MainViewModel()
+        {
+            this.enigmaModel = new EnigmaModel();
+        }
 
         public EnigmaModel enigmaModel { get; set; }
     }

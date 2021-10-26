@@ -13,7 +13,7 @@ namespace EngimaSimulator.Controllers
 {
     public class EnigmaConfigurationController : Controller
     {
-        private readonly PhysicalConfiguration _physicalConfiguration;
+        private PhysicalConfiguration _physicalConfiguration;
         private readonly ILogger<EnigmaConfigurationController> _logger;
         private EnigmaModel _enigmaModel;
         public EnigmaConfigurationController(ILogger<EnigmaConfigurationController> logger,PhysicalConfiguration physicalConfiguration)
@@ -33,11 +33,21 @@ namespace EngimaSimulator.Controllers
             return View(rvm);
         }
         [HttpPost]
-        public IActionResult RotorSave(RotorViewModel rvm)
+        public IActionResult Rotors(RotorViewModel rvm)
         {
-            
+            switch (rvm.Command)
+            {
+                case "rotorOrderSave":
+                    int counter = 1;
+                    List<int> orderOfPreferanceIds = new List<int>();
+                    List<string> SupplierList = new List<string>();
+                    //populate supplier list                    
+                    break;
+                default:
+                    break;
+            }
             MainViewModel mvm = new MainViewModel(_enigmaModel);
-            return View("Index", mvm);
+            return View("Enigma/Index", mvm);
         }
     }
 }

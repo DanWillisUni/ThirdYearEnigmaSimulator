@@ -6,7 +6,7 @@
 <h1>@ViewData["Title"]</h1>
 
 <p>This is the rotors</p>
-<div class="row">
+<div class="row col-md-12">
     @if (Model._physicalConfiguration.rotors != null)
     {
         @if (Model._physicalConfiguration.rotors.Count == 0)
@@ -15,24 +15,45 @@
         }
         else
         {
-            <table class="table table-striped table-bordered table-sm small runDataTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Order</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var r in Model._physicalConfiguration.rotors)
+<form asp-controller="EnigmaConfiguration" asp-action="Rotors" method="post">
+    @Html.Hidden("newRotorOrder", Model.newRotorOrder)
+    <input type="hidden" name="_physicalConfiguration" value="@Model._physicalConfiguration" />
+    <table class="table table-striped table-bordered table-sm small runDataTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Order</th>
+                <th>Checkbox</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model._physicalConfiguration.rotors)
+            {
+                <tr>
+                    <td>@r.name</td>
+                    <td>@r.order</td>
+                    @if (Model.liveRotorsNames.Contains(r.name))
                     {
-                        <tr>
-                            <td>@r.name</td>
-                            <td>@r.order</td>
-                        </tr>
+                        <td><input name="newRotorOrder" value="@r.name" type="checkbox" checked></td>
                     }
-
-                </tbody>
-            </table>
+                    else
+                    {
+                        <td><input name="newRotorOrder" value="@r.name" type="checkbox"></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table><br />
+    <div id="Button" class="form-group row">
+        <!--<div class="col-sm-2">
+            <button id="SendButton" type="submit" data-toggle="tooltip" title="" data-original-title="Save the rotors selected" name="Command" value="rotorSave" class="btn btn-primary">Save</button>
+        </div>-->
+        <div class="col-sm-10"></div>
+        <div class="col-sm-2">
+            <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorOrderModal" onclick="openEditForm()">Edit Order</a>
+        </div>
+    </div>
+</form>
         }
     }
     else
@@ -40,6 +61,13 @@
         <p>No Rotors Configured</p>
     }
 </div>
+
+<!-- Edit Modal -->
+<div class="col-md-12">
+    @await Html.PartialAsync("_RotorOrderModal", Model)
+</div>
+
+
 <p>This is the reflectors</p>
 <div class="row">
     @if (Model._physicalConfiguration.rotors != null)
@@ -55,6 +83,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Order</th>
+                        <th>Selected</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,6 +92,7 @@
                         <tr>
                             <td>@r.name</td>
                             <td>@r.order</td>
+                            <td>Radio</td>
                         </tr>
                     }
 
@@ -75,3 +105,53 @@
         <p>No Rotors Configured</p>
     }
 </div>
+
+
+
+@section scripts{
+    <script>
+        //dragging
+        $(document).ready(function () {
+            var list = $('#mySortable'),
+                updatePosition = function () {
+                    list.children().each(function (i, e) {
+                        $(this).children('input[type="hidden"]').val(++i);
+                    });
+                };
+
+            list.sortable({
+                placeholder: "ui-state-highlight",
+                update: updatePosition
+            });
+        });
+
+        //modal
+        function openEditForm() {
+            var rotorOrder = [];
+            $("input[name='newRotorOrder']").each(function () {
+                if ($(this).is(':checked')) {
+                    rotorOrder.push($(this).val());
+                }
+            });
+            $('#editRotorOrderModal').modal('show').on('shown.bs.modal', function () {
+                $("#checkid").html("Rotors: " + rotorOrder.join(", "));
+            });
+            clearForm("editRotorOrderModal");
+        }
+
+        completedEdit = () => {
+            $('#editRotorOrderModal').modal('hide');
+            runDataTable();
+            location.href = '/Enigma/Index'
+        };
+
+        function clearForm(formName) {
+            var elements = document.getElementById(formName).elements;
+            for (var i = 0, element; element = elements[i++];) {
+                if (element.type != "hidden" && element.type != "submit" && element.type != "button") {
+                    element.value = '';
+                }
+            }
+        }
+    </script>
+}

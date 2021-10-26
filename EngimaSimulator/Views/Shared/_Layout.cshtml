@@ -13,16 +13,13 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EngimaSimulator</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Enigma" asp-action="Index">EngimaSimulator</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Enigma" asp-action="Index">Enigma</a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="EnigmaConfiguration" asp-action="Rotors">Rotors</a>
                         </li>
@@ -42,12 +39,38 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2021 - EngimaSimulator - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js'></script>
+    <script src="~/lib/jquery-unobtrusive-ajax/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+
     @RenderSection("Scripts", required: false)
+
+    <!-- Run DataTable() on all data table classes-->
+    <script>
+        // Finds all tables with class runDataTable and runs DataTable() to make table sortable
+        function runDataTable() {
+            $(".runDataTable").DataTable();
+            $('.dataTables_length').addClass('bs-select');
+        }
+        // Sort all tables on document ready
+        $(document).ready(function () {
+            runDataTable();
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
 </body>
 </html>

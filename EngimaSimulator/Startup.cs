@@ -71,7 +71,7 @@ namespace EngimaSimulator
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Enigma}/{action=Index}/{id?}");
             });
         }
     }

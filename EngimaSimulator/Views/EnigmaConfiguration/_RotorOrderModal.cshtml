@@ -1,0 +1,60 @@
+﻿<div class="modal fade" id="editRotorOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="rotorOrder">Rotor Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <style>
+                .dragableList {
+                    list-style-type: none;
+                    padding-left: 0;
+                }
+
+                .dragListItem,
+                .ui-state-highlight {
+                    font-size: 16px;
+                    line-height: 18px;
+                    border: 1px solid #999;
+                    padding: 0.5em 1em;
+                    margin-bottom: 0.25em;
+                    box-sizing: border-box;
+                    height: 2.5em;
+                    max-width: 100%;
+                    background-color: #fff;
+                    text-align: center;
+                }
+
+                .ui-state-highlight {
+                    display: block;
+                    background-color: #999;
+                }
+            </style>
+
+            <form id="EditRotorOrder" asp-controller="EnigmaConfiguration" asp-action="Rotors" data-ajax="true" data-ajax-method="post" data-ajax-complete="completedEdit" method="post">
+                <div class="modal-body">
+                    <p id="checkid"></p>
+                    <!--Order-->
+                    @if (Model.newRotorOrder != null)
+                    {
+                        <p>Leftmost</p>
+                        <ul id="mySortable" class="dragableList">
+                            @for (int i = 1; i <= Model.newRotorOrder.Count; i++)
+                            {
+                                <li class="dragListItem" draggable="true">@Model.newRotorOrder[i - 1]<input type="hidden" name="rotorOrder_@i" value="@i"></li>
+                            }
+                        </ul>
+                        <p>Rightmost</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="Command" value="rotorSaveOrder" class="btn btn-success btn-sm">Save</button>
+                    <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
