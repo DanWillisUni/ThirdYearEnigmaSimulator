@@ -13,7 +13,7 @@ namespace EngimaSimulator.Controllers
 {
     public class EnigmaConfigurationController : Controller
     {
-        private PhysicalConfiguration _physicalConfiguration;
+        private readonly PhysicalConfiguration _physicalConfiguration;
         private readonly ILogger<EnigmaConfigurationController> _logger;
         private EnigmaModel _enigmaModel;
         public EnigmaConfigurationController(ILogger<EnigmaConfigurationController> logger,PhysicalConfiguration physicalConfiguration)
@@ -33,21 +33,57 @@ namespace EngimaSimulator.Controllers
             return View(rvm);
         }
         [HttpPost]
-        public IActionResult Rotors(RotorViewModel rvm)
+        public IActionResult Rotors(RotorViewModel modelIn)
         {
-            switch (rvm.Command)
+            RotorViewModel modelOut = new RotorViewModel();
+            switch (modelIn.Command)
             {
-                case "rotorOrderSave":
+                case "rotorSave":
+                    modelOut._physicalConfiguration = this._physicalConfiguration;
+                    modelOut.liveRotorsNames = modelIn.liveRotorsNames;
+                    foreach(string rn in modelIn.liveRotorsNames)
+                    {
+                        foreach(Rotor r in _physicalConfiguration.rotors)
+                        {
+                            if(r.name == rn)
+                            {
+                                _enigmaModel.rotors.Add(new RotorModel(r));
+                                break;
+                            }
+                        }                        
+                    }
+                    return View(modelOut);
+                case "rotorSaveOrder":
+                    //get new order
+                    bool continueOn = true;
                     int counter = 1;
-                    List<int> orderOfPreferanceIds = new List<int>();
-                    List<string> SupplierList = new List<string>();
-                    //populate supplier list                    
+                    List<int> newRotorOrder = new List<int>();
+                    do
+                    {
+                        var newItem = Request.Form[$"rotorOrder_{counter}"].ToString();
+                        if (String.IsNullOrEmpty(newItem))
+                        {
+                            continueOn = false;
+                        }
+                        else
+                        {
+                            newRotorOrder.Add(Convert.ToInt32(newItem));
+                        }
+                        counter++;
+                    } while (continueOn);
+                    //order swap
+                    List<RotorModel> tempRotors = new List<RotorModel>();
+                    foreach(int i in newRotorOrder)
+                    {
+                        tempRotors.Add(_enigmaModel.rotors[i]);
+                    }
+                    _enigmaModel.rotors = tempRotors;
                     break;
                 default:
                     break;
             }
             MainViewModel mvm = new MainViewModel(_enigmaModel);
-            return View("Enigma/Index", mvm);
+            return View("../Enigma/Index", mvm);
         }
     }
 }

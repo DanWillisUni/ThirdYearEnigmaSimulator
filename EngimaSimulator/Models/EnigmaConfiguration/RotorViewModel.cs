@@ -8,10 +8,9 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
 {
     public class RotorViewModel
     {        
-        public readonly PhysicalConfiguration _physicalConfiguration;
+        public PhysicalConfiguration _physicalConfiguration { get; set; }
         public string Command { get; set; }
         public List<string> liveRotorsNames { get; set; }
-        public string[] newRotorOrder { get; set; }
         public string liveReflectorName { get; set; }
         public RotorViewModel() { }
         public RotorViewModel(List<RotorModel> rotors, RotorModel reflector, PhysicalConfiguration physicalConfiguration)
@@ -31,7 +30,7 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
             }            
             _physicalConfiguration = physicalConfiguration;
 
-            liveRotorsNames = new List<string>{"A","B","C"};//test purposes
+            liveRotorsNames = new List<string>();//{"A","B","C"};//test purposes
         }
     }
 }

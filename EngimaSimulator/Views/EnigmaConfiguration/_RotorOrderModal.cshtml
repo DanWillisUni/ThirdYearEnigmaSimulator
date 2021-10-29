@@ -35,19 +35,22 @@
             </style>
 
             <form id="EditRotorOrder" asp-controller="EnigmaConfiguration" asp-action="Rotors" data-ajax="true" data-ajax-method="post" data-ajax-complete="completedEdit" method="post">
-                <div class="modal-body">
-                    <p id="checkid"></p>
+                <div class="modal-body">                    
                     <!--Order-->
-                    @if (Model.newRotorOrder != null)
+                    @if (Model.liveRotorsNames != null)
                     {
                         <p>Leftmost</p>
-                        <ul id="mySortable" class="dragableList">
-                            @for (int i = 1; i <= Model.newRotorOrder.Count; i++)
+                        <ul id="mySortable" class="dragableList">                            
+                            @for (int i = 1; i <= Model.liveRotorsNames.Count; i++)
                             {
-                                <li class="dragListItem" draggable="true">@Model.newRotorOrder[i - 1]<input type="hidden" name="rotorOrder_@i" value="@i"></li>
+                                <li class="dragListItem" draggable="true">@Model.liveRotorsNames[i - 1]<input type="hidden" name="rotorOrder_@i" value="@Model.liveRotorsNames[i - 1]"></li>
                             }
                         </ul>
                         <p>Rightmost</p>
+                    }
+                    else
+                    {
+                        <p>Please try pressing the save button before editing the order</p>
                     }
                 </div>
                 <div class="modal-footer">
