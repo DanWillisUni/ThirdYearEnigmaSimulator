@@ -5,106 +5,114 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>This is the rotors</p>
-<div class="row col-md-12">
-    @if (Model._physicalConfiguration.rotors != null)
-    {
-        @if (Model._physicalConfiguration.rotors.Count == 0)
-        {
-            <p>No Rotors Configured</p>
-        }
-        else
-        {
 <form asp-controller="EnigmaConfiguration" asp-action="Rotors" method="post">
-    <table class="table table-striped table-bordered table-sm small runDataTable">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Order</th>
-                <th>Checkbox</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in Model._physicalConfiguration.rotors)
-            {
-                <tr>
-                    <td>@r.name</td>
-                    <td>@r.order</td>
-                    @if (Model.liveRotorsNames.Contains(r.name))
-                    {
-                        <td><input name="liveRotorsNames" value="@r.name" type="checkbox" checked></td>
-                    }
-                    else
-                    {
-                        <td><input name="liveRotorsNames" value="@r.name" type="checkbox"></td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table><br />
-            <div id="Button" class="form-group row">
-                <div class="col-sm-2">
-                    <button id="SendButton" type="submit" data-toggle="tooltip" title="" data-original-title="Save the rotors selected" name="Command" value="rotorSave" class="btn btn-primary">Save</button>
-                </div>
-                <div class="col-sm-8"></div>
-                <div class="col-sm-2">
-                    <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorOrderModal" onclick="openEditForm()">Edit Order</a>
-                </div>
-            </div>
-        </form>
-        }
-    }
-    else
-    {
-        <p>No Rotors Configured</p>
-    }
-</div>
-
-<!-- Edit Modal -->
-<div class="col-md-12">
-    @await Html.PartialAsync("_RotorOrderModal", Model)
-</div>
-
-
-<p>This is the reflectors</p>
-<div class="row">
-    @if (Model._physicalConfiguration.rotors != null)
-    {
-        @if (Model._physicalConfiguration.rotors.Count == 0)
+    <p>This is the rotors</p>
+    <div class="col-md-12">
+        @if (Model._physicalConfiguration.rotors != null)
         {
-            <p>No Rotors Configured</p>
+            @if (Model._physicalConfiguration.rotors.Count == 0)
+            {
+                <p>No Rotors Configured</p>
+            }
+            else
+            {
+                <table class="table table-striped table-bordered table-sm small runDataTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Order</th>
+                            <th>Checkbox</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model._physicalConfiguration.rotors)
+                        {
+                            <tr>
+                                <td>@r.name</td>
+                                <td>@r.order</td>
+                                @if (Model.liveRotorsNames.Contains(r.name))
+                                {
+                                    <td><input name="liveRotorsNames" value="@r.name" type="checkbox" checked></td>
+                                }
+                                else
+                                {
+                                    <td><input name="liveRotorsNames" value="@r.name" type="checkbox"></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table><br />
+            }
         }
         else
         {
-            <table class="table table-striped table-bordered table-sm small runDataTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Order</th>
-                        <th>Selected</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var r in Model._physicalConfiguration.reflectors)
-                    {
+            <p>No Rotors Configured</p>
+        }
+
+        <!-- Edit Modal -->
+        <div class="col-md-12">
+            @await Html.PartialAsync("_RotorOrderModal", Model)
+        </div>
+
+    </div>
+    <p>This is the reflectors</p>
+    <div class="col-md-12">
+        @if (Model._physicalConfiguration.reflectors != null)
+        {
+            @if (Model._physicalConfiguration.reflectors.Count == 0)
+            {
+                <p>No Reflectors Configured</p>
+            }
+            else
+            {
+                <table class="table table-striped table-bordered table-sm small runDataTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Order</th>
+                            <th>Selected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model._physicalConfiguration.reflectors)
+                        {
                         <tr>
                             <td>@r.name</td>
                             <td>@r.order</td>
-                            <td>Radio</td>
+                            @if (Model.liveReflectorName == r.name)
+                            {
+                                <td><input type="radio" name="liveReflectorName" value="@r.name" checked></td>
+                            }
+                            else
+                            {
+                                <td><input type="radio" name="liveReflectorName" value="@r.name"></td>
+                            }
                         </tr>
-                    }
-
-                </tbody>
-            </table>
+                        }
+                    </tbody>
+                </table>
+            }
         }
-    }
-    else
-    {
-        <p>No Rotors Configured</p>
-    }
-</div>
-
-
+        else
+        {
+            <p>No Rotors Configured</p>
+        }
+        <br />
+    </div> 
+    <div class="row">
+        <div class="col-sm-4">
+            <button type="submit" data-toggle="tooltip" title="" data-original-title="Go to Enigma" name="Command" value="Enigma" class="btn btn-primary">Go to Simulator</button>
+        </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2">
+            <button id="SendButton" type="submit" data-toggle="tooltip" title="" data-original-title="Save the rotors selected" name="Command" value="rotorSave" class="btn btn-primary">Save</button>
+        </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorOrderModal" onclick="openEditForm()">Edit Order</button>
+        </div>
+    </div>
+</form>
 
 @section scripts{
     <script>
@@ -121,7 +129,7 @@
                 placeholder: "ui-state-highlight",
                 update: updatePosition
             });
-            
+
         });
 
         //modal

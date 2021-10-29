@@ -7,33 +7,47 @@
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your enigma</p>
     </div>
-} else { 
-    <table>
-        <thead>
-            <tr>
-                <th>Reflector</th>
-                @for (int i =1;i< Model.enigmaModel.rotors.Count;i++)
-                {
-                    <th>Rotor @i</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@Model.enigmaModel.reflector.rotor.name</td>
-                @foreach (var r in Model.enigmaModel.rotors)
-                {
-                    <td>@r.rotor.name</td>
-                }
-            </tr>
-            <tr>
-                <td>NA</td>
-                @foreach (var r in Model.enigmaModel.rotors)
-                {
-                    <td>@r.rotation</td>
-                }
-            </tr>
-        </tbody>
-    </table>
+}
+else if (Model.enigmaModel.rotors == null)
+{
+    <div class="text-center">
+        <p>Please go to the Configuration tab to configure your rotors</p>
+    </div>
+}
+else if (Model.enigmaModel.reflector == null)
+{
+    <div class="text-center">
+        <p>Please go to the Configuration tab to configure your reflector</p>
+    </div>
+}
+else
+{
+<table>
+    <thead>
+        <tr>
+            <th>Reflector</th>
+            @for (int i = 1; i < Model.enigmaModel.rotors.Count; i++)
+            {
+                <th>Rotor @i</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.enigmaModel.reflector.rotor.name</td>
+            @foreach (var r in Model.enigmaModel.rotors)
+            {
+                <td>@r.rotor.name</td>
+            }
+        </tr>
+        <tr>
+            <td>NA</td>
+            @foreach (var r in Model.enigmaModel.rotors)
+            {
+                <td>@r.rotation</td>
+            }
+        </tr>
+    </tbody>
+</table>
 }
 

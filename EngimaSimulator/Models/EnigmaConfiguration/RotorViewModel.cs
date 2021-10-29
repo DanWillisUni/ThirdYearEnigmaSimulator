@@ -12,7 +12,11 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         public string Command { get; set; }
         public List<string> liveRotorsNames { get; set; }
         public string liveReflectorName { get; set; }
-        public RotorViewModel() { }
+        public RotorViewModel() 
+        {
+            liveRotorsNames = new List<string>();
+            liveReflectorName = "";
+        }
         public RotorViewModel(List<RotorModel> rotors, RotorModel reflector, PhysicalConfiguration physicalConfiguration)
         {
             liveRotorsNames = new List<string>();
