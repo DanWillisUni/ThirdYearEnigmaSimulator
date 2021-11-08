@@ -29,13 +29,12 @@ namespace EngimaSimulator.Controllers
         }
         public IActionResult Rotors()
         {
-            RotorViewModel rvm = new RotorViewModel(_enigmaModel.rotors,_enigmaModel.reflector,_physicalConfiguration);
+            RotorViewModel rvm = new RotorViewModel(_enigmaModel.rotors,_physicalConfiguration);
             return View(rvm);
         }
         [HttpPost]
         public IActionResult Rotors(RotorViewModel modelIn)
         {
-            var lfn = Request.Form[$"liveReflectorName"].ToString();
             RotorViewModel modelOut = new RotorViewModel();
             modelOut._physicalConfiguration = this._physicalConfiguration;
             if(modelIn.liveRotorsNames == null)
@@ -49,14 +48,7 @@ namespace EngimaSimulator.Controllers
             {
                 modelOut.liveRotorsNames = modelIn.liveRotorsNames;
             }   
-            if((modelIn.liveReflectorName == null || modelIn.liveReflectorName == "") && _enigmaModel.reflector != null)
-            {
-                modelOut.liveReflectorName = _enigmaModel.reflector.rotor.name;
-            }
-            else
-            {
-                modelOut.liveReflectorName = modelIn.liveReflectorName;
-            }            
+                        
             switch (modelIn.Command)
             {
                 case "rotorSave":                    
@@ -99,15 +91,6 @@ namespace EngimaSimulator.Controllers
                     modelOut.liveRotorsNames = tempRotors;
                     return View(modelOut);
                 case "Enigma":
-                    foreach (Rotor r in _physicalConfiguration.rotors)
-                    {
-                        if (r.name == modelOut.liveReflectorName)
-                        {
-                            _enigmaModel.reflector = new RotorModel(r);
-                            break;
-                        }
-                    }
-
                     foreach (string rn in modelOut.liveRotorsNames)
                     {
                         foreach (Rotor r in _physicalConfiguration.rotors)
@@ -129,7 +112,45 @@ namespace EngimaSimulator.Controllers
             return View("../Enigma/Index", mvm);
         }
 
+        public IActionResult Reflector()
+        {
+            ReflectorViewModel rvm = new ReflectorViewModel(_enigmaModel.reflector, _physicalConfiguration);
+            return View(rvm);
+        }
+        [HttpPost]
+        public IActionResult Reflector(ReflectorViewModel modelIn)
+        {
+            ReflectorViewModel modelOut = new ReflectorViewModel();
+            modelOut._physicalConfiguration = this._physicalConfiguration;
+            if ((modelIn.liveReflectorName == null || modelIn.liveReflectorName == "") && _enigmaModel.reflector != null)
+            {
+                modelOut.liveReflectorName = _enigmaModel.reflector.rotor.name;
+            }
+            else
+            {
+                modelOut.liveReflectorName = modelIn.liveReflectorName;
+            }
 
+            switch (modelIn.Command)
+            {              
+                case "Enigma":
+                    foreach (Rotor r in _physicalConfiguration.reflectors)
+                    {
+                        if (r.name == modelOut.liveReflectorName)
+                        {
+                            _enigmaModel.reflector = new RotorModel(r);
+                            break;
+                        }
+                    }
 
+                    MainViewModel mainviewmodel = new MainViewModel(_enigmaModel);
+                    return View("../Enigma/Index", mainviewmodel);
+                default:
+                    break;
+            }
+            
+            MainViewModel mvm = new MainViewModel(_enigmaModel);
+            return View("../Enigma/Index", mvm);
+        }
     }
 }

@@ -11,13 +11,11 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         public PhysicalConfiguration _physicalConfiguration { get; set; }
         public string Command { get; set; }
         public List<string> liveRotorsNames { get; set; }
-        public string liveReflectorName { get; set; }
         public RotorViewModel() 
         {
             liveRotorsNames = new List<string>();
-            liveReflectorName = "";
         }
-        public RotorViewModel(List<RotorModel> rotors, RotorModel reflector, PhysicalConfiguration physicalConfiguration)
+        public RotorViewModel(List<RotorModel> rotors, PhysicalConfiguration physicalConfiguration)
         {
             liveRotorsNames = new List<string>();
             if (rotors != null)
@@ -26,11 +24,6 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
                 {
                     liveRotorsNames.Add(r.rotor.name);
                 }
-            }
-
-            if(reflector != null)
-            {
-                liveReflectorName = reflector.rotor.name;
             }            
             _physicalConfiguration = physicalConfiguration;
 
