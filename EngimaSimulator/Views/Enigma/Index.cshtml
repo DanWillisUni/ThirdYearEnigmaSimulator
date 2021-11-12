@@ -2,53 +2,93 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+
 @if (Model.enigmaModel == null)
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your enigma</p>
     </div>
+    <form asp-controller="Enigma" asp-action="Index" method="post">
+        <div class="form-group col-md-12 row">
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflector</button>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToPlugboard" class="btn btn-primary">Plugboard</button>
+            </div>
+        </div>
+    </form>
 }
 else if (Model.enigmaModel.rotors.Count == 0)
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your rotors</p>
     </div>
+    <form asp-controller="Enigma" asp-action="Index" method="post">        
+        <div class="form-group col-md-12 row">
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
+            </div>
+        </div>
+    </form>
 }
 else if (Model.enigmaModel.reflector == null)
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your reflector</p>
     </div>
+    <form asp-controller="Enigma" asp-action="Index" method="post">
+        <div class="form-group col-md-12 row">
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflectors</button>
+            </div>
+        </div>
+    </form>
 }
 else
 {
-<table>
-    <thead>
-        <tr>
-            <th>Reflector</th>
-            @for (int i = 1; i < Model.enigmaModel.rotors.Count; i++)
-            {
-                <th>Rotor @i</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>@Model.enigmaModel.reflector.rotor.name</td>
-            @foreach (var r in Model.enigmaModel.rotors)
-            {
-                <td>@r.rotor.name</td>
-            }
-        </tr>
-        <tr>
-            <td>NA</td>
-            @foreach (var r in Model.enigmaModel.rotors)
-            {
-                <td>@r.rotation</td>
-            }
-        </tr>
-    </tbody>
-</table>
-
+    <table>
+        <thead>
+            <tr>
+                <th>Reflector</th>
+                @for (int i = 1; i < Model.enigmaModel.rotors.Count; i++)
+                {
+                    <th>Rotor @i</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.enigmaModel.reflector.rotor.name</td>
+                @foreach (var r in Model.enigmaModel.rotors)
+                {
+                    <td>@r.rotor.name</td>
+                }
+            </tr>
+            <tr>
+                <td>NA</td>
+                @foreach (var r in Model.enigmaModel.rotors)
+                {
+                    <td>@r.rotation</td>
+                }
+            </tr>
+        </tbody>
+    </table>
+    <form asp-controller="Enigma" asp-action="Index" method="post">
+        <div class="form-group col-md-12 row">
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflector</button>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" name="Command" value="goToPlugboard" class="btn btn-primary">Plugboard</button>
+            </div>
+        </div>
+    </form>
 }
 

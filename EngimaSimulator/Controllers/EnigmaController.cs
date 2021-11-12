@@ -1,5 +1,7 @@
-﻿using EngimaSimulator.Models;
+﻿using EngimaSimulator.Configuration.Models;
+using EngimaSimulator.Models;
 using EngimaSimulator.Models.Enigma;
+using EngimaSimulator.Models.EnigmaConfiguration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,16 +15,31 @@ namespace EngimaSimulator.Controllers
     public class EnigmaController : Controller
     {
         private readonly ILogger<EnigmaController> _logger;
-        private EnigmaModel enigmaModel { get; set; }
+        private readonly PhysicalConfiguration _physicalConfiguration;
 
-        public EnigmaController(ILogger<EnigmaController> logger)
+        public EnigmaController(ILogger<EnigmaController> logger, PhysicalConfiguration physicalConfiguration)
         {
-            _logger = logger;            
+            _logger = logger;
+            _physicalConfiguration = physicalConfiguration;
         }        
         public IActionResult Index()
         {
-            MainViewModel model = new MainViewModel(enigmaModel);
+            MainViewModel model = new MainViewModel();
             return View(model);
+        }
+        [HttpPost]
+        public IActionResult Index(MainViewModel modelIn)
+        {
+            switch (modelIn.Command)
+            {
+                case "goToRotors":
+                    RotorViewModel rotorviewmodel = new RotorViewModel(modelIn.enigmaModel.rotors,_physicalConfiguration);
+                    return View("../EnigmaConfiguration/Rotors", rotorviewmodel);
+                case "goToReflector":
+                    ReflectorViewModel reflectorviewmodel = new ReflectorViewModel(modelIn.enigmaModel.reflector, _physicalConfiguration);
+                    return View("../EnigmaConfiguration/Reflector", reflectorviewmodel);
+            }
+            return View(modelIn);
         }
 
         #region encoding

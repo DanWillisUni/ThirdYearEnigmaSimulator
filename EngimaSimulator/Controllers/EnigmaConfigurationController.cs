@@ -37,7 +37,7 @@ namespace EngimaSimulator.Controllers
         {
             RotorViewModel modelOut = new RotorViewModel();
             modelOut._physicalConfiguration = this._physicalConfiguration;
-            if(modelIn.liveRotorsNames == null)
+            if(modelIn.liveRotorsNames == null || modelIn.liveRotorsNames.Count == 0)
             {
                 foreach(RotorModel r in _enigmaModel.rotors)
                 {
@@ -102,7 +102,6 @@ namespace EngimaSimulator.Controllers
                             }
                         }
                     }
-
                     MainViewModel mainviewmodel = new MainViewModel(_enigmaModel);
                     return View("../Enigma/Index", mainviewmodel);
                 default:

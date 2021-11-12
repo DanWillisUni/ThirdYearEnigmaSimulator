@@ -22,6 +22,10 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
             {
                 liveReflectorName = reflector.rotor.name;
             }
+            else
+            {
+                liveReflectorName = "";
+            }
             _physicalConfiguration = physicalConfiguration;
         }
     }

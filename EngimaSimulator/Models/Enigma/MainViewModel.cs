@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace EngimaSimulator.Models.Enigma
         {
             this.enigmaModel = new EnigmaModel();
         }
-
         public EnigmaModel enigmaModel { get; set; }
+        public string Command { get; set; }
     }
 }

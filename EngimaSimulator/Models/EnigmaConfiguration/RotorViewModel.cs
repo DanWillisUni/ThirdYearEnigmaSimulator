@@ -26,8 +26,6 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
                 }
             }            
             _physicalConfiguration = physicalConfiguration;
-
-            liveRotorsNames = new List<string>();//{"A","B","C"};//test purposes
         }
     }
 }
