@@ -24,21 +24,13 @@ namespace EngimaSimulator.Controllers
         }        
         public IActionResult Index()
         {
+            System.IO.File.Delete("currentConfig.json");
             MainViewModel model = new MainViewModel();
             return View(model);
         }
         [HttpPost]
         public IActionResult Index(MainViewModel modelIn)
-        {
-            switch (modelIn.Command)
-            {
-                case "goToRotors":
-                    RotorViewModel rotorviewmodel = new RotorViewModel(modelIn.enigmaModel.rotors,_physicalConfiguration);
-                    return View("../EnigmaConfiguration/Rotors", rotorviewmodel);
-                case "goToReflector":
-                    ReflectorViewModel reflectorviewmodel = new ReflectorViewModel(modelIn.enigmaModel.reflector, _physicalConfiguration);
-                    return View("../EnigmaConfiguration/Reflector", reflectorviewmodel);
-            }
+        {            
             return View(modelIn);
         }
 

@@ -8,6 +8,9 @@ namespace EngimaSimulator.Models.Enigma
 {
     public class MainViewModel
     {
+        public EnigmaModel enigmaModel { get; set; }
+        public string Command { get; set; }
+        public string outputTextBox { get; set; }
         public MainViewModel(EnigmaModel enigmaModel)
         {
             this.enigmaModel = enigmaModel;
@@ -15,8 +18,6 @@ namespace EngimaSimulator.Models.Enigma
         public MainViewModel()
         {
             this.enigmaModel = new EnigmaModel();
-        }
-        public EnigmaModel enigmaModel { get; set; }
-        public string Command { get; set; }
+        }        
     }
 }
