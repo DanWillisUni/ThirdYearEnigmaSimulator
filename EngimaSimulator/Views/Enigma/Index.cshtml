@@ -7,88 +7,51 @@
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your enigma</p>
-    </div>
-    <form asp-controller="Enigma" asp-action="Index" method="post">
-        <div class="form-group col-md-12 row">
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
-            </div>
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflector</button>
-            </div>
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToPlugboard" class="btn btn-primary">Plugboard</button>
-            </div>
-        </div>
-    </form>
+    </div>    
 }
 else if (Model.enigmaModel.rotors.Count == 0)
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your rotors</p>
-    </div>
-    <form asp-controller="Enigma" asp-action="Index" method="post">        
-        <div class="form-group col-md-12 row">
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
-            </div>
-        </div>
-    </form>
+    </div>    
 }
 else if (Model.enigmaModel.reflector == null)
 {
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your reflector</p>
-    </div>
-    <form asp-controller="Enigma" asp-action="Index" method="post">
-        <div class="form-group col-md-12 row">
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflectors</button>
-            </div>
-        </div>
-    </form>
+    </div>    
 }
 else
 {
-    <table>
-        <thead>
+<table class="table table-striped table-bordered table-sm small">
+    <thead>
+        <tr>
+            <th>Part</th>
+            <th>Name</th>
+            <th>Order</th>
+            <th>Rotation</th>
+            <th>Ring Offset</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.enigmaModel.rotors.Count; i++)
+        {
             <tr>
-                <th>Reflector</th>
-                @for (int i = 1; i < Model.enigmaModel.rotors.Count; i++)
-                {
-                    <th>Rotor @i</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@Model.enigmaModel.reflector.rotor.name</td>
-                @foreach (var r in Model.enigmaModel.rotors)
-                {
-                    <td>@r.rotor.name</td>
-                }
-            </tr>
-            <tr>
-                <td>NA</td>
-                @foreach (var r in Model.enigmaModel.rotors)
-                {
-                    <td>@r.rotation</td>
-                }
-            </tr>
-        </tbody>
-    </table>
-    <form asp-controller="Enigma" asp-action="Index" method="post">
-        <div class="form-group col-md-12 row">
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToRotors" class="btn btn-primary">Rotors</button>
-            </div>
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToReflector" class="btn btn-primary">Reflector</button>
-            </div>
-            <div class="col-sm-2">
-                <button type="submit" name="Command" value="goToPlugboard" class="btn btn-primary">Plugboard</button>
-            </div>
-        </div>
-    </form>
+                <td>Rotor @(i + 1)</td>
+                <td>@Model.enigmaModel.rotors[i].rotor.name</td>
+                <td>@Model.enigmaModel.rotors[i].rotor.order</td>
+                <td>@Model.enigmaModel.rotors[i].rotation</td>
+                <td>@Model.enigmaModel.rotors[i].ringOffset</td>
+            </tr>            
+        }
+        <tr>
+            <td>Reflector</td>
+            <td>@Model.enigmaModel.reflector.rotor.name</td>
+            <td>@Model.enigmaModel.reflector.rotor.order</td>
+            <td>NA</td>
+            <td>NA</td>
+        </tr>        
+    </tbody>
+</table>    
 }
 
