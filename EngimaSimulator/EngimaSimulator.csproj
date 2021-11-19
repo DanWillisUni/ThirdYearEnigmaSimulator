@@ -25,4 +25,9 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\FileHandler\FileHandler.csproj" />
+  </ItemGroup>
+
 </Project>

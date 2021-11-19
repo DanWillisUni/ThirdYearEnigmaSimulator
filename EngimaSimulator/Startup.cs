@@ -19,6 +19,8 @@ namespace EngimaSimulator
     {
         public Startup()
         {
+            System.IO.File.Delete("currentConfig.json");
+
             var builder = new ConfigurationBuilder()
               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)              
               .AddEnvironmentVariables();

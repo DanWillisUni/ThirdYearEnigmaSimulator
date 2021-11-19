@@ -1,10 +1,9 @@
-﻿using EngimaSimulator.Configuration.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EngimaSimulator.Models
+namespace DAL
 {
     public class RotorModel
     {
@@ -16,5 +15,10 @@ namespace EngimaSimulator.Models
             this.rotor = rotor;
             this.rotation = rotation;
         }        
+    }
+    public class Rotor
+    {
+        public string name { get; set; }
+        public string order { get; set; }
     }
 }

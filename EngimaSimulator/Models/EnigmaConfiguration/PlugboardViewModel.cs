@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +14,6 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         {
             this.plugboard = plugboard;
         }
-
         public EnigmaModel enigmaModel { get; set; }
     }
 }

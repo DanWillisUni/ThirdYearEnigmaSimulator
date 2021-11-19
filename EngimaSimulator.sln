@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngimaSimulator", "EngimaSimulator\EngimaSimulator.csproj", "{EC1205E4-8CCC-400B-973D-43269CC4E71D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngimaSimulator", "EngimaSimulator\EngimaSimulator.csproj", "{EC1205E4-8CCC-400B-973D-43269CC4E71D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileHandler", "FileHandler\FileHandler.csproj", "{F12621EF-F632-4218-A1F5-0781DCF859F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{872869BD-5135-4194-AC74-86FCD09622C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{EC1205E4-8CCC-400B-973D-43269CC4E71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC1205E4-8CCC-400B-973D-43269CC4E71D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC1205E4-8CCC-400B-973D-43269CC4E71D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F12621EF-F632-4218-A1F5-0781DCF859F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F12621EF-F632-4218-A1F5-0781DCF859F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F12621EF-F632-4218-A1F5-0781DCF859F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F12621EF-F632-4218-A1F5-0781DCF859F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{872869BD-5135-4194-AC74-86FCD09622C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{872869BD-5135-4194-AC74-86FCD09622C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{872869BD-5135-4194-AC74-86FCD09622C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{872869BD-5135-4194-AC74-86FCD09622C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

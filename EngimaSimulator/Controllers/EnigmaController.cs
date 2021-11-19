@@ -1,12 +1,16 @@
-﻿using EngimaSimulator.Configuration.Models;
+﻿using DAL;
+using EngimaSimulator.Configuration.Models;
 using EngimaSimulator.Models;
 using EngimaSimulator.Models.Enigma;
 using EngimaSimulator.Models.EnigmaConfiguration;
+using FileHandler;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,17 +19,15 @@ namespace EngimaSimulator.Controllers
     public class EnigmaController : Controller
     {
         private readonly ILogger<EnigmaController> _logger;
-        private readonly PhysicalConfiguration _physicalConfiguration;
 
-        public EnigmaController(ILogger<EnigmaController> logger, PhysicalConfiguration physicalConfiguration)
+        public EnigmaController(ILogger<EnigmaController> logger)
         {
-            _logger = logger;
-            _physicalConfiguration = physicalConfiguration;
+            _logger = logger;           
         }        
         public IActionResult Index()
         {
-            System.IO.File.Delete("currentConfig.json");
-            MainViewModel model = new MainViewModel();
+            EnigmaModel enigmaModel = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+            MainViewModel model = new MainViewModel(enigmaModel);
             return View(model);
         }
         [HttpPost]
@@ -78,6 +80,5 @@ namespace EngimaSimulator.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
     }
 }
