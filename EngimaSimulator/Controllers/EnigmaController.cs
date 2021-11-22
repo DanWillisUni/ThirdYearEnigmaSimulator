@@ -19,14 +19,16 @@ namespace EngimaSimulator.Controllers
     public class EnigmaController : Controller
     {
         private readonly ILogger<EnigmaController> _logger;
+        private readonly BasicConfiguration _basicConfiguration;
 
-        public EnigmaController(ILogger<EnigmaController> logger)
+        public EnigmaController(ILogger<EnigmaController> logger, BasicConfiguration basicConfiguration)
         {
-            _logger = logger;           
+            _logger = logger;
+            _basicConfiguration = basicConfiguration;
         }        
         public IActionResult Index()
         {
-            EnigmaModel enigmaModel = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+            EnigmaModel enigmaModel = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             MainViewModel model = new MainViewModel(enigmaModel);
             return View(model);
         }

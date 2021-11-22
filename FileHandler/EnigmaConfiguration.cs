@@ -11,9 +11,11 @@ namespace FileHandler
 {
     public class EnigmaConfiguration
     {
-        public static EnigmaModel mergeEnigmaConfiguration(EnigmaModel enigmaModel)
+        public static EnigmaModel mergeEnigmaConfiguration(EnigmaModel enigmaModel,string filePath)
         {
-            string filePath = "currentConfig.json";
+            FileInfo file = new FileInfo(filePath);
+            file.Directory.Create(); // If the directory already exists, this method does nothing.
+
             EnigmaModel currentSave = getCurrentSave(filePath);
             if (enigmaModel.rotors?.Count > 0)
             {
@@ -27,7 +29,7 @@ namespace FileHandler
             {
                 currentSave.plugboard = enigmaModel.plugboard;
             }
-            System.IO.File.WriteAllText(filePath, JsonConvert.SerializeObject(currentSave));
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(currentSave));
             return currentSave;
         }
         public static EnigmaModel getCurrentSave(string filePath)

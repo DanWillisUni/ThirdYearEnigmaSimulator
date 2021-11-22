@@ -19,20 +19,22 @@ namespace EngimaSimulator.Controllers
     {
         private readonly PhysicalConfiguration _physicalConfiguration;
         private readonly ILogger<EnigmaConfigurationController> _logger;
-        public EnigmaConfigurationController(ILogger<EnigmaConfigurationController> logger,PhysicalConfiguration physicalConfiguration)
+        private readonly BasicConfiguration _basicConfiguration;
+        public EnigmaConfigurationController(ILogger<EnigmaConfigurationController> logger,PhysicalConfiguration physicalConfiguration,BasicConfiguration basicConfiguration)
         {
             _logger = logger;
             _physicalConfiguration = physicalConfiguration;
+            _basicConfiguration = basicConfiguration;
         }
         public IActionResult Plugboard()
         {
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
             return View(pvm);
         }
         public IActionResult Rotors()
         {
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             RotorViewModel rvm = new RotorViewModel(currentSave.rotors,_physicalConfiguration);
             return View(rvm);
         }
@@ -56,7 +58,7 @@ namespace EngimaSimulator.Controllers
                             }
                         }
                     }
-                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel);
+                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -80,7 +82,7 @@ namespace EngimaSimulator.Controllers
                         }
                         counter++;
                     } while (continueOn);
-                    EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+                    EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in currentSave.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -104,26 +106,14 @@ namespace EngimaSimulator.Controllers
                             }
                         }
                     }
-                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel);
+                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
                     }
                     return View(modelOut);
-                case "Enigma":
-                    /*foreach (string rn in modelIn.liveRotorsNames)
-                    {
-                        foreach (Rotor r in _physicalConfiguration.rotors)
-                        {
-                            if (r.name == rn)
-                            {
-                                enigmaModel.rotors.Add(new RotorModel(r));
-                                break;
-                            }
-                        }
-                    }
-                    enigmaModel = mergeEnigmaConfiguration(enigmaModel);*/
-                    enigmaModel = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+                case "Enigma":                    
+                    enigmaModel = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -138,7 +128,7 @@ namespace EngimaSimulator.Controllers
 
         public IActionResult Reflector()
         {
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave("currentConfig.json");
+            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             ReflectorViewModel rvm = new ReflectorViewModel(currentSave.reflector, _physicalConfiguration);
             return View(rvm);
         }
@@ -156,7 +146,7 @@ namespace EngimaSimulator.Controllers
                     break;
                 }
             }
-            EnigmaModel mergedEnigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel);
+            EnigmaModel mergedEnigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             modelOut.liveReflectorName = mergedEnigmaModel.reflector.rotor.name;
             switch (modelIn.Command)
             {              

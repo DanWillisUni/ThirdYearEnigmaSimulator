@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace EngimaSimulator
 {
@@ -19,8 +20,6 @@ namespace EngimaSimulator
     {
         public Startup()
         {
-            System.IO.File.Delete("currentConfig.json");
-
             var builder = new ConfigurationBuilder()
               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)              
               .AddEnvironmentVariables();
@@ -45,7 +44,12 @@ namespace EngimaSimulator
             var physicalSettings = new PhysicalConfiguration();
             Configuration.Bind("PhysicalConfiguration", physicalSettings);
             services.AddSingleton(physicalSettings);
-
+            var basicSettings = new BasicConfiguration();
+            Configuration.Bind("BasicSettings", basicSettings);
+            services.AddSingleton(basicSettings);
+            if(File.Exists(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName))) { 
+                File.Delete(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName));
+            }
             services.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug);
         }
 
