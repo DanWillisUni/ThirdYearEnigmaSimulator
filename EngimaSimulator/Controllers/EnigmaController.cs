@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EngimaSimulator.Controllers
@@ -38,7 +39,25 @@ namespace EngimaSimulator.Controllers
         public IActionResult Index(MainViewModel modelIn)
         {
             _logger.LogInformation("Post index");
-            return View(modelIn);
+            EnigmaModel enigmaModel = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+            MainViewModel modelOut = new MainViewModel(enigmaModel);
+            modelOut.inputTextBox = modelIn.inputTextBox;
+            switch (modelIn.Command)
+            {
+                case "Convert":
+                    string formattedInput = Regex.Replace(modelIn.inputTextBox.ToUpper(), @"[^A-Z]", string.Empty);
+                    foreach (char c in formattedInput)
+                    {
+                        modelOut.outputTextBox += encode(enigmaModel, c);
+                        enigmaModel = stepRotors(enigmaModel);
+                    }
+                    //EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    break;
+                default:
+                    break;
+            }
+            return View(modelOut);
         }
 
         #region encoding
@@ -91,6 +110,30 @@ namespace EngimaSimulator.Controllers
             char r = rm.rotor.order[(charNumber + rm.rotation) % 26];
             _logger.LogDebug("Returns " + r);
             return r;
+        }
+        #endregion
+
+        #region rotor stepping
+        private EnigmaModel stepRotors(EnigmaModel em)
+        {
+            _logger.LogDebug("Step rotors");
+            em.rotors[em.rotors.Count - 1].rotation = (em.rotors[em.rotors.Count - 1].rotation + 1) % 26;
+            _logger.LogDebug($"Stepped {em.rotors[em.rotors.Count - 1].rotor.name} to {em.rotors[em.rotors.Count - 1].rotor.order[em.rotors[em.rotors.Count - 1].rotation]}");
+            for(int i = em.rotors.Count - 1; i >= 1; i--)
+            {
+                RotorModel r = em.rotors[i];
+                if (r.rotor.turnoverNotches.Contains(r.rotor.order[(r.rotation - 1)==-1? 25: (r.rotation - 1)]))
+                {                    
+                    em.rotors[i-1].rotation = (em.rotors[i - 1].rotation + 1) % 26;
+                    _logger.LogDebug($"Stepped {em.rotors[i - 1].rotor.name} to {em.rotors[i - 1].rotor.order[em.rotors[i - 1].rotation]}");
+                }
+                else
+                {
+                    _logger.LogDebug("Finished stepping");
+                    break;
+                }
+            }
+            return em;
         }
         #endregion
 

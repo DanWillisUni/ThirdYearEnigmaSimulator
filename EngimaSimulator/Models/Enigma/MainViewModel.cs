@@ -12,13 +12,16 @@ namespace EngimaSimulator.Models.Enigma
         public EnigmaModel enigmaModel { get; set; }
         public string Command { get; set; }
         public string outputTextBox { get; set; }
+        public string inputTextBox { get; set; }
         public MainViewModel(EnigmaModel enigmaModel)
         {
             this.enigmaModel = enigmaModel;
+            outputTextBox = "";
         }
         public MainViewModel()
         {
             this.enigmaModel = new EnigmaModel();
+            outputTextBox = "";
         }        
     }
 }

@@ -20,5 +20,6 @@ namespace DAL
     {
         public string name { get; set; }
         public string order { get; set; }
+        public List<char> turnoverNotches { get; set; }
     }
 }
