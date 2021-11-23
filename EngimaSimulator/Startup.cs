@@ -27,8 +27,8 @@ namespace EngimaSimulator
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
-                .WriteTo.File("logs//" + DateTime.Today.ToString("yyyy") + "//" + DateTime.Today.ToString("MM") + "//" + DateTime.Today.ToString("dd") + "//WebApp-" + DateTime.Now.ToString("HHmmss") + ".txt", restrictedToMinimumLevel: LogEventLevel.Debug)
-                .MinimumLevel.Debug()
+                .WriteTo.File("logs//" + DateTime.Today.ToString("yyyy") + "//" + DateTime.Today.ToString("MM") + "//" + DateTime.Today.ToString("dd") + "//WebApp-" + DateTime.Now.ToString("HHmmss") + ".txt", restrictedToMinimumLevel: LogEventLevel.Information)
+                .MinimumLevel.Information()
                 .CreateLogger();
 
             Configuration = builder.Build();
@@ -49,7 +49,7 @@ namespace EngimaSimulator
             services.AddSingleton(basicSettings);
 
             if(File.Exists(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName))) { 
-                File.Delete(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName));
+                //File.Delete(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName));
             }
             services.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug);
         }

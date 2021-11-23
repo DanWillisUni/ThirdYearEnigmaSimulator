@@ -63,7 +63,7 @@ namespace EngimaSimulator.Controllers
         #region encoding
         private char encode(EnigmaModel em,char input)
         {
-            _logger.LogDebug("Encode: " + input);
+            _logger.LogInformation("Encode: " + input);
             char current = input;
             current = plugboardSwap(em.plugboard,current);
             _logger.LogDebug("Encoding rotors right to left");
@@ -76,7 +76,7 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Encoding rotors left to right");
             foreach (RotorModel r in em.rotors)
             {
-                current = rotorEncode(r, current);
+                current = rotorEncodeReverse(r, current);
             }
             current = plugboardSwap(em.plugboard,current);
             _logger.LogInformation(input + ":" + current);
@@ -89,16 +89,16 @@ namespace EngimaSimulator.Controllers
             {
                 if (entry.Key.Equals(input))
                 {
-                    _logger.LogDebug("Swapped " + input + " with " + entry.Value);
+                    _logger.LogInformation("Swapped " + input + " with " + entry.Value);
                     return entry.Value;
                 }
                 if (entry.Value.Equals(input))
                 {
-                    _logger.LogDebug("Swapped " + input + " with " + entry.Key);
+                    _logger.LogInformation("Swapped " + input + " with " + entry.Key);
                     return entry.Key;
                 }
             }
-            _logger.LogDebug("No swap was made");
+            _logger.LogInformation("No swap was made: " + input);
             return input;
         }
         private char rotorEncode(RotorModel rm,char input)
@@ -107,8 +107,18 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Input: " + input + "/" + charNumber);
             _logger.LogDebug("Rotor rotation: " + rm.rotation);
             _logger.LogDebug("Order: " + rm.rotor.order);
-            char r = rm.rotor.order[(charNumber + rm.rotation) % 26];
-            _logger.LogDebug("Returns " + r);
+            char r = rm.rotor.order[(charNumber + rm.rotation)>25? (charNumber + rm.rotation)-26 : (charNumber + rm.rotation)];
+            _logger.LogInformation(input + " returns " + r);
+            return r;
+        }
+        private char rotorEncodeReverse(RotorModel rm, char input)
+        {
+            int charNumber = Convert.ToInt32(input) - 65;
+            _logger.LogDebug("Input: " + input + "/" + charNumber);
+            _logger.LogDebug("Rotor rotation: " + rm.rotation);
+            _logger.LogDebug("Order: " + rm.rotor.order);            
+            char r = Convert.ToChar(((rm.rotor.order.IndexOf(input)-rm.rotation)<0? (rm.rotor.order.IndexOf(input) - rm.rotation) +26: (rm.rotor.order.IndexOf(input) - rm.rotation)) + 65);
+            _logger.LogInformation(input + " returns " + r);
             return r;
         }
         private EnigmaModel stepRotors(EnigmaModel em)
