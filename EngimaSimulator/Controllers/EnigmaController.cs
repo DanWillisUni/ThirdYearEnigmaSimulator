@@ -49,8 +49,8 @@ namespace EngimaSimulator.Controllers
                     string formattedInput = Regex.Replace(modelIn.inputTextBox.ToUpper(), @"[^A-Z]", string.Empty);
                     foreach (char c in formattedInput)
                     {
-                        modelOut.outputTextBox += encode(enigmaModel, c);
                         enigmaModel = stepRotors(enigmaModel);
+                        modelOut.outputTextBox += encode(enigmaModel, c);                        
                     }
                     //EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
@@ -111,9 +111,6 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Returns " + r);
             return r;
         }
-        #endregion
-
-        #region rotor stepping
         private EnigmaModel stepRotors(EnigmaModel em)
         {
             _logger.LogDebug("Step rotors");
