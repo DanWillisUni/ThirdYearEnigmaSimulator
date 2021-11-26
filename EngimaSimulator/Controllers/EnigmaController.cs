@@ -76,7 +76,7 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Encoding rotors left to right");
             foreach (RotorModel r in em.rotors)
             {
-                current = rotorEncodeReverse(r, current);
+                current = rotorEncodeInverse(r, current);
             }
             current = plugboardSwap(em.plugboard,current);
             _logger.LogInformation(input + ":" + current);
@@ -102,24 +102,41 @@ namespace EngimaSimulator.Controllers
             return input;
         }
         private char rotorEncode(RotorModel rm,char input)
-        {           
-            int charNumber = Convert.ToInt32(input) - 65;
-            _logger.LogDebug("Input: " + input + "/" + charNumber);
+        {
+            _logger.LogDebug("Input: " + input);
             _logger.LogDebug("Rotor rotation: " + rm.rotation);
             _logger.LogDebug("Order: " + rm.rotor.order);
-            char r = rm.rotor.order[(charNumber + rm.rotation)>25? (charNumber + rm.rotation)-26 : (charNumber + rm.rotation)];
+            int charNumber = Convert.ToInt32(input) - 65;
+            int charRotated = charNumber + rm.rotation;
+            char encodedChar = rm.rotor.order[mod26(charRotated)];
+            int encodedCharRotated = Convert.ToInt32(encodedChar) - 65 - rm.rotation;
+            char r = Convert.ToChar(65 + mod26(encodedCharRotated));
+            _logger.LogInformation(input + " returns " + r);
+            return r;
+        }        
+        private char rotorEncodeInverse(RotorModel rm, char input)
+        {
+            _logger.LogDebug("Input: " + input);
+            _logger.LogDebug("Rotor rotation: " + rm.rotation);
+            _logger.LogDebug("Order: " + rm.rotor.order);
+            int charNumber = Convert.ToInt32(input) - 65;
+            int charRotated = charNumber + rm.rotation;
+            int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
+            char r = Convert.ToChar(65+mod26(encodedCharNumber - rm.rotation));
             _logger.LogInformation(input + " returns " + r);
             return r;
         }
-        private char rotorEncodeReverse(RotorModel rm, char input)
+        private int mod26(int a)
         {
-            int charNumber = Convert.ToInt32(input) - 65;
-            _logger.LogDebug("Input: " + input + "/" + charNumber);
-            _logger.LogDebug("Rotor rotation: " + rm.rotation);
-            _logger.LogDebug("Order: " + rm.rotor.order);            
-            char r = Convert.ToChar(((rm.rotor.order.IndexOf(input)-rm.rotation)<0? (rm.rotor.order.IndexOf(input) - rm.rotation) +26: (rm.rotor.order.IndexOf(input) - rm.rotation)) + 65);
-            _logger.LogInformation(input + " returns " + r);
-            return r;
+            while (a >= 26)
+            {
+                a = a - 26;
+            }
+            while (a < 0)
+            {
+                a = a + 26;
+            }
+            return a;
         }
         private EnigmaModel stepRotors(EnigmaModel em)
         {
