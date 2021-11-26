@@ -106,10 +106,11 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Input: " + input);
             _logger.LogDebug("Rotor rotation: " + rm.rotation);
             _logger.LogDebug("Order: " + rm.rotor.order);
+
             int charNumber = Convert.ToInt32(input) - 65;
-            int charRotated = charNumber + rm.rotation;
-            char encodedChar = rm.rotor.order[mod26(charRotated)];
-            int encodedCharRotated = Convert.ToInt32(encodedChar) - 65 - rm.rotation;
+            int OrderIndex = charNumber + rm.rotation - rm.ringOffset;
+            char encodedChar = rm.rotor.order[mod26(OrderIndex)];
+            int encodedCharRotated = Convert.ToInt32(encodedChar) - 65 - rm.rotation + rm.ringOffset;
             char r = Convert.ToChar(65 + mod26(encodedCharRotated));
             _logger.LogInformation(input + " returns " + r);
             return r;
@@ -119,10 +120,11 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Input: " + input);
             _logger.LogDebug("Rotor rotation: " + rm.rotation);
             _logger.LogDebug("Order: " + rm.rotor.order);
+
             int charNumber = Convert.ToInt32(input) - 65;
-            int charRotated = charNumber + rm.rotation;
+            int charRotated = charNumber + rm.rotation - rm.ringOffset;
             int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
-            char r = Convert.ToChar(65+mod26(encodedCharNumber - rm.rotation));
+            char r = Convert.ToChar(65+mod26(encodedCharNumber - rm.rotation + rm.ringOffset));
             _logger.LogInformation(input + " returns " + r);
             return r;
         }

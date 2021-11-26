@@ -14,6 +14,7 @@ namespace DAL
         {
             this.rotor = rotor;
             this.rotation = rotation;
+            this.ringOffset = ringOffset;
         }        
     }
     public class Rotor
