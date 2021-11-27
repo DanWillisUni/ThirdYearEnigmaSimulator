@@ -11,38 +11,6 @@ namespace FileHandler
 {
     public class EnigmaConfiguration
     {
-        public static EnigmaModel mergeEnigmaConfiguration(EnigmaModel enigmaModel,string filePath)
-        {
-            FileInfo file = new FileInfo(filePath);
-            file.Directory.Create(); // If the directory already exists, this method does nothing.
-
-            EnigmaModel currentSave = getCurrentSave(filePath);
-            if (enigmaModel.rotors?.Count > 0)
-            {
-                currentSave.rotors = enigmaModel.rotors;
-            }
-            if (enigmaModel.reflector != null)
-            {
-                currentSave.reflector = enigmaModel.reflector;
-            }
-            if (enigmaModel.plugboard?.Count > 0)
-            {
-                currentSave.plugboard = enigmaModel.plugboard;
-            }
-            File.WriteAllText(filePath, JsonConvert.SerializeObject(currentSave));
-            return currentSave;
-        }
-        public static EnigmaModel getCurrentSave(string filePath)
-        {
-            EnigmaModel currentSave = new EnigmaModel();
-            if (System.IO.File.Exists(filePath))
-            {
-                using (StreamReader r = new StreamReader(filePath))
-                {
-                    currentSave = JsonConvert.DeserializeObject<EnigmaModel>(r.ReadToEnd());
-                }
-            }
-            return currentSave;
-        }
+        
     }
 }

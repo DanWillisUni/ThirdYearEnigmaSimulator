@@ -1,5 +1,5 @@
-﻿using DAL;
-using EngimaSimulator.Configuration.Models;
+﻿using EngimaSimulator.Configuration.Models;
+using EngimaSimulator.Models.NonView;
 using System;
 using System.Collections.Generic;
 using System.Linq;

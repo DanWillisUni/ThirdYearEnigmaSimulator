@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using EngimaSimulator.Services;
 
 namespace EngimaSimulator
 {
@@ -52,6 +53,7 @@ namespace EngimaSimulator
                 //File.Delete(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName));
             }
             services.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug);
+            services.AddSingleton<EncodingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

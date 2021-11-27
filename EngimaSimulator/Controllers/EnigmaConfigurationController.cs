@@ -1,9 +1,8 @@
-﻿using DAL;
-using EngimaSimulator.Configuration.Models;
+﻿using EngimaSimulator.Configuration.Models;
 using EngimaSimulator.Models;
 using EngimaSimulator.Models.Enigma;
 using EngimaSimulator.Models.EnigmaConfiguration;
-using FileHandler;
+using EngimaSimulator.Models.NonView;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -31,7 +30,7 @@ namespace EngimaSimulator.Controllers
         public IActionResult Plugboard()
         {
             _logger.LogInformation("Get Plugboard");
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
             PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
             return View(pvm);
@@ -39,7 +38,7 @@ namespace EngimaSimulator.Controllers
         public IActionResult Rotors()
         {
             _logger.LogInformation("Get rotors");
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
             RotorViewModel rvm = new RotorViewModel(currentSave.rotors,_physicalConfiguration);
             return View(rvm);
@@ -67,7 +66,7 @@ namespace EngimaSimulator.Controllers
                             }
                         }
                     }
-                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -94,7 +93,7 @@ namespace EngimaSimulator.Controllers
                         counter++;
                     } while (continueOn);
                     //get previous order
-                    EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in currentSave.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -119,7 +118,7 @@ namespace EngimaSimulator.Controllers
                             }
                         }
                     }
-                    enigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -128,7 +127,7 @@ namespace EngimaSimulator.Controllers
                     return View(modelOut);
                 case "Enigma":
                     _logger.LogInformation("Go to the simulator from rotors");
-                    enigmaModel = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     /*foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
@@ -145,7 +144,7 @@ namespace EngimaSimulator.Controllers
         public IActionResult Reflector()
         {
             _logger.LogInformation("Get reflector");
-            EnigmaModel currentSave = EnigmaConfiguration.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
             ReflectorViewModel rvm = new ReflectorViewModel(currentSave.reflector, _physicalConfiguration);
             return View(rvm);
@@ -166,7 +165,7 @@ namespace EngimaSimulator.Controllers
                     break;
                 }
             }
-            EnigmaModel mergedEnigmaModel = EnigmaConfiguration.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            EnigmaModel mergedEnigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
             modelOut.liveReflectorName = mergedEnigmaModel.reflector.rotor.name;
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(mergedEnigmaModel));
             switch (modelIn.Command)

@@ -1,4 +1,4 @@
-﻿using DAL;
+﻿using EngimaSimulator.Models.NonView;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -13,15 +13,16 @@ namespace EngimaSimulator.Models.Enigma
         public string Command { get; set; }
         public string outputTextBox { get; set; }
         public string inputTextBox { get; set; }
+        public MainViewModel()
+        {
+            this.enigmaModel = new EnigmaModel();
+            outputTextBox = "";
+        }
         public MainViewModel(EnigmaModel enigmaModel)
         {
             this.enigmaModel = enigmaModel;
             outputTextBox = "";
         }
-        public MainViewModel()
-        {
-            this.enigmaModel = new EnigmaModel();
-            outputTextBox = "";
-        }        
+        
     }
 }
