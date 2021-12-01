@@ -7,7 +7,8 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
 {
     public class PlugboardViewModel
     {
-        private Dictionary<char, char> plugboard;
+        public Dictionary<char, char> plugboard;
+        public string Command { get; set; }
         public PlugboardViewModel(Dictionary<char, char> plugboard)
         {
             this.plugboard = plugboard;
