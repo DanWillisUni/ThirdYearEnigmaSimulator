@@ -35,6 +35,23 @@ namespace EngimaSimulator.Controllers
             PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
             return View(pvm);
         }
+        [HttpPost]
+        public IActionResult Plugboard(PlugboardViewModel modelIn)
+        {
+            _logger.LogInformation("Post Plugboard");
+            switch (modelIn.Command)
+            {
+                case "":
+                    break;
+                default:
+                    break;
+            }
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
+            PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
+            return View(pvm);
+        }
+
         public IActionResult Rotors()
         {
             _logger.LogInformation("Get rotors");
@@ -70,6 +87,8 @@ namespace EngimaSimulator.Controllers
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());
                     }
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
                     return View(modelOut);
@@ -122,8 +141,25 @@ namespace EngimaSimulator.Controllers
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());
                     }
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+                    return View(modelOut);
+                case "rotorSaveEdit":
+                    _logger.LogInformation("Edit Rotors");
+                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    _logger.LogInformation("Before: " + JsonConvert.SerializeObject(enigmaModel));
+                    foreach (RotorModel r in enigmaModel.rotors)
+                    {
+                        modelOut.liveRotorsNames.Add(r.rotor.name);
+                        var offset = Request.Form[$"{r.rotor.name} offset"].ToString();
+                        var rotation = Request.Form[$"{r.rotor.name} step"].ToString();
+                        r.ringOffset = Convert.ToInt32(offset);
+                        r.rotation = Convert.ToInt32(Convert.ToChar(rotation) - 65);
+                    }
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    _logger.LogInformation("After: " + JsonConvert.SerializeObject(enigmaModel));
                     return View(modelOut);
                 case "Enigma":
                     _logger.LogInformation("Go to the simulator from rotors");
@@ -179,5 +215,9 @@ namespace EngimaSimulator.Controllers
             }
             return View(modelOut);
         }
+
+        #region helpers
+       
+        #endregion
     }
 }

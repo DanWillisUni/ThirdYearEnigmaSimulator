@@ -12,18 +12,23 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         public PhysicalConfiguration _physicalConfiguration { get; set; }
         public string Command { get; set; }
         public List<string> liveRotorsNames { get; set; }
+        public List<string> rotorStepOffset { get; set; }
         public RotorViewModel() 
         {
             liveRotorsNames = new List<string>();
+            rotorStepOffset = new List<string>();
         }
         public RotorViewModel(List<RotorModel> rotors, PhysicalConfiguration physicalConfiguration)
         {
             liveRotorsNames = new List<string>();
+            rotorStepOffset = new List<string>();
             if (rotors != null)
             {
                 foreach (RotorModel r in rotors)
                 {
                     liveRotorsNames.Add(r.rotor.name);
+                    rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65+ r.rotation)));
+                    rotorStepOffset.Add(r.ringOffset.ToString());
                 }
             }            
             _physicalConfiguration = physicalConfiguration;
