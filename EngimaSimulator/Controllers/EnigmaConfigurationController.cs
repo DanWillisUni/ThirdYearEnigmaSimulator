@@ -39,17 +39,30 @@ namespace EngimaSimulator.Controllers
         public IActionResult Plugboard(PlugboardViewModel modelIn)
         {
             _logger.LogInformation("Post Plugboard");
+            PlugboardViewModel modelOut = new PlugboardViewModel();
+            EnigmaModel enigmaModel = new EnigmaModel();
             switch (modelIn.Command)
             {
-                case "":
-                    break;
+                case "clear":
+                    return View(modelOut);
+                case "Enigma":
+                    //ideally there would be a check here to see if the letter had been selected before but I havent got around to it yet
+                    for (int i = 1; i <= 10; i++)
+                    {
+                        var a = Request.Form[$"Pair {i} A"].ToString();
+                        var b = Request.Form[$"Pair {i} B"].ToString();
+                        if(a != "" && b != "")
+                        {
+                            enigmaModel.plugboard.Add(Convert.ToChar(a), Convert.ToChar(b));
+                        }                        
+                    }
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+                    MainViewModel mainviewmodel = new MainViewModel(enigmaModel);
+                    return View("../Enigma/Index", mainviewmodel);
                 default:
-                    break;
-            }
-            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
-            PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
-            return View(pvm);
+                    return View(modelOut);
+            }            
         }
 
         public IActionResult Rotors()
@@ -164,17 +177,13 @@ namespace EngimaSimulator.Controllers
                 case "Enigma":
                     _logger.LogInformation("Go to the simulator from rotors");
                     enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    /*foreach (RotorModel r in enigmaModel.rotors)
-                    {
-                        modelOut.liveRotorsNames.Add(r.rotor.name);
-                    }*/
+                    
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
                     MainViewModel mainviewmodel = new MainViewModel(enigmaModel);
                     return View("../Enigma/Index", mainviewmodel);
                 default:
-                    break;
-            }
-            return View(modelOut);
+                    return View(modelOut);
+            }            
         }
 
         public IActionResult Reflector()
@@ -211,13 +220,8 @@ namespace EngimaSimulator.Controllers
                     MainViewModel mainviewmodel = new MainViewModel(mergedEnigmaModel);
                     return View("../Enigma/Index", mainviewmodel);
                 default:
-                    break;
-            }
-            return View(modelOut);
+                    return View(modelOut);
+            }            
         }
-
-        #region helpers
-       
-        #endregion
     }
 }

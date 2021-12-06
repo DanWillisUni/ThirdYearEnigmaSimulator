@@ -12,6 +12,11 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         public PlugboardViewModel(Dictionary<char, char> plugboard)
         {
             this.plugboard = plugboard;
-        }        
+        }
+
+        public PlugboardViewModel()
+        {
+            plugboard = new Dictionary<char, char>();
+        }
     }
 }
