@@ -4,58 +4,77 @@
     ViewData["Title"] = "Plugboard";
 }
 <h1>@ViewData["Title"]</h1>
-
+<style>
+    th, td {
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 5px;
+        padding-top: 5px;
+    }
+    .select{
+        width: 150px
+    }
+</style>
 <form asp-controller="EnigmaConfiguration" asp-action="Plugboard" method="post">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <div class="col-md-12">
-        @for (int i = 1; i <= 10; i++)
-        {
-            <label>Pair @i:</label>
-            string AValue = "";
-            string BValue = "";
-            @if (Model.plugboard.Count >= i)
-            {
-                AValue = @Convert.ToString(Model.plugboard.ElementAt(i - 1).Key);
-                BValue = @Convert.ToString(Model.plugboard.ElementAt(i - 1).Value);
-            }
-
-            <select class="select" value="@AValue" name="Pair @i A" id="Pair @i A">
-                @if (AValue == "")
+        <table>            
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
                 {
-                    <option value="" disabled selected hidden>Choose here</option>
-                }
-                @for (int a = 0; a <= 25; a++)
-                {
-                    string option = Convert.ToString(Convert.ToChar(65 + a));
-                    if (option == AValue)
+                    string AValue = "";
+                    string BValue = "";
+                    @if (Model.plugboard.Count >= i)
                     {
-                        <option value="@option" selected>@option</option>
+                        AValue = @Convert.ToString(Model.plugboard.ElementAt(i - 1).Key);
+                        BValue = @Convert.ToString(Model.plugboard.ElementAt(i - 1).Value);
                     }
-                    else
-                    {
-                        <option value="@option">@option</option>
-                    }
+                    <tr>
+                        <td>Pair @i:</td>
+                        <td>
+                            <select class="select" value="@AValue" name="Pair @i A" id="Pair @i A">
+                                @if (AValue == "")
+                                {
+                                    <option value="" disabled selected hidden>Choose here</option>
+                                }
+                                @for (int a = 0; a <= 25; a++)
+                                {
+                                    string option = Convert.ToString(Convert.ToChar(65 + a));
+                                    if (option == AValue)
+                                    {
+                                        <option value="@option" selected>@option</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select class="select" value="@BValue" name="Pair @i B" id="Pair @i B">
+                                @if (BValue == "")
+                                {
+                                    <option value="" disabled selected hidden>Choose here</option>
+                                }
+                                @for (int b = 0; b <= 25; b++)
+                                {
+                                    string option = Convert.ToString(Convert.ToChar(65 + b));
+                                    if (option == BValue)
+                                    {
+                                        <option value="@option" selected>@option</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
                 }
-            </select>
-            <select class="select" value="@BValue" name="Pair @i B" id="Pair @i B">
-                @if (BValue == "")
-                {
-                    <option value="" disabled selected hidden>Choose here</option>
-                }
-                @for (int b = 0; b <= 25; b++)
-                {
-                    string option = Convert.ToString(Convert.ToChar(65 + b));
-                    if (option == BValue)
-                    {
-                        <option value="@option" selected>@option</option>
-                    }
-                    else
-                    {
-                        <option value="@option">@option</option>
-                    }
-                }
-            </select><br>
-        }
+            </tbody>
+        </table>
     </div>
     <div class="form-group col-md-12 row">
         <div class="col-sm-6"></div>

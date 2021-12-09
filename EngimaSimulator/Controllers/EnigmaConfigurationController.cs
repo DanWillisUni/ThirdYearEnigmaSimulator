@@ -44,6 +44,9 @@ namespace EngimaSimulator.Controllers
             switch (modelIn.Command)
             {
                 case "clear":
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel.plugboard = new Dictionary<char, char>();
+                    Services.FileHandler.overwrite(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     return View(modelOut);
                 case "Enigma":
                     //ideally there would be a check here to see if the letter had been selected before but I havent got around to it yet
@@ -133,10 +136,19 @@ namespace EngimaSimulator.Controllers
                     _logger.LogInformation("Previous Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
                     //order swap
                     List<string> tempRotors = new List<string>();
-                    foreach(int i in newRotorOrder)
+                    for(int i = 0; i<=newRotorOrder.Count - 1; i++)
                     {
-                        tempRotors.Add(modelOut.liveRotorsNames[i - 1]);
-                    }
+                        int counterSwap = 0;
+                        foreach (int o in newRotorOrder)
+                        {
+                            if(o-1 == i)
+                            {
+                                tempRotors.Add(modelOut.liveRotorsNames[counterSwap]);
+                                break;
+                            }
+                            counterSwap++;
+                        }
+                    }                    
                     modelOut.liveRotorsNames = tempRotors;
                     _logger.LogInformation("New Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
                     foreach (string rn in modelOut.liveRotorsNames)
@@ -151,6 +163,7 @@ namespace EngimaSimulator.Controllers
                         }
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    modelOut.liveRotorsNames = new List<string>();
                     foreach (RotorModel r in enigmaModel.rotors)
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);

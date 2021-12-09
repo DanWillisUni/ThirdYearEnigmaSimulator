@@ -43,5 +43,10 @@ namespace EngimaSimulator.Services
             }
             return currentSave;
         }
+
+        public static void overwrite(EnigmaModel enigmaModel, string filePath)
+        {
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(enigmaModel));
+        }
     }
 }
