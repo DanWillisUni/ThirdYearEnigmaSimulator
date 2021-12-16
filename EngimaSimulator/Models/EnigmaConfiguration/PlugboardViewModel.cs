@@ -7,16 +7,16 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
 {
     public class PlugboardViewModel
     {
-        public Dictionary<char, char> plugboard;
+        public Dictionary<int, int> plugboard;
         public string Command { get; set; }
-        public PlugboardViewModel(Dictionary<char, char> plugboard)
+        public PlugboardViewModel(Dictionary<int, int> plugboard)
         {
             this.plugboard = plugboard;
         }
 
         public PlugboardViewModel()
         {
-            plugboard = new Dictionary<char, char>();
+            plugboard = new Dictionary<int, int>();
         }
     }
 }

@@ -45,7 +45,7 @@ namespace EngimaSimulator.Controllers
             {
                 case "clear":
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    enigmaModel.plugboard = new Dictionary<char, char>();
+                    enigmaModel.plugboard = new Dictionary<int, int>();
                     Services.FileHandler.overwrite(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     return View(modelOut);
                 case "Enigma":
@@ -56,7 +56,7 @@ namespace EngimaSimulator.Controllers
                         var b = Request.Form[$"Pair {i} B"].ToString();
                         if(a != "" && b != "")
                         {
-                            enigmaModel.plugboard.Add(Convert.ToChar(a), Convert.ToChar(b));
+                            enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) -65);
                         }                        
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));

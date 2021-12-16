@@ -48,7 +48,7 @@ namespace EngimaSimulator.Controllers
             switch (modelIn.Command)
             {
                 case "Convert":
-                    modelOut.outputTextBox = _encodingService.encode(modelIn.inputTextBox, enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    modelOut.outputTextBox = _encodingService.encode(modelIn.inputTextBox, enigmaModel);
                     modelOut.enigmaModel = enigmaModel;
                     foreach (char c in modelIn.inputTextBox)
                     {
