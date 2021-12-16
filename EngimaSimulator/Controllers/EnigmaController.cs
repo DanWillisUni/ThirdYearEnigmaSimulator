@@ -2,11 +2,11 @@
 using EngimaSimulator.Models;
 using EngimaSimulator.Models.Enigma;
 using EngimaSimulator.Models.EnigmaConfiguration;
-using EngimaSimulator.Models.NonView;
 using EngimaSimulator.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SharedCL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -49,7 +49,12 @@ namespace EngimaSimulator.Controllers
             {
                 case "Convert":
                     modelOut.outputTextBox = _encodingService.encode(modelIn.inputTextBox, enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    modelOut.enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    modelOut.enigmaModel = enigmaModel;
+                    foreach (char c in modelIn.inputTextBox)
+                    {
+                        modelOut.enigmaModel = _encodingService.stepRotors(modelOut.enigmaModel);
+                    }
+                    //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
                 default:
                     break;

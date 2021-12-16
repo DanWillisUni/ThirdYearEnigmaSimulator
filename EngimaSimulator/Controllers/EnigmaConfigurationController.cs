@@ -2,10 +2,10 @@
 using EngimaSimulator.Models;
 using EngimaSimulator.Models.Enigma;
 using EngimaSimulator.Models.EnigmaConfiguration;
-using EngimaSimulator.Models.NonView;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SharedCL;
 using System;
 using System.Collections.Generic;
 using System.IO;

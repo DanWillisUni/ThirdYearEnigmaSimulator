@@ -21,4 +21,8 @@
     <PackageReference Include="Topshelf" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EncodingService\SharedCL.csproj" />
+  </ItemGroup>
+
 </Project>

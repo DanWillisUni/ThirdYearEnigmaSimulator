@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
 using EngimaSimulator.Services;
+using SharedCL;
 
 namespace EngimaSimulator
 {
