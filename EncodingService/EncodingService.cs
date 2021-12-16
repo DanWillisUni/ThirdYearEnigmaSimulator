@@ -49,9 +49,9 @@ namespace SharedCL
             current = plugboardSwap(em.plugboard, current);
             return Convert.ToChar(current + 65);
         }
-        private int plugboardSwap(Dictionary<char, char> plugboard, int input)
+        private int plugboardSwap(Dictionary<int, int> plugboard, int input)
         {
-            foreach (KeyValuePair<char, char> entry in plugboard)
+            foreach (KeyValuePair<int, int> entry in plugboard)
             {
                 if (entry.Key.Equals(input))
                 {
@@ -64,22 +64,18 @@ namespace SharedCL
             }
             return input;
         }
-        private char rotorEncode(RotorModel rm, char input)
+        private int rotorEncode(RotorModel rm, int input)
         {
-            int charNumber = Convert.ToInt32(input) - 65;
-            int OrderIndex = charNumber + rm.rotation - rm.ringOffset;
+            int OrderIndex = input + rm.rotation - rm.ringOffset;
             char encodedChar = rm.rotor.order[mod26(OrderIndex)];
             int encodedCharRotated = Convert.ToInt32(encodedChar) - 65 - rm.rotation + rm.ringOffset;
-            char r = Convert.ToChar(65 + mod26(encodedCharRotated));
-            return r;
+            return mod26(encodedCharRotated);
         }
-        private char rotorEncodeInverse(RotorModel rm, char input)
+        private int rotorEncodeInverse(RotorModel rm, int input)
         {
-            int charNumber = Convert.ToInt32(input) - 65;
-            int charRotated = charNumber + rm.rotation - rm.ringOffset;
+            int charRotated = input + rm.rotation - rm.ringOffset;
             int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
-            char r = Convert.ToChar(65 + mod26(encodedCharNumber - rm.rotation + rm.ringOffset));
-            return r;
+            return mod26(encodedCharNumber - rm.rotation + rm.ringOffset);
         }
         private int mod26(int a)
         {

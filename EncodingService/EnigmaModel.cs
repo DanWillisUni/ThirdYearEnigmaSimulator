@@ -10,10 +10,10 @@ namespace SharedCL
         public EnigmaModel()
         {
             rotors = new List<RotorModel>();
-            plugboard = new Dictionary<char, char>();
+            plugboard = new Dictionary<int, int>();
         }
         public List<RotorModel> rotors { get; set; }//left to right
         public RotorModel reflector { get; set; }
-        public Dictionary<char, char> plugboard { get; set; }
+        public Dictionary<int, int> plugboard { get; set; }
     }
 }
