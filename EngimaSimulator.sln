@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngimaSimulator", "EngimaSi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedCL", "EncodingService\SharedCL.csproj", "{08685C77-600D-4B73-842A-6C0D9876CA63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEncoding", "TestEncoding\TestEncoding.csproj", "{6A051A30-4124-491C-99E7-3BE3588C7046}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "TestEncoding\UnitTests.csproj", "{6A051A30-4124-491C-99E7-3BE3588C7046}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
