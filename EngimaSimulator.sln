@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedCL", "EncodingService
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "TestEncoding\UnitTests.csproj", "{6A051A30-4124-491C-99E7-3BE3588C7046}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnigmaBreaker", "EnigmaBreaker\EnigmaBreaker.csproj", "{B1531360-76F5-4ABC-AEAE-70EDB8653045}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6A051A30-4124-491C-99E7-3BE3588C7046}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A051A30-4124-491C-99E7-3BE3588C7046}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A051A30-4124-491C-99E7-3BE3588C7046}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1531360-76F5-4ABC-AEAE-70EDB8653045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1531360-76F5-4ABC-AEAE-70EDB8653045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1531360-76F5-4ABC-AEAE-70EDB8653045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1531360-76F5-4ABC-AEAE-70EDB8653045}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
