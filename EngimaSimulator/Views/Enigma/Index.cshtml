@@ -56,7 +56,6 @@ else
             <tr>
                 <td colspan="5">
                     Plugboard Pairs: @JsonConvert.SerializeObject(Model.enigmaModel.plugboard)
-
                 </td>
             </tr>
         </tbody>
@@ -67,6 +66,9 @@ else
         <input type="text" name="inputTextBox" value="@Model.inputTextBox" rows="8" cols="50" />
         <textarea name="outputTextBox" rows="8" cols="50">@Model.outputTextBox</textarea>
         <br><br>
+    </div>
+    <div class="col-sm-4">
+        <button type="submit" name="Command" value="Randomize" class="btn btn-primary">Randomize</button>
     </div>
     <div class="col-sm-4">
         <button type="submit" name="Command" value="Convert" class="btn btn-primary">Convert</button>

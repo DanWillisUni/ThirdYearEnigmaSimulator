@@ -52,6 +52,10 @@ namespace EngimaSimulator.Controllers
                     modelOut.outputTextBox = _encodingService.encode(modelIn.inputTextBox, enigmaModel);
                     //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
+                case "Randomize":
+                    modelOut.enigmaModel = enigmaModel.randomizeEnigma();
+                    modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    break;
                 default:
                     break;
             }

@@ -5,7 +5,7 @@ using SharedCL;
 using System;
 using System.Collections.Generic;
 
-namespace TestEncoding
+namespace UnitTests
 {
     public class Tests
     {
