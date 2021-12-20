@@ -53,7 +53,7 @@ namespace EngimaSimulator.Controllers
                     //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
                 case "Randomize":
-                    modelOut.enigmaModel = enigmaModel.randomizeEnigma();
+                    modelOut.enigmaModel = EnigmaModel.randomizeEnigma();
                     modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
                 default:

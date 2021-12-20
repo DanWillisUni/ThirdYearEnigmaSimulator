@@ -23,7 +23,7 @@ namespace SharedCL
             this.plugboard = plugboard;
         }
 
-        public EnigmaModel randomizeEnigma()
+        public static EnigmaModel randomizeEnigma()
         {
             Random rnd = new Random();
             int l = rnd.Next(5);

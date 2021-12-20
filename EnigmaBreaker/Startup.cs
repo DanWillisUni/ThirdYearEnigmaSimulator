@@ -1,9 +1,11 @@
 ﻿using EnigmaBreaker.Configuration.Models;
 using EnigmaBreaker.Services;
+using EnigmaBreaker.Services.Fitness;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using SharedCL;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -59,6 +61,22 @@ namespace EnigmaBreaker
             _serviceCollection.AddSingleton<Program>();
             _serviceCollection.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Debug);
             _serviceCollection.AddSingleton<BasicService>();
+            _serviceCollection.AddSingleton<EncodingService>();
+
+            _serviceCollection.AddTransient<indexOfCoincidence>();
+            _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
+            {
+                switch (key)
+                {
+                    case "IOC":
+                        return serviceProvider.GetService<indexOfCoincidence>();                    
+                    default:
+                        throw new KeyNotFoundException();
+                }
+            });
+
+
+
 
             _serviceProvider = _serviceCollection.BuildServiceProvider(true);
         }
