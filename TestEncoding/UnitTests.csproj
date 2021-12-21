@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EngimaSimulator\EngimaSimulator.csproj" />
+    <ProjectReference Include="..\EnigmaBreaker\EnigmaBreaker.csproj" />
   </ItemGroup>
 
 </Project>

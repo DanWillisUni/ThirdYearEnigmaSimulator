@@ -16,6 +16,6 @@ namespace EnigmaBreaker.Models
             decodedText = text;
             this.score = score;
             enigmaModel = em;
-        }
+        }        
     }
 }
