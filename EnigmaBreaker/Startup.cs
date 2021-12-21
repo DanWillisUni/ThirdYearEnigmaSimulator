@@ -41,9 +41,11 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<BasicService>();            
-            bs.root();
-                       
+            var bs = _serviceProvider.GetRequiredService<BasicService>();
+            for(int i = 0; i < 10; i++)
+            {
+                bs.root();
+            }            
             Stop();
         }
 

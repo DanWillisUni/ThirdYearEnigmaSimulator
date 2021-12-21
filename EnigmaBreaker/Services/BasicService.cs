@@ -118,20 +118,188 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             EnigmaModel em = EnigmaModel.randomizeEnigma(3,1);
             _logger.LogInformation(toStringRotors(em));
             string ciphertext = _encodingService.encode(plaintext, em);
-            List<BreakerResult> rotorResults = sortBreakerList(getRotorResultsWithRotation(ciphertext, _resolver("IOC")));
-            int counter = 1;
-            foreach (BreakerResult br in rotorResults)
+            List<BreakerResult> rotorResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
+            foreach (BreakerResult br in rotorResults) // for each rotor configuration result
             {
-                _logger.LogDebug($"{br.score} - {toStringRotors(br.enigmaModel)}");
-                if (toStringRotors(br.enigmaModel).Split("/")[0].Equals(toStringRotors(em).Split("/")[0]))
+                _logger.LogInformation(toStringRotors(br.enigmaModel));
+                if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)
                 {
-                    _logger.LogInformation($"{counter} - {br.score} - {toStringRotors(br.enigmaModel)}");
-                    break;
+                    List<BreakerResult> fullRotorResults = sortBreakerList(getRotorResultsWithRotationAndOffset(ciphertext, _resolver("IOC"), toStringRotors(br.enigmaModel)));
+
+                    int counter = 1;
+                    bool found = false;
+                    foreach (BreakerResult brr in fullRotorResults)
+                    {
+                        _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
+                        if (toStringRotors(brr.enigmaModel).Equals(toStringRotors(em)))
+                        {
+                            _logger.LogInformation($"{counter} - {brr.score} - {toStringRotors(brr.enigmaModel)}");
+                            found = true;
+                            break;
+                        }
+                        counter += 1;
+                    }
+                    if (!found)
+                    {
+                        _logger.LogInformation("Not in top " + _bc.topAllRotationAndOffset);
+                    }
                 }
-                counter += 1;
+                else
+                {
+                    _logger.LogInformation("Miss");
+                }                
             }            
         }
-        public List<BreakerResult> getRotorResultsWithRotation(string cipherText,IFitness fitness)
+        #region offset and Rotation
+        private List<BreakerResult> getRotorResultsWithRotationAndOffset(string ciphertext, IFitness fitness, string currentRotors)
+        {
+            List<string> rotorNames = new List<string>();
+            List<string> rotorDetails = new List<string>();
+            foreach (string s in currentRotors.Split("/"))
+            {
+                if (s.Contains(","))
+                {
+                    rotorNames.Add(s.Split(",")[0]);
+                    rotorDetails.Add(s);
+                }
+            }            
+            RotorModel emRefl = null;
+            foreach(Rotor refl in allReflectors)
+            {
+                if(refl.name == currentRotors.Split("/")[0])
+                {
+                    emRefl = new RotorModel(refl);
+                }
+            }
+            List<Rotor> emRotors = new List<Rotor>();
+            foreach(string name in rotorNames)
+            {
+                foreach(Rotor rotor in allRotors)
+                {
+                    if(name == rotor.name)
+                    {
+                        emRotors.Add(rotor);
+                    }
+                }
+            }
+
+            List<List<SingleRotorResult>> singleRotorResults = new List<List<SingleRotorResult>>();
+            for(int i = 0;i < rotorDetails.Count; i++)
+            {
+                singleRotorResults.Add(getSingleRotorRotationAndOffset(ciphertext, fitness,emRotors,emRefl,rotorDetails,i));
+            }
+
+            double lowestResult = 0.0;
+            List<BreakerResult> results = new List<BreakerResult>();
+            for(int l = 0;l < singleRotorResults[0].Count; l++)
+            {
+                for (int m = 0; m < singleRotorResults[1].Count; m++)
+                {
+                    for (int r = 0; r < singleRotorResults[2].Count; r++)
+                    {
+                        List<RotorModel> rotors = new List<RotorModel>();
+                        rotors.Add(singleRotorResults[0][l].rm); 
+                        rotors.Add(singleRotorResults[1][m].rm);
+                        rotors.Add(singleRotorResults[2][r].rm);
+                        EnigmaModel em = new EnigmaModel(rotors, emRefl, new Dictionary<int, int>());
+
+                        string attemptPlainText = _encodingService.encode(ciphertext, em);
+                        double rating = fitness.getFitness(attemptPlainText);
+
+                        if (rating > lowestResult)
+                        {
+                            double newLowest = rating;
+                            if (results.Count + 1 < _bc.topAllRotationAndOffset)
+                            {
+                                newLowest = 0;
+                            }
+                            else
+                            {
+                                BreakerResult toRemove = null;
+                                foreach (var result in results)
+                                {
+                                    if (result.score == lowestResult)
+                                    {
+                                        toRemove = result;
+                                    }
+                                    else if (result.score < newLowest)
+                                    {
+                                        newLowest = result.score;
+                                    }
+                                }
+                                results.Remove(toRemove);
+                            }
+                            lowestResult = newLowest;
+                            em.rotors[0].rotation = singleRotorResults[0][l].rm.rotation;
+                            em.rotors[1].rotation = singleRotorResults[1][m].rm.rotation;
+                            em.rotors[2].rotation = singleRotorResults[2][r].rm.rotation;
+                            results.Add(new BreakerResult(attemptPlainText, rating, em));
+                        }
+                    }
+                }
+            }
+            return results;
+        }
+        private List<SingleRotorResult> getSingleRotorRotationAndOffset(string ciphertext, IFitness fitness, List<Rotor> currentRotors,RotorModel reflector,List<string> rotorDetails,int targetRotorIndex)
+        {
+            List<RotorModel> emRotors = new List<RotorModel>();
+            for (int i = 0; i < currentRotors.Count; i++)
+            {
+                if (i == targetRotorIndex)
+                {
+                    emRotors.Add(new RotorModel(currentRotors[i]));
+                }
+                else
+                {
+                    emRotors.Add(new RotorModel(currentRotors[i],Convert.ToInt16(rotorDetails[i].Split(",")[1]), Convert.ToInt16(rotorDetails[i].Split(",")[2])));
+                }
+            }
+
+            double lowestResult = 0.0;
+            List<SingleRotorResult> r = new List<SingleRotorResult>();
+            for (int rotation = 0; rotation< 26; rotation++)
+            {
+                for (int offset = 0; offset < 26; offset++)
+                {
+                    emRotors[targetRotorIndex].rotation = rotation;
+                    emRotors[targetRotorIndex].ringOffset = offset;
+                    EnigmaModel em = new EnigmaModel(emRotors, reflector, new Dictionary<int, int>());
+
+                    string attemptPlainText = _encodingService.encode(ciphertext, em);
+                    double rating = fitness.getFitness(attemptPlainText);
+
+                    if (rating > lowestResult)
+                    {
+                        double newLowest = rating;
+                        if (r.Count + 1 < _bc.topSingleRotationAndOffset)
+                        {
+                            newLowest = 0;
+                        }
+                        else
+                        {
+                            SingleRotorResult toRemove = null;
+                            foreach (var result in r)
+                            {
+                                if (result.score == lowestResult)
+                                {
+                                    toRemove = result;
+                                }
+                                else if (result.score < newLowest)
+                                {
+                                    newLowest = result.score;
+                                }
+                            }
+                            r.Remove(toRemove);
+                        }
+                        lowestResult = newLowest;
+                        r.Add(new SingleRotorResult(attemptPlainText, rating, targetRotorIndex,new RotorModel(em.rotors[targetRotorIndex].rotor,rotation,offset)));
+                    }
+                }
+            }
+            return r;
+        }
+        #endregion
+        public List<BreakerResult> getRotorResults(string cipherText,IFitness fitness)
         {
             List<BreakerResult> results = new List<BreakerResult>();
 
@@ -236,20 +404,13 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
         public string toStringRotors(EnigmaModel enigmaModel)
         {
-            string r = enigmaModel.reflector.rotor.name + " ";
+            string r = enigmaModel.reflector.rotor.name;
             foreach (RotorModel rotor in enigmaModel.rotors)
             {
-                r += rotor.rotor.name + " ";
-            }
-            r += "/ ";
-            foreach (RotorModel rotor in enigmaModel.rotors)
-            {
-                r += rotor.rotation + " ";
-            }
-            r += "/ ";
-            foreach (RotorModel rotor in enigmaModel.rotors)
-            {
-                r += rotor.ringOffset + " ";
+                r += "/";
+                r += rotor.rotor.name + ",";
+                r += rotor.rotation + ",";
+                r += rotor.ringOffset;
             }
             return r;
         }

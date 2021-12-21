@@ -6,6 +6,8 @@ namespace EnigmaBreaker.Configuration.Models
 {
     public class BasicConfiguration
     {
-       public int topRotorsToSearch { get; set; }
+        public int topRotorsToSearch { get; set; }
+        public int topSingleRotationAndOffset { get; set; }
+        public int topAllRotationAndOffset { get; set; }
     }
 }
