@@ -242,25 +242,24 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         }
         private List<SingleRotorResult> getSingleRotorRotationAndOffset(string ciphertext, IFitness fitness, List<Rotor> currentRotors,RotorModel reflector,List<string> rotorDetails,int targetRotorIndex)
         {
-            List<RotorModel> emRotors = new List<RotorModel>();
-            for (int i = 0; i < currentRotors.Count; i++)
-            {
-                if (i == targetRotorIndex)
-                {
-                    emRotors.Add(new RotorModel(currentRotors[i]));
-                }
-                else
-                {
-                    emRotors.Add(new RotorModel(currentRotors[i],Convert.ToInt16(rotorDetails[i].Split(",")[1]), Convert.ToInt16(rotorDetails[i].Split(",")[2])));
-                }
-            }
-
             double lowestResult = 0.0;
             List<SingleRotorResult> r = new List<SingleRotorResult>();
-            for (int rotation = 0; rotation< 26; rotation++)
+            for (int rotation = 0; rotation < 26; rotation++)
             {
                 for (int offset = 0; offset < 26; offset++)
                 {
+                    List<RotorModel> emRotors = new List<RotorModel>();
+                    for (int i = 0; i < currentRotors.Count; i++)
+                    {
+                        if (i == targetRotorIndex)
+                        {
+                            emRotors.Add(new RotorModel(currentRotors[i]));
+                        }
+                        else
+                        {
+                            emRotors.Add(new RotorModel(currentRotors[i], Convert.ToInt16(rotorDetails[i].Split(",")[1]), Convert.ToInt16(rotorDetails[i].Split(",")[2])));
+                        }
+                    }
                     emRotors[targetRotorIndex].rotation = rotation;
                     emRotors[targetRotorIndex].ringOffset = offset;
                     EnigmaModel em = new EnigmaModel(emRotors, reflector, new Dictionary<int, int>());
