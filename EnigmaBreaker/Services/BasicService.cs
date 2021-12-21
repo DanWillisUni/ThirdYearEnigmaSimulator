@@ -162,46 +162,46 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     rotorNames.Add(s.Split(",")[0]);
                     rotorDetails.Add(s);
                 }
-            }            
+            }
             RotorModel emRefl = null;
-            foreach(Rotor refl in allReflectors)
+            foreach (Rotor refl in allReflectors)
             {
-                if(refl.name == currentRotors.Split("/")[0])
+                if (refl.name == currentRotors.Split("/")[0])
                 {
                     emRefl = new RotorModel(refl);
                 }
             }
             List<Rotor> emRotors = new List<Rotor>();
-            foreach(string name in rotorNames)
+            foreach (string name in rotorNames)
             {
-                foreach(Rotor rotor in allRotors)
+                foreach (Rotor rotor in allRotors)
                 {
-                    if(name == rotor.name)
+                    if (name == rotor.name)
                     {
                         emRotors.Add(rotor);
                     }
                 }
             }
 
-            List<List<SingleRotorResult>> singleRotorResults = new List<List<SingleRotorResult>>();
-            for(int i = 0;i < rotorDetails.Count; i++)
-            {
-                singleRotorResults.Add(getSingleRotorRotationAndOffset(ciphertext, fitness,emRotors,emRefl,rotorDetails,i));
-            }
+            int lbase = Convert.ToInt16(rotorDetails[0].Split(",")[1]);
+            int mbase = Convert.ToInt16(rotorDetails[1].Split(",")[1]);
+            int rbase = Convert.ToInt16(rotorDetails[2].Split(",")[1]);
 
             double lowestResult = 0.0;
             List<BreakerResult> results = new List<BreakerResult>();
-            for(int l = 0;l < singleRotorResults[0].Count; l++)
+
+            for (int l = 0; l < 26; l++)
             {
-                for (int m = 0; m < singleRotorResults[1].Count; m++)
+                for (int m = 0; m < 26; m++)
                 {
-                    for (int r = 0; r < singleRotorResults[2].Count; r++)
+                    for (int r = 0; r < 26; r++)
                     {
-                        List<RotorModel> rotors = new List<RotorModel>();
-                        rotors.Add(singleRotorResults[0][l].rm); 
-                        rotors.Add(singleRotorResults[1][m].rm);
-                        rotors.Add(singleRotorResults[2][r].rm);
-                        EnigmaModel em = new EnigmaModel(rotors, emRefl, new Dictionary<int, int>());
+                        List<RotorModel> emRotorModel = new List<RotorModel>();
+                        emRotorModel.Add(new RotorModel(emRotors[0], EncodingService.mod26(lbase - l), EncodingService.mod26(lbase + l)));
+                        emRotorModel.Add(new RotorModel(emRotors[1], EncodingService.mod26(mbase - m), EncodingService.mod26(mbase + m)));
+                        emRotorModel.Add(new RotorModel(emRotors[2], EncodingService.mod26(rbase - r), EncodingService.mod26(rbase + r)));
+
+                        EnigmaModel em = new EnigmaModel(emRotorModel, emRefl, new Dictionary<int, int>());
 
                         string attemptPlainText = _encodingService.encode(ciphertext, em);
                         double rating = fitness.getFitness(attemptPlainText);
@@ -230,72 +230,18 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                 results.Remove(toRemove);
                             }
                             lowestResult = newLowest;
-                            em.rotors[0].rotation = singleRotorResults[0][l].rm.rotation;
-                            em.rotors[1].rotation = singleRotorResults[1][m].rm.rotation;
-                            em.rotors[2].rotation = singleRotorResults[2][r].rm.rotation;
-                            results.Add(new BreakerResult(attemptPlainText, rating, em));
+                            List<RotorModel> emRotorModel2 = new List<RotorModel>();
+                            emRotorModel2.Add(new RotorModel(emRotors[0], EncodingService.mod26(lbase - l), EncodingService.mod26(lbase + l)));
+                            emRotorModel2.Add(new RotorModel(emRotors[1], EncodingService.mod26(mbase - m), EncodingService.mod26(mbase + m)));
+                            emRotorModel2.Add(new RotorModel(emRotors[2], EncodingService.mod26(rbase - r), EncodingService.mod26(rbase + r)));
+
+                            EnigmaModel em2 = new EnigmaModel(emRotorModel2, emRefl, new Dictionary<int, int>());
+                            results.Add(new BreakerResult(attemptPlainText,rating,em2));
                         }
                     }
                 }
             }
             return results;
-        }
-        private List<SingleRotorResult> getSingleRotorRotationAndOffset(string ciphertext, IFitness fitness, List<Rotor> currentRotors,RotorModel reflector,List<string> rotorDetails,int targetRotorIndex)
-        {
-            double lowestResult = 0.0;
-            List<SingleRotorResult> r = new List<SingleRotorResult>();
-            for (int rotation = 0; rotation < 26; rotation++)
-            {
-                for (int offset = 0; offset < 26; offset++)
-                {
-                    List<RotorModel> emRotors = new List<RotorModel>();
-                    for (int i = 0; i < currentRotors.Count; i++)
-                    {
-                        if (i == targetRotorIndex)
-                        {
-                            emRotors.Add(new RotorModel(currentRotors[i]));
-                        }
-                        else
-                        {
-                            emRotors.Add(new RotorModel(currentRotors[i], Convert.ToInt16(rotorDetails[i].Split(",")[1]), Convert.ToInt16(rotorDetails[i].Split(",")[2])));
-                        }
-                    }
-                    emRotors[targetRotorIndex].rotation = rotation;
-                    emRotors[targetRotorIndex].ringOffset = offset;
-                    EnigmaModel em = new EnigmaModel(emRotors, reflector, new Dictionary<int, int>());
-
-                    string attemptPlainText = _encodingService.encode(ciphertext, em);
-                    double rating = fitness.getFitness(attemptPlainText);
-
-                    if (rating > lowestResult)
-                    {
-                        double newLowest = rating;
-                        if (r.Count + 1 < _bc.topSingleRotationAndOffset)
-                        {
-                            newLowest = 0;
-                        }
-                        else
-                        {
-                            SingleRotorResult toRemove = null;
-                            foreach (var result in r)
-                            {
-                                if (result.score == lowestResult)
-                                {
-                                    toRemove = result;
-                                }
-                                else if (result.score < newLowest)
-                                {
-                                    newLowest = result.score;
-                                }
-                            }
-                            r.Remove(toRemove);
-                        }
-                        lowestResult = newLowest;
-                        r.Add(new SingleRotorResult(attemptPlainText, rating, targetRotorIndex,new RotorModel(em.rotors[targetRotorIndex].rotor,rotation,offset)));
-                    }
-                }
-            }
-            return r;
         }
         #endregion
         public List<BreakerResult> getRotorResults(string cipherText,IFitness fitness)

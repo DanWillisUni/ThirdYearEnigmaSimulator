@@ -76,7 +76,7 @@ namespace SharedCL
             int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
             return mod26(encodedCharNumber - rm.rotation + rm.ringOffset);
         }
-        private int mod26(int a)
+        public static int mod26(int a)
         {
             while (a >= 26)
             {
