@@ -23,22 +23,22 @@ namespace SharedCL
             this.plugboard = plugboard;
         }
 
-        public static EnigmaModel randomizeEnigma()
+        public static EnigmaModel randomizeEnigma(int maxRotor = 5,int maxReflector = 3,int maxPlugboard = 10)
         {
             Random rnd = new Random();
-            int l = rnd.Next(5);
-            int m = rnd.Next(5);
-            int r = rnd.Next(5);
+            int l = rnd.Next(maxRotor);
+            int m = rnd.Next(maxRotor);
+            int r = rnd.Next(maxRotor);
             while(m == l)
             {
-                m = rnd.Next(5);
+                m = rnd.Next(maxRotor);
             }
             while (r == l || r == m)
             {
-                r = rnd.Next(5);
+                r = rnd.Next(maxRotor);
             }
             Dictionary<int, int> plugboard = new Dictionary<int, int>();
-            int plugboardNumber = rnd.Next(10);
+            int plugboardNumber = rnd.Next(maxPlugboard);
             List<int> containedNumbers = new List<int>();
             for(int i = 0;i <= plugboardNumber; i++)
             {
@@ -103,7 +103,7 @@ namespace SharedCL
             emRotors.Add(new RotorModel(rotors[m], rnd.Next(26), rnd.Next(26)));
             emRotors.Add(new RotorModel(rotors[r], rnd.Next(26), rnd.Next(26)));
 
-            EnigmaModel rEM = new EnigmaModel(emRotors, new RotorModel(reflectors[rnd.Next(3)]), plugboard);
+            EnigmaModel rEM = new EnigmaModel(emRotors, new RotorModel(reflectors[rnd.Next(maxReflector)]), plugboard);
             return rEM;
         }
     }

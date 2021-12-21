@@ -24,7 +24,7 @@ namespace EnigmaBreaker.Services
             _bc = bc;
             _encodingService = encodingService;
             _resolver = fitnessResolver;
-
+            /*
             string Rotorjson = @"[
       {
                 'name': 'I',
@@ -69,9 +69,37 @@ namespace EnigmaBreaker.Services
       }
     ]";
             allReflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
+            */
+            string Rotorjson = @"[
+      {
+                'name': 'I',
+        'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+        'turnoverNotches': [ 'Q' ]
+
+      },
+      {
+                'name': 'II',
+        'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+        'turnoverNotches': [ 'E' ]
+      },
+      {
+                'name': 'III',
+        'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+        'turnoverNotches': [ 'V' ]
+      }
+    ]";
+            allRotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
+            string Reflectorjson = @"[      
+      {
+                'name': 'A',
+        'order': 'EJMZALYXVBWFCRQUONTSPIKHGD'
+      }
+    ]";
+            allReflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
         }
 
-        public void root() {
+        public void root()
+        {
             /*List<RotorModel> emRotors = new List<RotorModel>();
             emRotors.Add(new RotorModel(allRotors[0],2,3));
             emRotors.Add(new RotorModel(allRotors[1],4,6));
@@ -87,16 +115,23 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
  
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
-            EnigmaModel em = EnigmaModel.randomizeEnigma();
+            EnigmaModel em = EnigmaModel.randomizeEnigma(3,1);
             _logger.LogInformation(toStringRotors(em));
-            string ciphertext = _encodingService.encode(plaintext, em);            
-            List<BreakerResult> rotorResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
+            string ciphertext = _encodingService.encode(plaintext, em);
+            List<BreakerResult> rotorResults = sortBreakerList(getRotorResultsWithRotation(ciphertext, _resolver("IOC")));
+            int counter = 1;
             foreach (BreakerResult br in rotorResults)
             {
-                _logger.LogInformation($"{br.score} - {toStringRotors(br.enigmaModel)}");
+                _logger.LogDebug($"{br.score} - {toStringRotors(br.enigmaModel)}");
+                if (toStringRotors(br.enigmaModel).Split("/")[0].Equals(toStringRotors(em).Split("/")[0]))
+                {
+                    _logger.LogInformation($"{counter} - {br.score} - {toStringRotors(br.enigmaModel)}");
+                    break;
+                }
+                counter += 1;
             }            
         }
-        public List<BreakerResult> getRotorResults(string cipherText,IFitness fitness)
+        public List<BreakerResult> getRotorResultsWithRotation(string cipherText,IFitness fitness)
         {
             List<BreakerResult> results = new List<BreakerResult>();
 
@@ -114,7 +149,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                             {
                                 if (left.name != right.name && middle.name != right.name)
                                 {
-                                    _logger.LogInformation($"{left.name} {middle.name} {right.name}");
+                                    //_logger.LogInformation($"{left.name} {middle.name} {right.name}");
 
                                     for (int l = 0; l <= 25; l++)
                                     {
