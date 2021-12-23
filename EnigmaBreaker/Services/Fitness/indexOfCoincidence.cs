@@ -9,26 +9,19 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(string input)
         {
             string withoutSpaces = input.Replace(" ", "");
-            Dictionary<char, int> charFrequency = new Dictionary<char, int>();
+            int[] charFrequency = new int[26];
             foreach(char c in withoutSpaces)
             {
-                if (charFrequency.ContainsKey(c))
-                {
-                    charFrequency[c] = charFrequency[c] + 1;
-                }
-                else
-                {
-                    charFrequency.Add(c, 1);
-                }
+                charFrequency[c-65] += 1;
             }
 
             int sumOfFrequencyCalc = 0;
-            foreach(KeyValuePair<char,int> entry in charFrequency)
+            foreach(int f in charFrequency)
             {
-                sumOfFrequencyCalc += entry.Value * (entry.Value - 1);
+                sumOfFrequencyCalc += f * (f - 1);
             }
 
-            double textLengthMultiplication = withoutSpaces.Length * (withoutSpaces.Length - 1);
+            double textLengthMultiplication = (withoutSpaces.Length * (withoutSpaces.Length - 1));
             double ioc = sumOfFrequencyCalc * (26/textLengthMultiplication);
             return ioc;
 
