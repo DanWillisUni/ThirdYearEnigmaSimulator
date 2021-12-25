@@ -49,7 +49,18 @@ namespace EngimaSimulator.Controllers
             {
                 case "Convert":
                     modelOut.enigmaModel = enigmaModel;
-                    modelOut.outputTextBox = _encodingService.encode(modelIn.inputTextBox, enigmaModel);
+                    string tempOut = _encodingService.encode(modelIn.inputTextBox, enigmaModel);
+                    int count = 0;
+                    modelOut.outputTextBox = "";
+                    foreach (char c in tempOut) {
+                        modelOut.outputTextBox += c;
+                        count += 1;
+                        if (count >= 5)
+                        {
+                            count = 0;
+                            modelOut.outputTextBox += " ";
+                        }
+                    }
                     //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
                 case "Randomize":

@@ -13,28 +13,28 @@ namespace SharedCL
         public EncodingService()
         {
         }
-
-        public string encode(string input,EnigmaModel em) 
-        { 
+        public string encode(int[] input, EnigmaModel em)
+        {
             string r = "";
-            string formattedInput = Regex.Replace(input.ToUpper(), @"[^A-Z]", string.Empty);
-            int count = 0;
-            foreach (char c in formattedInput)
+            foreach(int c in input)
             {
-                em = stepRotors(em);          
+                em = stepRotors(em);
                 r += encodeOneChar(em, c);
-                count += 1;
-                if (count >= 5)
-                {
-                    count = 0;
-                    r += " ";
-                }
             }
             return r;
         }
-        public char encodeOneChar(EnigmaModel em, char input)
+        public string encode(string input,EnigmaModel em) 
+        { 
+            string formattedInput = Regex.Replace(input.ToUpper(), @"[^A-Z]", string.Empty);
+            int[] ciphertextArr = new int[formattedInput.Length];
+            for (int i = 0; i < formattedInput.Length; i++)
+            {
+                ciphertextArr[i] = Convert.ToInt16(formattedInput[i]) - 65;
+            }
+            return encode(ciphertextArr,em);
+        }
+        public char encodeOneChar(EnigmaModel em, int current)
         {
-            int current = Convert.ToInt32(input) - 65;
             current = plugboardSwap(em.plugboard, current);
             foreach (RotorModel r in em.rotors.Reverse<RotorModel>())
             {
@@ -76,17 +76,10 @@ namespace SharedCL
             int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
             return mod26(encodedCharNumber - rm.rotation + rm.ringOffset);
         }
-        public static int mod26(int a)
+        public static int mod26(int x)
         {
-            while (a >= 26)
-            {
-                a = a - 26;
-            }
-            while (a < 0)
-            {
-                a = a + 26;
-            }
-            return a;
+            int r = x % 26;
+            return r < 0 ? r + 26 : r;
         }
         public EnigmaModel stepRotors(EnigmaModel em)
         {

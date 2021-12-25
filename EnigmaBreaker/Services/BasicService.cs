@@ -7,6 +7,7 @@ using SharedCL;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EnigmaBreaker.Services
 {
@@ -98,7 +99,7 @@ namespace EnigmaBreaker.Services
             allReflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
         }
 
-        public void root()
+        public string root()
         {
             /*List<RotorModel> emRotors = new List<RotorModel>();
             emRotors.Add(new RotorModel(allRotors[0],2,3));
@@ -120,36 +121,52 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
             _logger.LogInformation(toStringRotors(em));
-            string ciphertext = _encodingService.encode(plaintext, em);
+            string formattedInput = Regex.Replace(plaintext.ToUpper(), @"[^A-Z]", string.Empty);
+            string ciphertext = _encodingService.encode(formattedInput, em);
             List<BreakerResult> rotorResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
+            bool rotorFound = false;
             foreach (BreakerResult br in rotorResults) // for each rotor configuration result
-            {
-                _logger.LogInformation(toStringRotors(br.enigmaModel));
+            {                
                 if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)
-                {                    
-                    List<BreakerResult> fullRotorResults = getRotationOffsetResult(br,ciphertext);
-
+                {
+                    _logger.LogInformation(toStringRotors(br.enigmaModel));
+                    rotorFound = true;
+                    List<BreakerResult> fullRotorResults = getRotationOffsetResult(br,ciphertext, _resolver("IOC"));
+                    bool offsetFound = false;
                     foreach (BreakerResult brr in fullRotorResults)
-                    {
-                        _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
+                    {                        
                         if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
                         {
+                            offsetFound = true;
+                            _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
                             //plugboard
+                            return "N";
                         }
                         else
                         {
-                            _logger.LogInformation("Rotor Miss");
+                            _logger.LogDebug($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
                         }
+                    }
+                    if (!offsetFound)
+                    {
+                        _logger.LogInformation("Rotor Miss");
+                        return "O";
                     }
                 }
                 else
                 {
-                    _logger.LogInformation("Miss");
-                }                
-            }            
+                    _logger.LogDebug(toStringRotors(br.enigmaModel));
+                }
+            }
+            if (!rotorFound)
+            {
+                _logger.LogInformation("Miss");
+                return "R";
+            }
+            return "C";
         }
         #region offset and Rotation
-        private List<BreakerResult> getRotationOffsetResult(BreakerResult br,string ciphertext)
+        private List<BreakerResult> getRotationOffsetResult(BreakerResult br,string ciphertext,IFitness fitness)
         {
             List<BreakerResult> fullRotorResults = new List<BreakerResult>();
             int lbase = br.enigmaModel.rotors[0].rotation;
@@ -164,11 +181,15 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                         br.enigmaModel.rotors[0].rotation = lbase + lchange;
                         br.enigmaModel.rotors[1].rotation = mbase + mchange;
                         br.enigmaModel.rotors[2].rotation = rbase + rchange;
-                        fullRotorResults.AddRange(getRotorResultsWithRotationAndOffset(ciphertext, _resolver("IOC"), toStringRotors(br.enigmaModel)));
+                        fullRotorResults.AddRange(getRotorResultsWithRotationAndOffset(ciphertext,fitness, toStringRotors(br.enigmaModel)));
                     }
                 }
             }
-            fullRotorResults = sortBreakerList(fullRotorResults);            
+            fullRotorResults = sortBreakerList(fullRotorResults);     
+            if(_bc.topAllRotationAndOffset > fullRotorResults.Count)
+            {
+                return fullRotorResults;
+            }            
             return fullRotorResults.GetRange(0,_bc.topAllRotationAndOffset);
         }
         private List<BreakerResult> getRotorResultsWithRotationAndOffset(string ciphertext, IFitness fitness, string currentRotors)
@@ -209,7 +230,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
             double lowestResult = 0.0;
             List<BreakerResult> results = new List<BreakerResult>();
-
+            int[] cipherArr = preProccessCiphertext(ciphertext);
             for (int m = 0; m < 26; m++)
             {
                 for (int r = 0; r < 26; r++)
@@ -219,7 +240,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     emRotorModel.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
                     emRotorModel.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
                     EnigmaModel em = new EnigmaModel(emRotorModel, emRefl, new Dictionary<int, int>());
-                    string attemptPlainText = _encodingService.encode(ciphertext, em);
+                    string attemptPlainText = _encodingService.encode(cipherArr, em);
                     double rating = fitness.getFitness(attemptPlainText);
                     if (rating > lowestResult)
                     {
@@ -261,6 +282,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         public List<BreakerResult> getRotorResults(string cipherText,IFitness fitness)
         {
             List<BreakerResult> results = new List<BreakerResult>();
+            int[] cipherArr = preProccessCiphertext(cipherText);
 
             double lowestResult = 0.0;
 
@@ -290,7 +312,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                                 rotors.Add(new RotorModel(right, r));
                                                 EnigmaModel em = new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>());
 
-                                                string attemptPlainText = _encodingService.encode(cipherText, em);
+                                                string attemptPlainText = _encodingService.encode(cipherArr, em);
                                                 double rating = fitness.getFitness(attemptPlainText);
 
                                                 if (rating > lowestResult)
@@ -370,6 +392,16 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                 r += rotor.rotor.name + ",";
                 r += rotor.rotation + ",";
                 r += rotor.ringOffset;
+            }
+            return r;
+        }
+        private int[] preProccessCiphertext(string ciphertext)
+        {            
+            string formattedInput = Regex.Replace(ciphertext.ToUpper(), @"[^A-Z]", string.Empty);
+            int[] r = new int[formattedInput.Length];
+            for (int i = 0; i< formattedInput.Length;i++)
+            {
+                r[i] = Convert.ToInt16(formattedInput[i]) - 65;
             }
             return r;
         }

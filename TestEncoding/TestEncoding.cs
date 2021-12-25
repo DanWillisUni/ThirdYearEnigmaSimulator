@@ -67,7 +67,7 @@ namespace UnitTests
         [Test]
         public void MirrorForAllRotations()
         {
-            const string qbfjold = "THEQU ICKBR OWNFO XJUMP SOVER THELA ZYDOG ";
+            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";
             foreach (Rotor reflector in pc.reflectors)
             {
                 foreach (Rotor left in pc.rotors)
@@ -116,7 +116,7 @@ namespace UnitTests
         [Test]
         public void MirrorForAllRingSettings()
         {
-            const string qbfjold = "THEQU ICKBR OWNFO XJUMP SOVER THELA ZYDOG ";
+            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";
             foreach (Rotor reflector in pc.reflectors)
             {
                 foreach (Rotor left in pc.rotors)
@@ -477,7 +477,7 @@ namespace UnitTests
             rotors.Add(new RotorModel(pc.rotors[0]));
             EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
             string output = encodingService.encode(s,em);
-            Assert.AreEqual(52, output.Replace(" ","").Length);
+            Assert.AreEqual(52, output.Length);
         }
     }    
 }
