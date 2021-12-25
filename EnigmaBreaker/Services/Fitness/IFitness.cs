@@ -7,6 +7,6 @@ namespace EnigmaBreaker.Services.Fitness
     public interface IFitness
     {
         public delegate IFitness FitnessResolver(string key);
-        public double getFitness(string input);
+        public double getFitness(int[] input);
     }
 }

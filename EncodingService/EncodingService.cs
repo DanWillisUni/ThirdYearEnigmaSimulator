@@ -13,13 +13,13 @@ namespace SharedCL
         public EncodingService()
         {
         }
-        public string encode(int[] input, EnigmaModel em)
+        public int[] encode(int[] input, EnigmaModel em)
         {
-            string r = "";
-            foreach(int c in input)
+            int[] r = new int[input.Length];
+            for(int i = 0;i< input.Length;i++)
             {
                 em = stepRotors(em);
-                r += encodeOneChar(em, c);
+                r[i] = encodeOneChar(em, input[i]);
             }
             return r;
         }
@@ -31,9 +31,15 @@ namespace SharedCL
             {
                 ciphertextArr[i] = Convert.ToInt16(formattedInput[i]) - 65;
             }
-            return encode(ciphertextArr,em);
+            int[] charArr = encode(ciphertextArr, em);
+            string r = "";
+            foreach(int c in charArr)
+            {
+                r += Convert.ToChar(c + 65);
+            }
+            return r;
         }
-        public char encodeOneChar(EnigmaModel em, int current)
+        public int encodeOneChar(EnigmaModel em, int current)
         {
             current = plugboardSwap(em.plugboard, current);
             foreach (RotorModel r in em.rotors.Reverse<RotorModel>())
@@ -46,7 +52,7 @@ namespace SharedCL
                 current = rotorEncodeInverse(r, current);
             }
             current = plugboardSwap(em.plugboard, current);
-            return Convert.ToChar(current + 65);
+            return current;
         }
         public int plugboardSwap(Dictionary<int, int> plugboard, int input)
         {

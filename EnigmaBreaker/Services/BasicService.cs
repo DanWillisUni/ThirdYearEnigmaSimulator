@@ -240,7 +240,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     emRotorModel.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
                     emRotorModel.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
                     EnigmaModel em = new EnigmaModel(emRotorModel, emRefl, new Dictionary<int, int>());
-                    string attemptPlainText = _encodingService.encode(cipherArr, em);
+                    int[] attemptPlainText = _encodingService.encode(cipherArr, em);
                     double rating = fitness.getFitness(attemptPlainText);
                     if (rating > lowestResult)
                     {
@@ -271,7 +271,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                         emRotorModel2.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
                         emRotorModel2.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
                         EnigmaModel em2 = new EnigmaModel(emRotorModel2, emRefl, new Dictionary<int, int>());
-                        results.Add(new BreakerResult(attemptPlainText,rating,em2));
+                        results.Add(new BreakerResult(rating,em2));
                     }
                 }
             }
@@ -312,7 +312,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                                 rotors.Add(new RotorModel(right, r));
                                                 EnigmaModel em = new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>());
 
-                                                string attemptPlainText = _encodingService.encode(cipherArr, em);
+                                                int[] attemptPlainText = _encodingService.encode(cipherArr, em);
                                                 double rating = fitness.getFitness(attemptPlainText);
 
                                                 if (rating > lowestResult)
@@ -342,7 +342,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                                     em.rotors[0].rotation = l;
                                                     em.rotors[1].rotation = m;
                                                     em.rotors[2].rotation = r;
-                                                    results.Add(new BreakerResult(attemptPlainText, rating, em));
+                                                    results.Add(new BreakerResult(rating, em));
                                                 }
                                             }
                                         }

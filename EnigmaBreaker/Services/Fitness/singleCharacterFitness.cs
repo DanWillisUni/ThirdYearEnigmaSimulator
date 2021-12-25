@@ -6,7 +6,7 @@ namespace EnigmaBreaker.Services.Fitness
 {
     public class singleCharacterFitness : IFitness
     {
-        public double getFitness(string input)
+        public double getFitness(int[] input)
         {
             throw new NotImplementedException();
         }

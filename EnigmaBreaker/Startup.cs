@@ -44,7 +44,7 @@ namespace EnigmaBreaker
             var bs = _serviceProvider.GetRequiredService<BasicService>();
             int rotorMissCount = 0;
             int offsetMissCount = 0;
-            int counts = 300;
+            int counts = 150;
             logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
             for (int i = 0; i < counts; i++)
             {
