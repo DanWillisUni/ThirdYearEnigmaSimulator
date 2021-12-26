@@ -44,7 +44,7 @@ namespace EnigmaBreaker
             var bs = _serviceProvider.GetRequiredService<BasicService>();
             int rotorMissCount = 0;
             int offsetMissCount = 0;
-            int counts = 150;
+            int counts = 250;
             logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
             for (int i = 0; i < counts; i++)
             {
@@ -52,7 +52,7 @@ namespace EnigmaBreaker
                 switch (r)
                 {
                     case "C":
-                        logger.LogError("Complete miss");
+                        logger.LogWarning("Complete miss");
                         break;
                     case "R":
                         rotorMissCount += 1;
@@ -60,7 +60,10 @@ namespace EnigmaBreaker
                     case "O":
                         offsetMissCount += 1;
                         break;
+                    case "N":
+                        break;
                     default:
+                        logger.LogError("Wrong char");
                         break;
                 }
             }            

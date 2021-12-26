@@ -21,6 +21,6 @@ namespace SharedCL
     {
         public string name { get; set; }
         public string order { get; set; }
-        public List<char> turnoverNotches { get; set; }
+        public int turnoverNotchA { get; set; }
     }
 }

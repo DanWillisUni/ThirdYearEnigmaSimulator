@@ -18,30 +18,30 @@ namespace UnitTests
             string json = @"{
     'rotors': [
       {
-                'name': 'I',
+        'name': 'I',
         'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotches': [ 'Q' ]
+        'turnoverNotchA': 7
 
       },
       {
-                'name': 'II',
+        'name': 'II',
         'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotches': [ 'E' ]
+        'turnoverNotchA': 25
       },
       {
-                'name': 'III',
+        'name': 'III',
         'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotches': [ 'V' ]
+        'turnoverNotchA': 11
       },
       {
-                'name': 'IV',
+        'name': 'IV',
         'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-        'turnoverNotches': [ 'J' ]
+        'turnoverNotchA': 6
       },
       {
-                'name': 'V',
+        'name': 'V',
         'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
-        'turnoverNotches': [ 'Z' ]
+        'turnoverNotchA': 1
       }
     ],
     'reflectors': [      
@@ -201,9 +201,9 @@ namespace UnitTests
                                                     rotors2.Add(new RotorModel(right, rOffset, r));
                                                     EnigmaModel em2 = new EnigmaModel(rotors2, new RotorModel(reflector), new Dictionary<int, int>());
                                                     char c = Convert.ToChar(i + 65);
-                                                    char outFirst = encodingService.encodeOneChar(em, c);
-                                                    char outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);
-                                                    Assert.AreEqual(c, outFromDoubleEncode);
+                                                    int outFirst = encodingService.encodeOneChar(em, c);
+                                                    int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);
+                                                    Assert.AreEqual(i, outFromDoubleEncode);
                                                 }
                                             }
                                         }
@@ -252,10 +252,9 @@ namespace UnitTests
                                                     rotors2.Add(new RotorModel(middle, m, mOffset));
                                                     rotors2.Add(new RotorModel(right, r, rOffset));
                                                     EnigmaModel em2 = new EnigmaModel(rotors2, new RotorModel(reflector), new Dictionary<int, int>());
-                                                    char c = Convert.ToChar(i + 65);
-                                                    char outFirst = encodingService.encodeOneChar(em, c);
-                                                    char outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);
-                                                    Assert.AreEqual(c, outFromDoubleEncode);
+                                                    int outFirst = encodingService.encodeOneChar(em, i);
+                                                    int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);
+                                                    Assert.AreEqual(i, outFromDoubleEncode);
                                                 }
                                             }
                                         }
@@ -347,12 +346,7 @@ namespace UnitTests
                         foreach (Rotor right in pc.rotors)
                         {
                             if (left.name != right.name && middle.name != right.name)
-                            {
-                                List<int> indexOfNotches = new List<int>();
-                                foreach (char c in right.turnoverNotches)
-                                {
-                                    indexOfNotches.Add(right.order.IndexOf(c));
-                                }
+                            {                                
                                 for (int r = 0; r <= 25; r++)
                                 {
                                     List<RotorModel> rotors = new List<RotorModel>();
@@ -362,7 +356,7 @@ namespace UnitTests
                                     EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
                                     em = encodingService.stepRotors(em);
                                     Assert.AreEqual((r + 1) % 26, em.rotors[2].rotation);
-                                    if (indexOfNotches.Contains(r))
+                                    if (right.turnoverNotchA == r)
                                     {
                                         Assert.AreEqual(1, em.rotors[1].rotation);
                                     }
@@ -386,38 +380,30 @@ namespace UnitTests
                 foreach (Rotor middle in pc.rotors)
                 {
                     if (middle.name != left.name)
-                    {
-                        List<int> indexOfNotches = new List<int>();
-                        foreach (char c in middle.turnoverNotches)
-                        {
-                            indexOfNotches.Add(middle.order.IndexOf(c));
-                        }
+                    {                        
                         foreach (Rotor right in pc.rotors)
                         {
                             if (left.name != right.name && middle.name != right.name)
                             {
-                                foreach (char notch in right.turnoverNotches)
+                                for (int m = 0; m <= 25; m++)
                                 {
-                                    int r = right.order.IndexOf(notch);
-                                    for (int m = 0; m <= 25; m++)
+                                    List<RotorModel> rotors = new List<RotorModel>();
+                                    rotors.Add(new RotorModel(left, 0));
+                                    rotors.Add(new RotorModel(middle, m));
+                                    rotors.Add(new RotorModel(right, right.turnoverNotchA));
+                                    EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
+                                    em = encodingService.stepRotors(em);
+                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);
+                                    Assert.AreEqual((m + 1) % 26, em.rotors[1].rotation);
+                                    if (middle.turnoverNotchA == m)
                                     {
-                                        List<RotorModel> rotors = new List<RotorModel>();
-                                        rotors.Add(new RotorModel(left, 0));
-                                        rotors.Add(new RotorModel(middle, m));
-                                        rotors.Add(new RotorModel(right, r));
-                                        EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
-                                        em = encodingService.stepRotors(em);
-                                        Assert.AreEqual((r + 1) % 26, em.rotors[2].rotation);
-                                        Assert.AreEqual((m + 1) % 26, em.rotors[1].rotation);
-                                        if (indexOfNotches.Contains(m))
-                                        {
-                                            Assert.AreEqual(1, em.rotors[0].rotation);
-                                        }
-                                        else
-                                        {
-                                            Assert.AreEqual(0, em.rotors[0].rotation);
-                                        }
+                                        Assert.AreEqual(1, em.rotors[0].rotation);
                                     }
+                                    else
+                                    {
+                                        Assert.AreEqual(0, em.rotors[0].rotation);
+                                    }
+                                    
                                 }
                             }
                         }
@@ -434,32 +420,26 @@ namespace UnitTests
                 {
                     if (middle.name != left.name)
                     {
-                        foreach (char mNotch in middle.turnoverNotches)
+                        foreach (Rotor right in pc.rotors)
                         {
-                            int m = middle.order.IndexOf(mNotch);
-                            foreach (Rotor right in pc.rotors)
+                            if (left.name != right.name && middle.name != right.name)
                             {
-                                if (left.name != right.name && middle.name != right.name)
+                                for (int l = 0; l <= 25; l++)
                                 {
-                                    foreach (char notch in right.turnoverNotches)
-                                    {
-                                        int r = right.order.IndexOf(notch);
-                                        for (int l = 0; l <= 25; l++)
-                                        {
-                                            List<RotorModel> rotors = new List<RotorModel>();
-                                            rotors.Add(new RotorModel(left, l));
-                                            rotors.Add(new RotorModel(middle, m));
-                                            rotors.Add(new RotorModel(right, r));
-                                            EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
-                                            em = encodingService.stepRotors(em);
-                                            Assert.AreEqual((r + 1) % 26, em.rotors[2].rotation);
-                                            Assert.AreEqual((m + 1) % 26, em.rotors[1].rotation);
-                                            Assert.AreEqual((l + 1) % 26, em.rotors[0].rotation);
-                                        }
-                                    }
+                                    List<RotorModel> rotors = new List<RotorModel>();
+                                    rotors.Add(new RotorModel(left, l));
+                                    rotors.Add(new RotorModel(middle, middle.turnoverNotchA));
+                                    rotors.Add(new RotorModel(right, right.turnoverNotchA));
+                                    EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
+                                    em = encodingService.stepRotors(em);
+                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);
+                                    Assert.AreEqual((middle.turnoverNotchA + 1) % 26, em.rotors[1].rotation);
+                                    Assert.AreEqual((l + 1) % 26, em.rotors[0].rotation);
                                 }
+                                    
                             }
                         }
+                        
                     }
                 }
             }

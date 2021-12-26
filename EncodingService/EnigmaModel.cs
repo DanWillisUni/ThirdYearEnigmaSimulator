@@ -56,31 +56,32 @@ namespace SharedCL
 
             string Rotorjson = @"[
       {
-                'name': 'I',
+        'name': 'I',
         'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotches': [ 'Q' ]
+        'turnoverNotchA': 7
 
       },
       {
-                'name': 'II',
+        'name': 'II',
         'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotches': [ 'E' ]
+        'turnoverNotchA': 25
       },
       {
-                'name': 'III',
+        'name': 'III',
         'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotches': [ 'V' ]
+        'turnoverNotchA': 11
       },
       {
-                'name': 'IV',
+        'name': 'IV',
         'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-        'turnoverNotches': [ 'J' ]
+        'turnoverNotchA': 6
       },
       {
-                'name': 'V',
+        'name': 'V',
         'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
-        'turnoverNotches': [ 'Z' ]
-      }]";
+        'turnoverNotchA': 1
+      }
+    ]";
             List<Rotor> rotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
             string Reflectorjson = @"[      
       {

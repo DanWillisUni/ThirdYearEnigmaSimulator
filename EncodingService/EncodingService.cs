@@ -93,7 +93,7 @@ namespace SharedCL
             for (int i = em.rotors.Count - 1; i >= 1; i--)
             {
                 RotorModel r = em.rotors[i];
-                if (r.rotor.turnoverNotches.Contains(r.rotor.order[mod26(r.rotation - 1)]))
+                if (r.rotor.turnoverNotchA == mod26(r.rotation - 1))
                 {
                     em.rotors[i - 1].rotation = (em.rotors[i - 1].rotation + 1) % 26;
                 }

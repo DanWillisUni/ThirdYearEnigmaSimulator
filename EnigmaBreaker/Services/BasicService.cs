@@ -28,33 +28,33 @@ namespace EnigmaBreaker.Services
             /*
             string Rotorjson = @"[
       {
-                'name': 'I',
+        'name': 'I',
         'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotches': [ 'Q' ]
+        'turnoverNotchA': 7
 
       },
       {
-                'name': 'II',
+        'name': 'II',
         'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotches': [ 'E' ]
+        'turnoverNotchA': 25
       },
       {
-                'name': 'III',
+        'name': 'III',
         'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotches': [ 'V' ]
+        'turnoverNotchA': 11
       },
       {
-                'name': 'IV',
+        'name': 'IV',
         'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-        'turnoverNotches': [ 'J' ]
+        'turnoverNotchA': 6
       },
       {
-                'name': 'V',
+        'name': 'V',
         'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
-        'turnoverNotches': [ 'Z' ]
+        'turnoverNotchA': 1
       }
     ]";
-            allRotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
+            List<Rotor> rotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
             string Reflectorjson = @"[      
       {
                 'name': 'A',
@@ -73,20 +73,20 @@ namespace EnigmaBreaker.Services
             */
             string Rotorjson = @"[
       {
-                'name': 'I',
+        'name': 'I',
         'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotches': [ 'Q' ]
+        'turnoverNotchA': 7
 
       },
       {
-                'name': 'II',
+        'name': 'II',
         'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotches': [ 'E' ]
+        'turnoverNotchA': 25
       },
       {
-                'name': 'III',
+        'name': 'III',
         'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotches': [ 'V' ]
+        'turnoverNotchA': 11
       }
     ]";
             allRotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
@@ -121,8 +121,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
             _logger.LogInformation(toStringRotors(em));
-            string formattedInput = Regex.Replace(plaintext.ToUpper(), @"[^A-Z]", string.Empty);
-            string ciphertext = _encodingService.encode(formattedInput, em);
+            string ciphertext = _encodingService.encode(plaintext, em);
             List<BreakerResult> rotorResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
             bool rotorFound = false;
             foreach (BreakerResult br in rotorResults) // for each rotor configuration result
