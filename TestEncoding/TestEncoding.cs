@@ -200,8 +200,7 @@ namespace UnitTests
                                                     rotors2.Add(new RotorModel(middle, mOffset, m));
                                                     rotors2.Add(new RotorModel(right, rOffset, r));
                                                     EnigmaModel em2 = new EnigmaModel(rotors2, new RotorModel(reflector), new Dictionary<int, int>());
-                                                    char c = Convert.ToChar(i + 65);
-                                                    int outFirst = encodingService.encodeOneChar(em, c);
+                                                    int outFirst = encodingService.encodeOneChar(em, i);
                                                     int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);
                                                     Assert.AreEqual(i, outFromDoubleEncode);
                                                 }

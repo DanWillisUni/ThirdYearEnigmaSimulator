@@ -31,13 +31,8 @@ namespace SharedCL
             {
                 ciphertextArr[i] = Convert.ToInt16(formattedInput[i]) - 65;
             }
-            int[] charArr = encode(ciphertextArr, em);
-            string r = "";
-            foreach(int c in charArr)
-            {
-                r += Convert.ToChar(c + 65);
-            }
-            return r;
+            int[] charArr = encode(ciphertextArr, em);            
+            return getStringFromIntArr(charArr);
         }
         public int encodeOneChar(EnigmaModel em, int current)
         {
@@ -81,12 +76,7 @@ namespace SharedCL
             int charRotated = input + rm.rotation - rm.ringOffset;
             int encodedCharNumber = rm.rotor.order.IndexOf(Convert.ToChar(mod26(charRotated) + 65));
             return mod26(encodedCharNumber - rm.rotation + rm.ringOffset);
-        }
-        public static int mod26(int x)
-        {
-            int r = x % 26;
-            return r < 0 ? r + 26 : r;
-        }
+        }        
         public EnigmaModel stepRotors(EnigmaModel em)
         {
             em.rotors[em.rotors.Count - 1].rotation = (em.rotors[em.rotors.Count - 1].rotation + 1) % 26;
@@ -104,5 +94,31 @@ namespace SharedCL
             }
             return em;
         }
+
+        #region helpers
+        public static int mod26(int x)
+        {
+            return (x + 26) % 26;
+        }
+        private string getStringFromIntArr(int[] input)
+        {
+            string r = "";
+            foreach (int c in input)
+            {
+                r += Convert.ToChar(c + 65);
+            }
+            return r;
+        }
+        public int[] preProccessCiphertext(string ciphertext)
+        {
+            string formattedInput = Regex.Replace(ciphertext.ToUpper(), @"[^A-Z]", string.Empty);
+            int[] r = new int[formattedInput.Length];
+            for (int i = 0; i < formattedInput.Length; i++)
+            {
+                r[i] = Convert.ToInt16(formattedInput[i]) - 65;
+            }
+            return r;
+        }
+        #endregion
     }
 }

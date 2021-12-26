@@ -44,7 +44,7 @@ namespace EnigmaBreaker
             var bs = _serviceProvider.GetRequiredService<BasicService>();
             int rotorMissCount = 0;
             int offsetMissCount = 0;
-            int counts = 250;
+            int counts = 25;
             logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
             for (int i = 0; i < counts; i++)
             {
@@ -95,7 +95,9 @@ namespace EnigmaBreaker
                 switch (key)
                 {
                     case "IOC":
-                        return serviceProvider.GetService<indexOfCoincidence>();                    
+                        return serviceProvider.GetService<indexOfCoincidence>();
+                    case "BI":
+                        return serviceProvider.GetService<doubleCharFitness>();
                     default:
                         throw new KeyNotFoundException();
                 }

@@ -9,5 +9,7 @@ namespace EnigmaBreaker.Configuration.Models
         public int topRotorsToSearch { get; set; }
         public int topAllRotationAndOffset { get; set; }
         public int topSingleRotationAndOffset { get; set; }
+        public string dataDir { get; set; }
+        public string bigramFileName { get; set; }
     }
 }

@@ -122,48 +122,130 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
             _logger.LogInformation(toStringRotors(em));
             string ciphertext = _encodingService.encode(plaintext, em);
-            List<BreakerResult> rotorResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
-            bool rotorFound = false;
-            foreach (BreakerResult br in rotorResults) // for each rotor configuration result
-            {                
-                if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)
+            List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
+            List<BreakerResult> roundTwoRotorSetupResults = roundTwoBreakerResults(_resolver("BI"),initialRotorSetupResults);
+            BreakerResult br = roundTwoRotorSetupResults[0];
+            _logger.LogInformation(toStringRotors(br.enigmaModel));
+
+            if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)//this line is a cheat
+            {
+                List<BreakerResult> fullRotorResults = getRotationOffsetResult(br, ciphertext, _resolver("IOC"));
+                bool offsetFound = false;
+                foreach (BreakerResult brr in fullRotorResults)
                 {
-                    _logger.LogInformation(toStringRotors(br.enigmaModel));
-                    rotorFound = true;
-                    List<BreakerResult> fullRotorResults = getRotationOffsetResult(br,ciphertext, _resolver("IOC"));
-                    bool offsetFound = false;
-                    foreach (BreakerResult brr in fullRotorResults)
-                    {                        
-                        if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
-                        {
-                            offsetFound = true;
-                            _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
-                            //plugboard
-                            return "N";
-                        }
-                        else
-                        {
-                            _logger.LogDebug($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
-                        }
-                    }
-                    if (!offsetFound)
+                    if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
                     {
-                        _logger.LogInformation("Rotor Miss");
-                        return "O";
+                        offsetFound = true;
+                        _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
+                        //plugboard
+                        return "N";
+                    }
+                    else
+                    {
+                        _logger.LogDebug($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
                     }
                 }
-                else
+                if (!offsetFound)
                 {
-                    _logger.LogDebug(toStringRotors(br.enigmaModel));
+                    _logger.LogInformation("Rotor Miss");
+                    return "O";
                 }
             }
-            if (!rotorFound)
+            else
             {
-                _logger.LogInformation("Miss");
                 return "R";
             }
+
             return "C";
         }
+
+        public List<BreakerResult> getRotorResults(string cipherText, IFitness fitness)
+        {
+            List<BreakerResult> results = new List<BreakerResult>();
+            int[] cipherArr = _encodingService.preProccessCiphertext(cipherText);
+
+            double lowestResult = 0.0;
+
+            foreach (Rotor refl in allReflectors)
+            {
+                foreach (Rotor left in allRotors)
+                {
+                    foreach (Rotor middle in allRotors)
+                    {
+                        if (middle.name != left.name)
+                        {
+                            foreach (Rotor right in allRotors)
+                            {
+                                if (left.name != right.name && middle.name != right.name)
+                                {
+                                    //_logger.LogInformation($"{left.name} {middle.name} {right.name}");
+
+                                    for (int l = 0; l <= 25; l++)
+                                    {
+                                        for (int m = 0; m <= 25; m++)
+                                        {
+                                            for (int r = 0; r <= 25; r++)
+                                            {
+                                                List<RotorModel> rotors = new List<RotorModel>();
+                                                rotors.Add(new RotorModel(left, l));
+                                                rotors.Add(new RotorModel(middle, m));
+                                                rotors.Add(new RotorModel(right, r));
+                                                EnigmaModel em = new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>());
+
+                                                int[] attemptPlainText = _encodingService.encode(cipherArr, em);
+                                                double rating = fitness.getFitness(attemptPlainText);
+
+                                                if (rating > lowestResult)
+                                                {
+                                                    double newLowest = rating;
+                                                    if (results.Count + 1 < _bc.topRotorsToSearch)
+                                                    {
+                                                        newLowest = 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        BreakerResult toRemove = null;
+                                                        foreach (var result in results)
+                                                        {
+                                                            if (result.score == lowestResult)
+                                                            {
+                                                                toRemove = result;
+                                                            }
+                                                            else if (result.score < newLowest)
+                                                            {
+                                                                newLowest = result.score;
+                                                            }
+                                                        }
+                                                        results.Remove(toRemove);
+                                                    }
+                                                    lowestResult = newLowest;
+                                                    em.rotors[0].rotation = l;
+                                                    em.rotors[1].rotation = m;
+                                                    em.rotors[2].rotation = r;
+                                                    results.Add(new BreakerResult(attemptPlainText,rating, em));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return results;
+        }
+
+        public List<BreakerResult> roundTwoBreakerResults(IFitness fitness,List<BreakerResult> initialResults)
+        {
+            List<BreakerResult> roundTwoResults = new List<BreakerResult>();
+            foreach (BreakerResult br in initialResults) 
+            {
+                roundTwoResults.Add(new BreakerResult(br.text,fitness.getFitness(br.text),br.enigmaModel));
+            }
+            return sortBreakerList(roundTwoResults);
+        }
+
         #region offset and Rotation
         private List<BreakerResult> getRotationOffsetResult(BreakerResult br,string ciphertext,IFitness fitness)
         {
@@ -229,7 +311,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
             double lowestResult = 0.0;
             List<BreakerResult> results = new List<BreakerResult>();
-            int[] cipherArr = preProccessCiphertext(ciphertext);
+            int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
             for (int m = 0; m < 26; m++)
             {
                 for (int r = 0; r < 26; r++)
@@ -270,91 +352,14 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                         emRotorModel2.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
                         emRotorModel2.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
                         EnigmaModel em2 = new EnigmaModel(emRotorModel2, emRefl, new Dictionary<int, int>());
-                        results.Add(new BreakerResult(rating,em2));
+                        results.Add(new BreakerResult(attemptPlainText,rating, em2));
                     }
                 }
             }
             
             return results;
         }
-        #endregion
-        public List<BreakerResult> getRotorResults(string cipherText,IFitness fitness)
-        {
-            List<BreakerResult> results = new List<BreakerResult>();
-            int[] cipherArr = preProccessCiphertext(cipherText);
-
-            double lowestResult = 0.0;
-
-            foreach (Rotor refl in allReflectors)
-            {
-                foreach (Rotor left in allRotors)
-                {
-                    foreach (Rotor middle in allRotors)
-                    {
-                        if (middle.name != left.name)
-                        {
-                            foreach (Rotor right in allRotors)
-                            {
-                                if (left.name != right.name && middle.name != right.name)
-                                {
-                                    //_logger.LogInformation($"{left.name} {middle.name} {right.name}");
-
-                                    for (int l = 0; l <= 25; l++)
-                                    {
-                                        for (int m = 0; m <= 25; m++)
-                                        {
-                                            for (int r = 0; r <= 25; r++)
-                                            {
-                                                List<RotorModel> rotors = new List<RotorModel>();
-                                                rotors.Add(new RotorModel(left, l));
-                                                rotors.Add(new RotorModel(middle, m));
-                                                rotors.Add(new RotorModel(right, r));
-                                                EnigmaModel em = new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>());
-
-                                                int[] attemptPlainText = _encodingService.encode(cipherArr, em);
-                                                double rating = fitness.getFitness(attemptPlainText);
-
-                                                if (rating > lowestResult)
-                                                {
-                                                    double newLowest = rating;
-                                                    if (results.Count + 1 < _bc.topRotorsToSearch)
-                                                    {
-                                                        newLowest = 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        BreakerResult toRemove = null;
-                                                        foreach (var result in results)
-                                                        {
-                                                            if (result.score == lowestResult)
-                                                            {
-                                                                toRemove = result;
-                                                            }
-                                                            else if (result.score < newLowest)
-                                                            {
-                                                                newLowest = result.score;
-                                                            }
-                                                        }
-                                                        results.Remove(toRemove);
-                                                    }
-                                                    lowestResult = newLowest;
-                                                    em.rotors[0].rotation = l;
-                                                    em.rotors[1].rotation = m;
-                                                    em.rotors[2].rotation = r;
-                                                    results.Add(new BreakerResult(rating, em));
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results;
-        }
+        #endregion        
 
         #region helper
         private List<BreakerResult> sortBreakerList(List<BreakerResult> input)
@@ -394,16 +399,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             }
             return r;
         }
-        private int[] preProccessCiphertext(string ciphertext)
-        {            
-            string formattedInput = Regex.Replace(ciphertext.ToUpper(), @"[^A-Z]", string.Empty);
-            int[] r = new int[formattedInput.Length];
-            for (int i = 0; i< formattedInput.Length;i++)
-            {
-                r[i] = Convert.ToInt16(formattedInput[i]) - 65;
-            }
-            return r;
-        }
+        
         #endregion
     }
 }
