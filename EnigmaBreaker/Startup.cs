@@ -90,6 +90,7 @@ namespace EnigmaBreaker
             _serviceCollection.AddSingleton<EncodingService>();
 
             _serviceCollection.AddTransient<indexOfCoincidence>();
+            _serviceCollection.AddTransient<doubleCharFitness>();
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {
                 switch (key)

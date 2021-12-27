@@ -207,7 +207,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                                         BreakerResult toRemove = null;
                                                         foreach (var result in results)
                                                         {
-                                                            if (result.score == lowestResult)
+                                                            if (result.score <= lowestResult && toRemove == null)
                                                             {
                                                                 toRemove = result;
                                                             }
@@ -367,7 +367,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             List<BreakerResult> r = new List<BreakerResult>();
             while (input.Count > 0)
             {
-                double highestScore = 0.0;
+                double highestScore = Double.MinValue;
                 foreach(BreakerResult result in input)
                 {
                     if (result.score > highestScore)
