@@ -99,15 +99,8 @@ namespace EnigmaBreaker.Services
             allReflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
         }
 
-        public string root()
+        public void root()
         {
-            /*List<RotorModel> emRotors = new List<RotorModel>();
-            emRotors.Add(new RotorModel(allRotors[0],2,3));
-            emRotors.Add(new RotorModel(allRotors[1],4,6));
-            emRotors.Add(new RotorModel(allRotors[2],6,9));
-            EnigmaModel em = new EnigmaModel(emRotors, new RotorModel(allReflectors[0]), new Dictionary<int, int>());
-            */
-            //https://www.gutenberg.org/files/12/12-h/12-h.htm#link2HCH0001
             string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
  
 The way Dinah washed her children’s faces was this: first she held the poor thing down by its ear with one paw, and then with the other paw she rubbed its face all over, the wrong way, beginning at the nose: and just now, as I said, she was hard at work on the white kitten, which was lying quite still and trying to purr—no doubt feeling that it was all meant for its good.
@@ -116,47 +109,126 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
  
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
-            EnigmaModel em = EnigmaModel.randomizeEnigma(3,1);
+            EnigmaModel em = EnigmaModel.randomizeEnigma(3, 1);
             string emJson = JsonConvert.SerializeObject(em);
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
             _logger.LogInformation(toStringRotors(em));
             string ciphertext = _encodingService.encode(plaintext, em);
             List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
-            List<BreakerResult> roundTwoRotorSetupResults = roundTwoBreakerResults(_resolver("BI"),initialRotorSetupResults);
-            BreakerResult br = roundTwoRotorSetupResults[0];
-            _logger.LogInformation(toStringRotors(br.enigmaModel));
-
-            if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)//this line is a cheat
+            List<BreakerResult> roundTwoRotorResults = roundTwoBreakerResults(_resolver("BI"),initialRotorSetupResults,2);
+            List<BreakerResult> fullRotorResultOfAll = new List<BreakerResult>();
+            foreach(BreakerResult rotorResult in roundTwoRotorResults)
             {
-                List<BreakerResult> fullRotorResults = getRotationOffsetResult(br, ciphertext, _resolver("IOC"));
-                bool offsetFound = false;
-                foreach (BreakerResult brr in fullRotorResults)
+                fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, ciphertext, _resolver("BI")));
+            }
+            List<BreakerResult> roundTwoOffset = roundTwoBreakerResults(_resolver("TRI"), fullRotorResultOfAll, 3);
+            foreach(BreakerResult offsetResults in roundTwoOffset)
+            {
+                //plugboard
+            }
+        }
+        public void testing()
+        {            
+            int counts = 5;
+            int rotorMiss = 0;
+            int offsetMiss = 0;
+            int rotorMissR2 = 0;
+            int offsetMissR2 = 0;
+            for (int i = 0; i < counts; i++)
+            {
+                string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
+ 
+The way Dinah washed her children’s faces was this: first she held the poor thing down by its ear with one paw, and then with the other paw she rubbed its face all over, the wrong way, beginning at the nose: and just now, as I said, she was hard at work on the white kitten, which was lying quite still and trying to purr—no doubt feeling that it was all meant for its good.
+ 
+But the black kitten had been finished with earlier in the afternoon, and so, while Alice was sitting curled up in a corner of the great arm-chair, half talking to herself and half asleep, the kitten had been having a grand game of romps with the ball of worsted Alice had been trying to wind up, and had been rolling it up and down till it had all come undone again; and there it was, spread over the hearth-rug, all knots and tangles, with the kitten running after its own tail in the middle.
+ 
+“Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
+";//first 4 paragraphs in alice in wonderland
+                EnigmaModel em = EnigmaModel.randomizeEnigma(3, 1);
+                string emJson = JsonConvert.SerializeObject(em);
+                EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+
+                _logger.LogInformation(toStringRotors(em));
+                string ciphertext = _encodingService.encode(plaintext, em);
+
+                List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
+                
+                bool found = false;
+                foreach (BreakerResult br in initialRotorSetupResults)
                 {
-                    if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
+                    if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)//this line is a cheat
                     {
-                        offsetFound = true;
-                        _logger.LogInformation($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
-                        //plugboard
-                        return "N";
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    rotorMiss += 1;
+                }
+                else
+                {
+                    List<BreakerResult> roundTwoRotorResults = roundTwoBreakerResults(_resolver("BI"), initialRotorSetupResults, 2);
+                    found= false;
+                    foreach (BreakerResult br in roundTwoRotorResults)
+                    {
+                        if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)//this line is a cheat
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        rotorMissR2 += 1;
                     }
                     else
                     {
-                        _logger.LogDebug($"{brr.score} - {toStringRotors(brr.enigmaModel)}");
+                        List<BreakerResult> fullRotorResultOfAll = new List<BreakerResult>();
+                        foreach (BreakerResult rotorResult in roundTwoRotorResults)
+                        {
+                            fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, ciphertext, _resolver("BI")));
+                        }
+
+                        found = false;
+                        foreach (BreakerResult brr in fullRotorResultOfAll)
+                        {
+                            if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            offsetMiss += 1;
+                        }
+                        else
+                        {
+                            List<BreakerResult> roundTwoOffset = roundTwoBreakerResults(_resolver("TRI"), fullRotorResultOfAll, 3);
+                            found = false;
+                            foreach (BreakerResult brr in roundTwoOffset)
+                            {
+                                if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
+                                {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                offsetMissR2 += 1;
+                            }
+                        }
                     }
                 }
-                if (!offsetFound)
-                {
-                    _logger.LogInformation("Rotor Miss");
-                    return "O";
-                }
             }
-            else
-            {
-                return "R";
-            }
-
-            return "C";
+            _logger.LogInformation($"Rotor Fail R1: {(double)(rotorMiss/counts)}%");
+            _logger.LogInformation($"Rotor Fail R2: {(double)(rotorMissR2 / counts)}%");
+            _logger.LogInformation($"Offset Fail R1: {(double)(offsetMiss / counts)}%");
+            _logger.LogInformation($"Offset Fail R2: {(double)(offsetMissR2 / counts)}%");
+            _logger.LogInformation($"Success: {(double)((counts - offsetMiss - offsetMissR2 - rotorMiss - rotorMissR2) / counts)}%");
         }
 
         public List<BreakerResult> getRotorResults(string cipherText, IFitness fitness)
@@ -200,24 +272,24 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                                                     em.rotors[1].rotation = m;
                                                     em.rotors[2].rotation = r;
                                                     BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
-                                                    if (results.Count + 1 >= _bc.topRotorsToSearch)                                                    
+                                                    while(results.Count + 1 >= _bc.topRotorsToSearch)
                                                     {
                                                         double nextLowest = rating;
                                                         BreakerResult lowest = null;
-                                                        foreach(BreakerResult result in results)
+                                                        foreach (BreakerResult result in results)
                                                         {
-                                                            if(result.score <= lowestResult && lowest == null)
+                                                            if (result.score <= lowestResult && lowest == null)
                                                             {
                                                                 lowest = result;
                                                             }
-                                                            else if(result.score < nextLowest)
+                                                            else if (result.score < nextLowest)
                                                             {
                                                                 nextLowest = result.score;
                                                             }
                                                         }
                                                         results.Remove(lowest);
                                                         lowestResult = nextLowest;
-                                                    }                                                    
+                                                    }
                                                     results.Add(br);
                                                 }
                                             }
@@ -231,15 +303,19 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             }
             return results;
         }
-
-        public List<BreakerResult> roundTwoBreakerResults(IFitness fitness,List<BreakerResult> initialResults)
+        public List<BreakerResult> roundTwoBreakerResults(IFitness fitness,List<BreakerResult> initialResults,int maxCount)
         {
             List<BreakerResult> roundTwoResults = new List<BreakerResult>();
             foreach (BreakerResult br in initialResults) 
             {
                 roundTwoResults.Add(new BreakerResult(br.text,fitness.getFitness(br.text),br.enigmaModel));
             }
-            return sortBreakerList(roundTwoResults);
+            roundTwoResults = sortBreakerList(roundTwoResults);
+            if (roundTwoResults.Count < maxCount)
+            {
+                return roundTwoResults;
+            }
+            return roundTwoResults.GetRange(0, maxCount);
         }
 
         #region offset and Rotation
@@ -317,38 +393,38 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     emRotorModel.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
                     emRotorModel.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
                     EnigmaModel em = new EnigmaModel(emRotorModel, emRefl, new Dictionary<int, int>());
+
                     int[] attemptPlainText = _encodingService.encode(cipherArr, em);
                     double rating = fitness.getFitness(attemptPlainText);
+
                     if (rating > lowestResult)
                     {
-                        double newLowest = rating;
-                        if (results.Count + 1 < _bc.topSingleRotationAndOffset)
+                        em.rotors[0].rotation = lbase;
+                        em.rotors[1].rotation = m;
+                        em.rotors[2].rotation = r;
+                        em.rotors[0].ringOffset = 0;
+                        em.rotors[1].ringOffset = EncodingService.mod26(m - mbase);
+                        em.rotors[2].ringOffset = EncodingService.mod26(r - rbase);
+                        BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
+                        while (results.Count + 1 >= _bc.topSingleRotationAndOffset)
                         {
-                            newLowest = 0;
-                        }
-                        else
-                        {
-                            BreakerResult toRemove = null;
-                            foreach (var result in results)
+                            double nextLowest = rating;
+                            BreakerResult lowest = null;
+                            foreach (BreakerResult result in results)
                             {
-                                if (result.score == lowestResult)
+                                if (result.score <= lowestResult && lowest == null)
                                 {
-                                    toRemove = result;
+                                    lowest = result;
                                 }
-                                else if (result.score < newLowest)
+                                else if (result.score < nextLowest)
                                 {
-                                    newLowest = result.score;
+                                    nextLowest = result.score;
                                 }
                             }
-                            results.Remove(toRemove);
+                            results.Remove(lowest);
+                            lowestResult = nextLowest;
                         }
-                        lowestResult = newLowest;
-                        List<RotorModel> emRotorModel2 = new List<RotorModel>();
-                        emRotorModel2.Add(new RotorModel(emRotors[0], lbase, 0));
-                        emRotorModel2.Add(new RotorModel(emRotors[1], m, EncodingService.mod26(m - mbase)));
-                        emRotorModel2.Add(new RotorModel(emRotors[2], r, EncodingService.mod26(r - rbase)));
-                        EnigmaModel em2 = new EnigmaModel(emRotorModel2, emRefl, new Dictionary<int, int>());
-                        results.Add(new BreakerResult(attemptPlainText,rating, em2));
+                        results.Add(br);
                     }
                 }
             }

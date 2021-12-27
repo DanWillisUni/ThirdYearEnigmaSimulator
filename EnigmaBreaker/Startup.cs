@@ -41,34 +41,8 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<BasicService>();
-            int rotorMissCount = 0;
-            int offsetMissCount = 0;
-            int counts = 25;
-            logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
-            for (int i = 0; i < counts; i++)
-            {
-                string r = bs.root();
-                switch (r)
-                {
-                    case "C":
-                        logger.LogWarning("Complete miss");
-                        break;
-                    case "R":
-                        rotorMissCount += 1;
-                        break;
-                    case "O":
-                        offsetMissCount += 1;
-                        break;
-                    case "N":
-                        break;
-                    default:
-                        logger.LogError("Wrong char");
-                        break;
-                }
-            }            
-            logger.LogInformation($"Rotor miss rate: {rotorMissCount * 100/counts}%");
-            logger.LogInformation($"Offset miss rate: {offsetMissCount * 100 / counts}%");
+            var bs = _serviceProvider.GetRequiredService<BasicService>();            
+            bs.testing();
             Stop();
         }
 
