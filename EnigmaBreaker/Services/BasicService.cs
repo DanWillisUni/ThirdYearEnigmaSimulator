@@ -163,8 +163,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         {
             List<BreakerResult> results = new List<BreakerResult>();
             int[] cipherArr = _encodingService.preProccessCiphertext(cipherText);
-
-            double lowestResult = 0.0;
+            double lowestResult = double.MinValue;
 
             foreach (Rotor refl in allReflectors)
             {
@@ -197,32 +196,29 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
                                                 if (rating > lowestResult)
                                                 {
-                                                    double newLowest = rating;
-                                                    if (results.Count + 1 < _bc.topRotorsToSearch)
-                                                    {
-                                                        newLowest = 0;
-                                                    }
-                                                    else
-                                                    {
-                                                        BreakerResult toRemove = null;
-                                                        foreach (var result in results)
-                                                        {
-                                                            if (result.score <= lowestResult && toRemove == null)
-                                                            {
-                                                                toRemove = result;
-                                                            }
-                                                            else if (result.score < newLowest)
-                                                            {
-                                                                newLowest = result.score;
-                                                            }
-                                                        }
-                                                        results.Remove(toRemove);
-                                                    }
-                                                    lowestResult = newLowest;
                                                     em.rotors[0].rotation = l;
                                                     em.rotors[1].rotation = m;
                                                     em.rotors[2].rotation = r;
-                                                    results.Add(new BreakerResult(attemptPlainText,rating, em));
+                                                    BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
+                                                    if (results.Count + 1 >= _bc.topRotorsToSearch)                                                    
+                                                    {
+                                                        double nextLowest = rating;
+                                                        BreakerResult lowest = null;
+                                                        foreach(BreakerResult result in results)
+                                                        {
+                                                            if(result.score <= lowestResult && lowest == null)
+                                                            {
+                                                                lowest = result;
+                                                            }
+                                                            else if(result.score < nextLowest)
+                                                            {
+                                                                nextLowest = result.score;
+                                                            }
+                                                        }
+                                                        results.Remove(lowest);
+                                                        lowestResult = nextLowest;
+                                                    }                                                    
+                                                    results.Add(br);
                                                 }
                                             }
                                         }
