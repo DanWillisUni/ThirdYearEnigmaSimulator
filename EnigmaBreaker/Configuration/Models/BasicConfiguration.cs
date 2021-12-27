@@ -11,5 +11,7 @@ namespace EnigmaBreaker.Configuration.Models
         public int topSingleRotationAndOffset { get; set; }
         public string dataDir { get; set; }
         public string bigramFileName { get; set; }
+        public string trigramFileName { get; set; }
+        public string quadgramFileName { get; set; }
     }
 }
