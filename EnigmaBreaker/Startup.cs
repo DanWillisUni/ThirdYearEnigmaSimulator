@@ -41,8 +41,15 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<BasicService>();            
-            bs.testPlugboard();
+            var bs = _serviceProvider.GetRequiredService<BasicService>();
+            List<string> allFitnessStr = new List<string>() { "IOC", "BI", "TRI", "QUAD" };
+            string successRates = "";
+            foreach(string fitness in allFitnessStr)
+            {
+                successRates += fitness + " " + bs.testPlugboard(fitness) + "\n";
+            }
+            logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation(successRates);
             Stop();
         }
 
