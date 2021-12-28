@@ -90,7 +90,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
  
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
-            EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse,_bc.numberOfReflectorsInUse);
+            EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse,_bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
             string emJson = JsonConvert.SerializeObject(em);
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
@@ -133,7 +133,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
  
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
-                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse);
+                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
@@ -200,7 +200,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
         public void testing()
         {
-            int counts = 5;
+            int counts = 100;
             for (int i = 0; i < counts; i++)
             {
                 string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
@@ -211,11 +211,11 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
  
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
-                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse);
+                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
-                _logger.LogInformation(toStringRotors(em));
+                _logger.LogInformation(toStringRotors(em) + "/" + toStringPlugboard(em));
                 string ciphertext = _encodingService.encode(plaintext, em);
 
                 List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
@@ -227,15 +227,17 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                         //&& (br.enigmaModel.rotors[1].rotation - 1 == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset) || br.enigmaModel.rotors[1].rotation == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset) || br.enigmaModel.rotors[1].rotation + 1 == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset))
                         //&& (br.enigmaModel.rotors[2].rotation - 1 == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset) || br.enigmaModel.rotors[2].rotation == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset) || br.enigmaModel.rotors[2].rotation + 1 == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset)))//this line is a cheat
                     ){
-                        _logger.LogInformation($"Rotor result: {toStringRotors(br.enigmaModel)}");
+                        _logger.LogInformation($"Rotor result {initialRotorSetupResults.IndexOf(br)}: {toStringRotors(br.enigmaModel)}");
                         List<BreakerResult> fullRotorOffset = getRotationOffsetResult(br, ciphertext, _resolver("IOC"));
 
                         foreach (BreakerResult brr in fullRotorOffset)
                         {
                             if (toStringRotors(brr.enigmaModel).Split("/")[2] == toStringRotors(em2).Split("/")[2] && toStringRotors(brr.enigmaModel).Split("/")[3] == toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
                             {
-                                _logger.LogInformation($"Offset result: {toStringRotors(brr.enigmaModel)}");
-                                _logger.LogInformation("Got to plugboard");
+                                _logger.LogInformation($"Offset result {fullRotorOffset.IndexOf(brr)}: {toStringRotors(brr.enigmaModel)}");
+                                BreakerResult finalResult = getPlugboardSettings(brr, ciphertext, _resolver("QUAD"));
+                                _logger.LogInformation($"Final Result: {toStringRotors(finalResult.enigmaModel)} {toStringPlugboard(finalResult.enigmaModel)}");                                
+                                                                
                                 break;
                             }                            
                         }
@@ -243,8 +245,49 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     }
                 }
             }
-        }           
-        
+        }
+
+        public void testPlugboard()
+        {
+            int counts = 100;
+            double success = 0.0;
+            for (int i = 0; i < counts; i++)
+            {
+                string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
+ 
+The way Dinah washed her children’s faces was this: first she held the poor thing down by its ear with one paw, and then with the other paw she rubbed its face all over, the wrong way, beginning at the nose: and just now, as I said, she was hard at work on the white kitten, which was lying quite still and trying to purr—no doubt feeling that it was all meant for its good.
+ 
+But the black kitten had been finished with earlier in the afternoon, and so, while Alice was sitting curled up in a corner of the great arm-chair, half talking to herself and half asleep, the kitten had been having a grand game of romps with the ball of worsted Alice had been trying to wind up, and had been rolling it up and down till it had all come undone again; and there it was, spread over the hearth-rug, all knots and tangles, with the kitten running after its own tail in the middle.
+ 
+“Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
+";//first 4 paragraphs in alice in wonderland
+                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                string emJson = JsonConvert.SerializeObject(em);
+                EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+
+                _logger.LogInformation(toStringRotors(em) + "/" + toStringPlugboard(em));
+                string ciphertext = _encodingService.encode(plaintext, em);
+
+                em2.plugboard = new Dictionary<int, int>();
+                int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
+                BreakerResult brr = new BreakerResult(cipherArr, _resolver("IOC").getFitness(cipherArr), em2);
+                BreakerResult finalResult = getPlugboardSettings(brr, ciphertext, _resolver("QUAD"));
+                _logger.LogInformation($"Final Result: {toStringRotors(finalResult.enigmaModel)} {toStringPlugboard(finalResult.enigmaModel)}");
+
+                string actPB = toStringPlugboard(em);
+                string resultPB = toStringPlugboard(finalResult.enigmaModel);
+                bool correctPB = comparePlugboard(actPB, resultPB);
+                if (correctPB)
+                {
+                    success += 1.0;
+                }
+                else
+                {
+                    _logger.LogInformation("Incorrect");
+                }
+            }
+            _logger.LogInformation($"Success rate: {success * 100 / counts}%");
+        }
 
         public List<BreakerResult> getRotorResults(string cipherText, IFitness fitness)
         {
@@ -453,7 +496,60 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             
             return results;
         }
-        #endregion        
+        #endregion
+
+        #region plugboard
+        public BreakerResult getPlugboardSettings(BreakerResult br, string ciphertext, IFitness fitness)
+        {
+            int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
+            int counter = 1;
+            List<BreakerResult> allPlugboardResults = new List<BreakerResult>();
+            List<BreakerResult> onePairResults = new List<BreakerResult>() { br };
+            while (onePairResults[0].enigmaModel.plugboard.Count < _bc.maxPlugboardSettings)
+            {
+                foreach(BreakerResult opr in onePairResults)
+                {
+                    onePairResults = onePairPlugboard(opr, cipherArr, fitness);
+                }                
+                allPlugboardResults.AddRange(onePairResults);
+            }
+            allPlugboardResults = sortBreakerList(allPlugboardResults);
+            return allPlugboardResults[0];
+        }
+
+        public List<BreakerResult> onePairPlugboard(BreakerResult br,int[] cipherArr,IFitness fitness)
+        {
+            List<int> ignoreCurrent = new List<int>();
+            foreach (KeyValuePair<int, int> entry in br.enigmaModel.plugboard)
+            {
+                ignoreCurrent.Add(entry.Key);
+                ignoreCurrent.Add(entry.Value);
+            }
+            string emJson = JsonConvert.SerializeObject(br.enigmaModel);
+
+            List<BreakerResult> results = new List<BreakerResult>();
+            for(int a = 0;a < 25; a++)
+            {
+                if (!ignoreCurrent.Contains(a))
+                {
+                    for (int b = a + 1; b < 26; b++)
+                    {
+                        if (!ignoreCurrent.Contains(b))
+                        {
+                            EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+                            em.plugboard.Add(a, b);
+                            int[] attemptPlainText = _encodingService.encode(cipherArr, em);
+                            double rating = fitness.getFitness(attemptPlainText);
+                            EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+                            em2.plugboard.Add(a, b);
+                            results.Add(new BreakerResult(attemptPlainText,rating,em2));
+                        }
+                    }
+                }                
+            }
+            return sortBreakerList(results).GetRange(0,_bc.topSinglePlugboardPairs);
+        }
+        #endregion
 
         #region helper
         private List<BreakerResult> sortBreakerList(List<BreakerResult> input)
@@ -492,6 +588,53 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                 r += rotor.ringOffset;
             }
             return r;
+        }
+
+        public string toStringPlugboard(EnigmaModel enigmaModel)
+        {
+            string r = "";
+            foreach(KeyValuePair<int,int> entry in enigmaModel.plugboard)
+            {
+                if(entry.Key < entry.Value)
+                {
+                    r += Convert.ToChar(entry.Key + 65);
+                    r += Convert.ToChar(entry.Value + 65);
+                }
+                else
+                {                    
+                    r += Convert.ToChar(entry.Value + 65);
+                    r += Convert.ToChar(entry.Key + 65);
+                }                
+                r += " ";
+            }
+            return r;
+        }
+        public bool comparePlugboard(string actual,string attempt)
+        {
+            if (actual.Length == attempt.Length)
+            {
+                foreach (string a in actual.Split(" "))
+                {
+                    bool found = false;
+                    foreach (string r in attempt.Split(" "))
+                    {
+                        if (r == a)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
         
         #endregion
