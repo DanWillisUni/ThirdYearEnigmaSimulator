@@ -98,6 +98,12 @@ namespace SharedCL
       }
     ]";
             List<Rotor> reflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
+            int reflectorStartIndex = 0;
+            if (maxReflector == 1)
+            {
+                reflectorStartIndex = 1;
+            }
+            reflectors = reflectors.GetRange(reflectorStartIndex, maxReflector);
 
             List<RotorModel> emRotors = new List<RotorModel>();
             emRotors.Add(new RotorModel(rotors[l], rnd.Next(26), rnd.Next(26)));

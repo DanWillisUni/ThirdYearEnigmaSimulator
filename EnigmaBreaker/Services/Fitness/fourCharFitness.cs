@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EnigmaBreaker.Services.Fitness
 {
-    public class fourCharFitness
+    public class fourCharFitness : IFitness
     {
         private readonly float[] quadgrams;
         public fourCharFitness(BasicConfiguration bc)

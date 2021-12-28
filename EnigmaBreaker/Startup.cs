@@ -65,6 +65,9 @@ namespace EnigmaBreaker
 
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<doubleCharFitness>();
+            _serviceCollection.AddTransient<tripleCharFitness>();
+            _serviceCollection.AddTransient<fourCharFitness>();
+
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {
                 switch (key)
@@ -73,6 +76,10 @@ namespace EnigmaBreaker
                         return serviceProvider.GetService<indexOfCoincidence>();
                     case "BI":
                         return serviceProvider.GetService<doubleCharFitness>();
+                    case "TRI":
+                        return serviceProvider.GetService<tripleCharFitness>();
+                    case "QUAD":
+                        return serviceProvider.GetService<fourCharFitness>();
                     default:
                         throw new KeyNotFoundException();
                 }
