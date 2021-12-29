@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EnigmaBreaker.Services
 {
@@ -18,6 +20,8 @@ namespace EnigmaBreaker.Services
         private readonly BasicConfiguration _bc;
         private readonly EncodingService _encodingService;
         private readonly IFitness.FitnessResolver _resolver;
+
+        private readonly object listLock = new object();
         private List<Rotor> allRotors { get; set; }
         private List<Rotor> allReflectors { get; set; }
         public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver)
@@ -398,10 +402,23 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     }
                 }
             }
-            foreach(string e in configToCheck)
+
+            Parallel.For<List<BreakerResult>>(0, configToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) =>
+            {
+                threadResults.AddRange(getIndividualRotorResults(cipherArr, configToCheck[(int)i], fitness));
+                return threadResults;
+            },
+            (threadResults) => { 
+                    lock (listLock)
+                    {
+                        results.AddRange(threadResults);
+                    }
+            });
+            /*
+            foreach (string e in configToCheck)
             {
                 results.AddRange(getIndividualRotorResults(cipherArr,e,fitness));
-            }            
+            }       */     
             return sortBreakerList(results).GetRange(0, _bc.topRotorsToSearch);
         }
         public List<BreakerResult> getIndividualRotorResults(int[] cipherArr,string emStr,IFitness fitness)
