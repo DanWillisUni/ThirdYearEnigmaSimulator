@@ -43,7 +43,7 @@ namespace EnigmaBreaker
         public void runMyStuff()
         {
             var bs = _serviceProvider.GetRequiredService<BasicService>();
-            bs.root();
+            bs.testRotor();
             Stop();
         }
 

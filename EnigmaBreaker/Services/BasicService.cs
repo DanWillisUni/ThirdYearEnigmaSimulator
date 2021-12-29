@@ -92,9 +92,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 “Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
 ";//first 4 paragraphs in alice in wonderland
             EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
-            string emJson = JsonConvert.SerializeObject(em);
-            EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
-
+            
             _logger.LogInformation(toStringRotors(em));
             string ciphertext = _encodingService.encode(plaintext, em);
             int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
@@ -124,7 +122,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         }
         public void measureSuccessRate()
         {
-            int counts = 5;
+            int counts = 10;
             int rotorMiss = 0;
             int offsetMiss = 0;
             int plugboardMiss = 0;
@@ -218,12 +216,13 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             }
             _logger.LogInformation($"Rotor Fail: {(double)(rotorMiss * 100 / counts)}%");
             _logger.LogInformation($"Offset Fail: {(double)(offsetMiss * 100 / counts)}%");
-            _logger.LogInformation($"Offset Fail: {(double)(plugboardMiss * 100 / counts)}%");
+            _logger.LogInformation($"Plugboard Fail: {(double)(plugboardMiss * 100 / counts)}%");
             _logger.LogInformation($"Success: {(double)(success * 100 / counts)}%");
             _logger.LogInformation($"Average Rotor Index when found: {(double)(rotorFoundPositionSum / (counts - rotorMiss))}");
             _logger.LogInformation($"Average Offset Index when found: {(double)(offsetFoundPositionSum / (counts - (rotorMiss + offsetMiss)))}");
         }
 
+        #region testing individual sections
         public void testLength()
         {
             string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
@@ -244,7 +243,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         }
         public void testRotor()
         {
-            int counts = 100;
+            int counts = 5;
             double success = 0.0;
             for (int i = 0; i < counts; i++)
             {
@@ -367,12 +366,14 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             _logger.LogInformation($"Success rate: {success * 100 / counts}%");
             return (success * 100) / counts;
         }
+        #endregion
 
+        #region rotors
         public List<BreakerResult> getRotorResults(int[] cipherArr)
         {
             IFitness fitness = _resolver("IOC");
             List<BreakerResult> results = new List<BreakerResult>();
-            double lowestResult = double.MinValue;
+            List<string> configToCheck = new List<string>();
 
             foreach (Rotor refl in allReflectors)
             {
@@ -386,79 +387,77 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                             {
                                 if (left.name != right.name && middle.name != right.name)
                                 {
-                                    //_logger.LogInformation($"{left.name} {middle.name} {right.name}");
-                                    
-                                    for (int l = 0; l <= 25; l++)
-                                    {                                        
-                                        for (int m = 0; m <= 25; m++)
-                                        {                                            
-                                            for (int r = 0; r <= 25; r++)
-                                            {
-                                                List<RotorModel> rotors = new List<RotorModel>();
-                                                rotors.Add(new RotorModel(left, l));
-                                                rotors.Add(new RotorModel(middle, m));
-                                                rotors.Add(new RotorModel(right, r));
-                                                EnigmaModel em = new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>());
-
-                                                int[] attemptPlainText = _encodingService.encode(cipherArr, em);
-                                                double rating = fitness.getFitness(attemptPlainText);
-
-                                                if (rating > lowestResult)
-                                                {
-                                                    em.rotors[0].rotation = l;
-                                                    em.rotors[1].rotation = m;
-                                                    em.rotors[2].rotation = r;
-                                                    BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
-                                                    bool stillSubtract = results.Count + 1 > _bc.topRotorsToSearch;
-                                                    while (stillSubtract)
-                                                    {
-                                                        double nextLowest = rating;
-                                                        BreakerResult lowest = null;
-                                                        foreach (BreakerResult result in results)
-                                                        {
-                                                            if (result.score <= lowestResult && lowest == null)
-                                                            {
-                                                                lowest = result;
-                                                            }
-                                                            else if (result.score < nextLowest)
-                                                            {
-                                                                nextLowest = result.score;
-                                                            }
-                                                        }
-                                                        results.Remove(lowest);
-                                                        lowestResult = nextLowest;
-                                                        if(results.Count + 1 <= _bc.topRotorsToSearch || lowest == null)
-                                                        {
-                                                            stillSubtract = false;
-                                                        }
-                                                    }
-                                                    results.Add(br);
-                                                }
-                                            }
-                                        }
-                                    }
+                                    List<RotorModel> rotors = new List<RotorModel>();
+                                    rotors.Add(new RotorModel(left));
+                                    rotors.Add(new RotorModel(middle));
+                                    rotors.Add(new RotorModel(right));
+                                    configToCheck.Add(JsonConvert.SerializeObject(new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>())));
                                 }
                             }
                         }
                     }
                 }
             }
+            foreach(string e in configToCheck)
+            {
+                results.AddRange(getIndividualRotorResults(cipherArr,e,fitness));
+            }            
+            return sortBreakerList(results).GetRange(0, _bc.topRotorsToSearch);
+        }
+        public List<BreakerResult> getIndividualRotorResults(int[] cipherArr,string emStr,IFitness fitness)
+        {
+            List<BreakerResult> results = new List<BreakerResult>();
+            double lowestResult = double.MinValue;
+            for (int l = 0; l <= 25; l++)
+            {
+                for (int m = 0; m <= 25; m++)
+                {
+                    for (int r = 0; r <= 25; r++)
+                    {
+                        EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);
+                        em.rotors[0].rotation = l;
+                        em.rotors[1].rotation = m;
+                        em.rotors[2].rotation = r;
+                        int[] attemptPlainText = _encodingService.encode(cipherArr, em);
+                        double rating = fitness.getFitness(attemptPlainText);
+
+                        if (rating > lowestResult)
+                        {
+                            em.rotors[0].rotation = l;
+                            em.rotors[1].rotation = m;
+                            em.rotors[2].rotation = r;
+                            BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
+                            bool stillSubtract = results.Count + 1 > _bc.topSingleRotors;
+                            while (stillSubtract)
+                            {
+                                double nextLowest = rating;
+                                BreakerResult lowest = null;
+                                foreach (BreakerResult result in results)
+                                {
+                                    if (result.score <= lowestResult && lowest == null)
+                                    {
+                                        lowest = result;
+                                    }
+                                    else if (result.score < nextLowest)
+                                    {
+                                        nextLowest = result.score;
+                                    }
+                                }
+                                results.Remove(lowest);
+                                lowestResult = nextLowest;
+                                if (results.Count + 1 <= _bc.topSingleRotors || lowest == null)
+                                {
+                                    stillSubtract = false;
+                                }
+                            }
+                            results.Add(br);
+                        }
+                    }
+                }
+            }
             return results;
         }
-        public List<BreakerResult> roundTwoBreakerResults(IFitness fitness,List<BreakerResult> initialResults,int maxCount)
-        {
-            List<BreakerResult> roundTwoResults = new List<BreakerResult>();
-            foreach (BreakerResult br in initialResults) 
-            {
-                roundTwoResults.Add(new BreakerResult(br.text,fitness.getFitness(br.text),br.enigmaModel));
-            }
-            roundTwoResults = sortBreakerList(roundTwoResults);
-            if (roundTwoResults.Count < maxCount)
-            {
-                return roundTwoResults;
-            }
-            return roundTwoResults.GetRange(0, maxCount);
-        }
+        #endregion
 
         #region offset and Rotation
         private List<BreakerResult> getRotationOffsetResult(BreakerResult br,int[] ciphertext)

@@ -10,6 +10,7 @@ namespace EnigmaBreaker.Configuration.Models
         public int numberOfReflectorsInUse { get; set; }
         public int maxPlugboardSettings { get; set; }
         public int topRotorsToSearch { get; set; }
+        public int topSingleRotors { get; set; }
         public int topSingleRotorRotationAndOffset { get; set; }
         public int topSingleVarianceRotationAndOffset { get; set; }
         public int topAllRotorRotationAndOffset { get; set; }
