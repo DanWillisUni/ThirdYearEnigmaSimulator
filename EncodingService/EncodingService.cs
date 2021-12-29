@@ -100,7 +100,7 @@ namespace SharedCL
         {
             return (x + 26) % 26;
         }
-        private string getStringFromIntArr(int[] input)
+        public string getStringFromIntArr(int[] input)
         {
             string r = "";
             foreach (int c in input)
