@@ -96,13 +96,16 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
             _logger.LogInformation(toStringRotors(em));
             string ciphertext = _encodingService.encode(plaintext, em);
+
+            int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
+
             //rotors
             List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
             //rotorOffset
             List<BreakerResult> fullRotorResultOfAll = new List<BreakerResult>();
             foreach (BreakerResult rotorResult in initialRotorSetupResults)
             {
-                fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, ciphertext, _resolver("IOC")));
+                fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, cipherArr, _resolver("IOC")));
             }
             fullRotorResultOfAll = sortBreakerList(fullRotorResultOfAll);
             if (fullRotorResultOfAll.Count > _bc.topAllRotorRotationAndOffset)
@@ -120,6 +123,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             int counts = 5;
             int rotorMiss = 0;
             int offsetMiss = 0;
+            int plugboardMiss = 0;
             double rotorFoundPositionSum = 0.0;
             double offsetFoundPositionSum = 0.0;
             int success = 0;
@@ -139,6 +143,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
                 _logger.LogInformation(toStringRotors(em));
                 string ciphertext = _encodingService.encode(plaintext, em);
+                int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
 
                 List<BreakerResult> initialRotorSetupResults = sortBreakerList(getRotorResults(ciphertext, _resolver("IOC")));
 
@@ -162,7 +167,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     List<BreakerResult> fullRotorResultOfAll = new List<BreakerResult>();
                     foreach (BreakerResult rotorResult in initialRotorSetupResults)
                     {
-                        fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, ciphertext, _resolver("IOC")));
+                        fullRotorResultOfAll.AddRange(getRotationOffsetResult(rotorResult, cipherArr, _resolver("IOC")));
                     }
                     fullRotorResultOfAll = sortBreakerList(fullRotorResultOfAll);
                     if (fullRotorResultOfAll.Count > _bc.topAllRotorRotationAndOffset)
@@ -186,13 +191,30 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                     }
                     else
                     {
-                        success += 1;
+                        found = false;
+                        foreach(BreakerResult brrr in fullRotorResultOfAll)
+                        {
+                            BreakerResult finalResult = getPlugboardSettings(brrr, cipherArr);
+                            if(comparePlugboard(toStringPlugboard(em2), toStringPlugboard(finalResult.enigmaModel)))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            plugboardMiss += 1;
+                        }
+                        else
+                        {
+                            success += 1;
+                        }
                     }
-
                 }
             }
             _logger.LogInformation($"Rotor Fail: {(double)(rotorMiss * 100 / counts)}%");
             _logger.LogInformation($"Offset Fail: {(double)(offsetMiss * 100 / counts)}%");
+            _logger.LogInformation($"Offset Fail: {(double)(plugboardMiss * 100 / counts)}%");
             _logger.LogInformation($"Success: {(double)(success * 100 / counts)}%");
             _logger.LogInformation($"Average Rotor Index when found: {(double)(rotorFoundPositionSum / (counts - rotorMiss))}");
             _logger.LogInformation($"Average Offset Index when found: {(double)(offsetFoundPositionSum / (counts - (rotorMiss + offsetMiss)))}");
@@ -244,28 +266,19 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             }
             _logger.LogInformation($"Success rate: {success * 100 / counts}%");
         }
-        public void testOffset()
+        public double testOffset(string fitness,int[] plaintext)
         {
-            int counts = 100;
+            int counts = 50;
             double success = 0.0;
             for (int i = 0; i < counts; i++)
             {
-                string plaintext = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.
- 
-The way Dinah washed her children’s faces was this: first she held the poor thing down by its ear with one paw, and then with the other paw she rubbed its face all over, the wrong way, beginning at the nose: and just now, as I said, she was hard at work on the white kitten, which was lying quite still and trying to purr—no doubt feeling that it was all meant for its good.
- 
-But the black kitten had been finished with earlier in the afternoon, and so, while Alice was sitting curled up in a corner of the great arm-chair, half talking to herself and half asleep, the kitten had been having a grand game of romps with the ball of worsted Alice had been trying to wind up, and had been rolling it up and down till it had all come undone again; and there it was, spread over the hearth-rug, all knots and tangles, with the kitten running after its own tail in the middle.
- 
-“Oh, you wicked little thing!” cried Alice, catching up the kitten, and giving it a little kiss to make it understand that it was in disgrace. “Really, Dinah ought to have taught you better manners! You ought, Dinah, you know you ought!” she added, looking reproachfully at the old cat, and speaking in as cross a voice as she could manage—and then she scrambled back into the arm-chair, taking the kitten and the worsted with her, and began winding up the ball again. But she didn’t get on very fast, as she was talking all the time, sometimes to the kitten, and sometimes to herself. Kitty sat very demurely on her knee, pretending to watch the progress of the winding, and now and then putting out one paw and gently touching the ball, as if it would be glad to help, if it might.
-";//first 4 paragraphs in alice in wonderland
                 EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                 EnigmaModel em3 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
                 _logger.LogInformation(toStringRotors(em) + "/" + toStringPlugboard(em));
-                string ciphertext = _encodingService.encode(plaintext, em);
-                int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
+                int[] cipherArr = _encodingService.encode(plaintext, em);
 
                 em2.plugboard = new Dictionary<int, int>();
                 Random rnd = new Random();
@@ -276,7 +289,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                 }
                 _logger.LogInformation($"Input: {toStringRotors(em2)}");
 
-                List<BreakerResult> fullRotorOffset = getRotationOffsetResult(new BreakerResult(cipherArr,double.MinValue,em2), ciphertext, _resolver("IOC"));
+                List<BreakerResult> fullRotorOffset = getRotationOffsetResult(new BreakerResult(cipherArr,double.MinValue,em2), cipherArr, _resolver(fitness));
                 bool found = false;
                 foreach(BreakerResult brr in fullRotorOffset)
                 {
@@ -296,6 +309,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
                 }
             }
             _logger.LogInformation($"Success rate: {success * 100 / counts}%");
+            return (success * 100) / counts;
         }
         public double testPlugboard(int[] plaintext)
         {
@@ -424,7 +438,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
         }
 
         #region offset and Rotation
-        private List<BreakerResult> getRotationOffsetResult(BreakerResult br,string ciphertext,IFitness fitness)
+        private List<BreakerResult> getRotationOffsetResult(BreakerResult br,int[] ciphertext,IFitness fitness)
         {
             List<BreakerResult> fullRotorResults = new List<BreakerResult>();
             int lbase = br.enigmaModel.rotors[0].rotation;
@@ -450,7 +464,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             }            
             return fullRotorResults.GetRange(0,_bc.topSingleRotorRotationAndOffset);
         }
-        private List<BreakerResult> getRotorResultsWithRotationAndOffset(string ciphertext, IFitness fitness, string currentRotors)
+        private List<BreakerResult> getRotorResultsWithRotationAndOffset(int[] cipherArr, IFitness fitness, string currentRotors)
         {
             List<string> rotorNames = new List<string>();
             List<string> rotorDetails = new List<string>();
@@ -488,7 +502,6 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
 
             double lowestResult = 0.0;
             List<BreakerResult> results = new List<BreakerResult>();
-            int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
             for (int m = 0; m < 26; m++)
             {
                 for (int r = 0; r < 26; r++)

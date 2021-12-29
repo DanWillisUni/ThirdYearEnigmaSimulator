@@ -59,7 +59,7 @@ But the black kitten had been finished with earlier in the afternoon, and so, wh
             {
                 foreach (string fitness in allFitnessStr)
                 {
-                    successRates += fitness + "," + i + "," + bs.testPlugboard(plainArr.GetRange(0,i).ToArray()) + "\n";
+                    successRates += fitness + "," + i + "," + bs.testOffset(fitness,plainArr.GetRange(0,i).ToArray()) + "\n";
                 }
             }            
             logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
