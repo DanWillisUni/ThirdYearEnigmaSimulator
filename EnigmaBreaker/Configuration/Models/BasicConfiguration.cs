@@ -15,9 +15,11 @@ namespace EnigmaBreaker.Configuration.Models
         public int topSingleVarianceRotationAndOffset { get; set; }
         public int topAllRotorRotationAndOffset { get; set; }
         public int topSinglePlugboardPairs { get; set; }
-        public string dataDir { get; set; }
+        public string gramDataDir { get; set; }
         public string bigramFileName { get; set; }
         public string trigramFileName { get; set; }
         public string quadgramFileName { get; set; }
+        public string textDir { get; set; }
+        public List<string> textFileNames { get; set; }
     }
 }

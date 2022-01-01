@@ -1,0 +1,7 @@
+My project is based upon a German encryption machine used by Nazis in WW2 and has two main parts to it. The first is to create a simulator for Enigma. The user should be able to configure it to whichever configuration a classic M3 machine could. The user can then encrypt plaintext to ciphertext at the press of a button. This can also be used for decryption as enigma is reversible.
+	
+	The second part is to use all that we now know about enigma and its flaws combined with modern day computing power enabling me to brute force what simply couldn't be achieved back then. And modern cryptography to attempt to break the cipher, seeing if it has stood the test of time.
+	
+	My motivation is a little bit strange but I like Alan Turing, I think he had a really interesting life. Arguably the father of computer science and he helped break the enigma back in ww2. Also The Imitation Game is one of my favourite films, which was inspired by a book. 
+	
+	I picked this project because I believed it would be entertaining, challenging and it is something that I am interested in.

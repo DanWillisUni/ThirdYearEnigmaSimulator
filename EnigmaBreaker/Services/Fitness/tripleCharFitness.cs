@@ -12,7 +12,7 @@ namespace EnigmaBreaker.Services.Fitness
         {
             trigrams = new float[26426];
             Array.Fill(trigrams, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.dataDir, bc.trigramFileName)))
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.gramDataDir, bc.trigramFileName)))
             {
                 trigrams[triIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65)] = float.Parse(line.Split(",")[1]);
             }

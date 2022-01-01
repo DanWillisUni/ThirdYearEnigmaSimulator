@@ -12,7 +12,7 @@ namespace EnigmaBreaker.Services.Fitness
         {
             bigrams = new float[826];
             Array.Fill(bigrams, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.dataDir,bc.bigramFileName)))
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.gramDataDir,bc.bigramFileName)))
             {
                 bigrams[biIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65)] = float.Parse(line.Split(",")[1]);
             }            
