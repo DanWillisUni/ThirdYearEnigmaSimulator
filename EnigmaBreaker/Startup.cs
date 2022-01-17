@@ -42,7 +42,7 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<BasicService>();
+            var bs = _serviceProvider.GetRequiredService<Measuring>();
             bs.root();
             Stop();
         }
@@ -63,6 +63,8 @@ namespace EnigmaBreaker
             _serviceCollection.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Debug);
             _serviceCollection.AddSingleton<BasicService>();
             _serviceCollection.AddSingleton<EncodingService>();
+            _serviceCollection.AddSingleton<Measuring>();
+
 
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<doubleCharFitness>();
