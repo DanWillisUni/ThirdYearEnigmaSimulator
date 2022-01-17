@@ -88,10 +88,10 @@ namespace EnigmaBreaker.Services
         public void root()
         {
             //new ciphertext and enigma
-            string plaintext = getText();
-            EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
-            _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);
-            _logger.LogInformation(toStringRotors(em) + "/" + toStringPlugboard(em));
+            string plaintext = getText();//get a random plaintext as string
+            EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
+            _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
+            _logger.LogInformation(em.ToString());//print the enigma model
             string ciphertext = _encodingService.encode(plaintext, em);
             _logger.LogInformation($"Ciphertext: {ciphertext.Length}\n" + ciphertext);
             int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
@@ -246,7 +246,7 @@ namespace EnigmaBreaker.Services
                         for (int rchange = -1; rchange < 2; rchange++)
                         {
                             br.enigmaModel.rotors[2].rotation = rbase + rchange;
-                            offsetConfigurationsToCheck.Add(toStringRotors(br.enigmaModel));
+                            offsetConfigurationsToCheck.Add(br.enigmaModel.toStringRotors());
                         }
                     }
                 }
@@ -452,65 +452,7 @@ namespace EnigmaBreaker.Services
                 input.Remove(r[r.Count-1]);
             }
             return r;
-        }
-        public string toStringRotors(EnigmaModel enigmaModel)
-        {
-            string r = enigmaModel.reflector.rotor.name;
-            foreach (RotorModel rotor in enigmaModel.rotors)
-            {
-                r += "/";
-                r += rotor.rotor.name + ",";
-                r += rotor.rotation + ",";
-                r += rotor.ringOffset;
-            }
-            return r;
-        }
-        public string toStringPlugboard(EnigmaModel enigmaModel)
-        {
-            string r = "";
-            foreach(KeyValuePair<int,int> entry in enigmaModel.plugboard)
-            {
-                if(entry.Key < entry.Value)
-                {
-                    r += Convert.ToChar(entry.Key + 65);
-                    r += Convert.ToChar(entry.Value + 65);
-                }
-                else
-                {                    
-                    r += Convert.ToChar(entry.Value + 65);
-                    r += Convert.ToChar(entry.Key + 65);
-                }                
-                r += " ";
-            }
-            return r;
-        }
-        public bool comparePlugboard(string actual,string attempt)
-        {
-            if (actual.Length == attempt.Length)
-            {
-                foreach (string a in actual.Split(" "))
-                {
-                    bool found = false;
-                    foreach (string r in attempt.Split(" "))
-                    {
-                        if (r == a)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-            return true;
-        }
+        }               
 
         public string getText(int length = -1)
         {

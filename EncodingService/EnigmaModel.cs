@@ -113,5 +113,39 @@ namespace SharedCL
             EnigmaModel rEM = new EnigmaModel(emRotors, new RotorModel(reflectors[rnd.Next(maxReflector)]), plugboard);
             return rEM;
         }
+
+        public string toStringRotors()
+        {
+            string r = this.reflector.rotor.name;
+            foreach (RotorModel rotor in this.rotors)
+            {
+                r += "/";
+                r += rotor.ToString();
+            }
+            return r;
+        }
+        public string toStringPlugboard()
+        {
+            string r = "";
+            foreach (KeyValuePair<int, int> entry in this.plugboard)
+            {
+                if (entry.Key < entry.Value)
+                {
+                    r += Convert.ToChar(entry.Key + 65);
+                    r += Convert.ToChar(entry.Value + 65);
+                }
+                else
+                {
+                    r += Convert.ToChar(entry.Value + 65);
+                    r += Convert.ToChar(entry.Key + 65);
+                }
+                r += " ";
+            }
+            return r;
+        }
+        public override string ToString()
+        {
+            return this.toStringRotors() + "/" + this.toStringPlugboard();
+        }
     }
 }

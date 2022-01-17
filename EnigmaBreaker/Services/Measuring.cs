@@ -31,14 +31,18 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {
-            //testLength(100, 1000, 100, "Plugboard", 1000, new List<string>() { "IOC", "BI", "TRI","QUAD" },"plugboardLengthTest.csv");//8 hours
-            //testLength(10, 500, 10, "Plugboard", 100, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "plugboardLengthTestClose.csv");
-            //testLength(100, 1600, 100, "Offset", 100, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"offsetLengthTest.csv");
-            //testLength(100, 1600, 100, "Rotors", 10, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"rotorLengthTest.csv");
+            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "BI", "TRI","QUAD" },"Results/plugboardLengthTest.csv");//1.6 hours
+            //testLength(10, 500, 10, "Plugboard", 100, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose.csv");//2.3 hours
+            //testLength(100, 2000, 100, "Offset", 25, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"Results/offsetLengthTest.csv");//3 hours
+            //testLength(100, 2000, 100, "Rotors", 5, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"Results/rotorLengthTest.csv");//15 hours
+
+            //testSpeed(100, 2000, 100, "Plugboard", 500, "Results/plugboardSpeedTest.csv");//3.9 hours
+            //testSpeed(100, 2000, 100, "Offset", 100, "Results/offsetSpeedTest.csv");//3.7 hours
+            //testSpeed(100, 2000, 100, "Rotors", 5, "Results/rotorsSpeedTest.csv");//15 hours
+
             //measureFullRunthrough(100);
-            //testSpeed(100, 1600, 100, "Plugboard", 1000, "plugboardSpeedTest.csv");
-            //testSpeed(100, 1600, 100, "Offset", 100, "offsetSpeedTest.csv");
-            //testSpeed(100, 1600, 100, "Rotors", 10, "rotorsSpeedTest.csv");
+
+            testLength(100, 2000, 100, "Offset", 1, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"Results/offsetLengthTest.csv");//3 hours
         }
         public void measureFullRunthrough(int iterations)
         {
@@ -55,7 +59,7 @@ namespace EnigmaBreaker.Services
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
-                _logger.LogDebug(_bs.toStringRotors(em));
+                _logger.LogDebug(em.toStringRotors());
                 string ciphertext = _encodingService.encode(plaintext, em);
                 int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
 
@@ -82,13 +86,13 @@ namespace EnigmaBreaker.Services
                     found = false;
                     foreach (BreakerResult brr in fullRotorResultOfAll)
                     {
-                        if (_bs.toStringRotors(brr.enigmaModel).Split("/")[2] == _bs.toStringRotors(em2).Split("/")[2] && _bs.toStringRotors(brr.enigmaModel).Split("/")[3] == _bs.toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
+                        /*if (_bs.toStringRotors(brr.enigmaModel).Split("/")[2] == _bs.toStringRotors(em2).Split("/")[2] && _bs.toStringRotors(brr.enigmaModel).Split("/")[3] == _bs.toStringRotors(em2).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
                         {
                             found = true;
                             _logger.LogDebug($"O1 - {fullRotorResultOfAll.IndexOf(brr)}");
                             offsetFoundPositionSum += fullRotorResultOfAll.IndexOf(brr) + 1;
                             break;
-                        }
+                        }*/
                     }
                     if (!found)
                     {
@@ -100,7 +104,7 @@ namespace EnigmaBreaker.Services
                         foreach (BreakerResult brrr in fullRotorResultOfAll)
                         {
                             BreakerResult finalResult = _bs.getPlugboardResults(brrr, cipherArr);
-                            if (_bs.comparePlugboard(_bs.toStringPlugboard(em2), _bs.toStringPlugboard(finalResult.enigmaModel)))
+                            if (comparePlugboard(em2.toStringPlugboard(), finalResult.enigmaModel.toStringPlugboard()))
                             {
                                 found = true;
                                 break;
@@ -239,7 +243,7 @@ namespace EnigmaBreaker.Services
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
-                _logger.LogDebug(_bs.toStringRotors(em) + "/" + _bs.toStringPlugboard(em));
+                _logger.LogDebug(em.ToString());
                 int[] cipherArr = _encodingService.encode(plaintext, em);
 
                 List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr,fitnessStr));
@@ -248,7 +252,7 @@ namespace EnigmaBreaker.Services
                 {
                     if (br.enigmaModel.reflector.rotor.name == em.reflector.rotor.name && br.enigmaModel.rotors[0].rotor.name == em.rotors[0].rotor.name && br.enigmaModel.rotors[1].rotor.name == em.rotors[1].rotor.name && br.enigmaModel.rotors[2].rotor.name == em.rotors[2].rotor.name)
                     {
-                        _logger.LogDebug($"Correct Rotors {initialRotorSetupResults.IndexOf(br)}: {_bs.toStringRotors(br.enigmaModel)}");
+                        _logger.LogDebug($"Correct Rotors {initialRotorSetupResults.IndexOf(br)}: {br.enigmaModel.toStringRotors()}");
                         if (br.enigmaModel.rotors[0].rotation - 1 == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset) || br.enigmaModel.rotors[0].rotation == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset) || br.enigmaModel.rotors[0].rotation + 1 == EncodingService.mod26(em2.rotors[0].rotation - em2.rotors[0].ringOffset))
                         {
                             if (br.enigmaModel.rotors[1].rotation - 1 == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset) || br.enigmaModel.rotors[1].rotation == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset) || br.enigmaModel.rotors[1].rotation + 1 == EncodingService.mod26(em2.rotors[1].rotation - em2.rotors[1].ringOffset))
@@ -256,7 +260,7 @@ namespace EnigmaBreaker.Services
                                 if (br.enigmaModel.rotors[2].rotation - 1 == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset) || br.enigmaModel.rotors[2].rotation == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset) || br.enigmaModel.rotors[2].rotation + 1 == EncodingService.mod26(em2.rotors[2].rotation - em2.rotors[2].ringOffset))//this line is a cheat
                                 {
                                     success += 1.0;
-                                    _logger.LogDebug($"Rotor result {initialRotorSetupResults.IndexOf(br)}: {_bs.toStringRotors(br.enigmaModel)}");
+                                    _logger.LogDebug($"Rotor result {initialRotorSetupResults.IndexOf(br)}: {br.enigmaModel.toStringRotors()}");
                                     break;
                                 }
                             }
@@ -278,7 +282,7 @@ namespace EnigmaBreaker.Services
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                 EnigmaModel em3 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
-                _logger.LogDebug(_bs.toStringRotors(em) + "/" + _bs.toStringPlugboard(em));
+                _logger.LogDebug(em.ToString());
                 int[] cipherArr = _encodingService.encode(plaintext, em);
 
                 em2.plugboard = new Dictionary<int, int>();
@@ -288,16 +292,17 @@ namespace EnigmaBreaker.Services
                     em2.rotors[ri].rotation = EncodingService.mod26(em2.rotors[ri].rotation - em2.rotors[ri].ringOffset) + rnd.Next(3) - 1;
                     em2.rotors[ri].ringOffset = 0;
                 }
-                _logger.LogDebug($"Input: {_bs.toStringRotors(em2)}");
+                _logger.LogDebug($"Input: {em2.toStringRotors()}");
 
                 List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,fitnessStr);
                 bool found = false;
                 foreach (BreakerResult brr in fullRotorOffset)
                 {
-                    if (_bs.toStringRotors(brr.enigmaModel).Split("/")[2] == _bs.toStringRotors(em3).Split("/")[2] && _bs.toStringRotors(brr.enigmaModel).Split("/")[3] == _bs.toStringRotors(em3).Split("/")[3] && brr.enigmaModel.rotors[0].rotation == EncodingService.mod26(em3.rotors[0].rotation - em3.rotors[0].ringOffset))
+                    bool correctOffset = compareOffset(em3, brr.enigmaModel);
+                    if (correctOffset)
                     {
                         found = true;
-                        _logger.LogDebug($"Result {fullRotorOffset.IndexOf(brr)}: {_bs.toStringRotors(brr.enigmaModel)}");
+                        _logger.LogDebug($"Result {fullRotorOffset.IndexOf(brr)}: {brr.enigmaModel.toStringRotors()}");
                     }
                 }
                 if (found)
@@ -321,16 +326,14 @@ namespace EnigmaBreaker.Services
                 string emJson = JsonConvert.SerializeObject(em);
                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
-                _logger.LogDebug(_bs.toStringRotors(em) + "/" + _bs.toStringPlugboard(em));
+                _logger.LogDebug(em.ToString());
                 int[] cipherArr = _encodingService.encode(plaintext, em);
 
                 em2.plugboard = new Dictionary<int, int>();                
                 BreakerResult finalResult = _bs.getPlugboardResults(new BreakerResult(cipherArr, double.MinValue, em2), cipherArr,fitnessStr);
-                _logger.LogDebug($"Final Result: {_bs.toStringRotors(finalResult.enigmaModel)} {_bs.toStringPlugboard(finalResult.enigmaModel)}");
+                _logger.LogDebug($"Final Result: {finalResult.enigmaModel.ToString()}");
 
-                string actPB = _bs.toStringPlugboard(em);
-                string resultPB = _bs.toStringPlugboard(finalResult.enigmaModel);
-                bool correctPB = _bs.comparePlugboard(actPB, resultPB);
+                bool correctPB = comparePlugboard(em.toStringPlugboard(), finalResult.enigmaModel.toStringPlugboard());
                 if (correctPB)
                 {
                     success += 1.0;
@@ -342,6 +345,61 @@ namespace EnigmaBreaker.Services
             }
             _logger.LogDebug($"Success rate: {success * 100 / iterations}%");
             return (success * 100) / iterations;
+        }
+        #endregion
+
+        #region helper
+        public bool compareRotors(string actual,string attempt)
+        {
+            return true;
+        }
+        public bool compareOffset(EnigmaModel actual,EnigmaModel attempt)
+        {
+            if (attempt.rotors[0].rotation == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset))
+            {
+                if (attempt.reflector.ToString() == actual.reflector.ToString())
+                {
+                    if (attempt.rotors.Count == actual.rotors.Count)
+                    {
+                        for (int i = 1; i < attempt.rotors.Count; i++)
+                        {
+                            if (attempt.rotors[i] != actual.rotors[i])
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }                
+            }
+            return false;
+        }
+        public bool comparePlugboard(string actual, string attempt)
+        {
+            if (actual.Length == attempt.Length)
+            {
+                foreach (string a in actual.Split(" "))
+                {
+                    bool found = false;
+                    foreach (string r in attempt.Split(" "))
+                    {
+                        if (r == a)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
         #endregion
     }

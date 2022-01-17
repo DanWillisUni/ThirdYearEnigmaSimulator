@@ -16,11 +16,19 @@ namespace SharedCL
             this.rotation = rotation;
             this.ringOffset = ringOffset;
         }
+        public override string ToString()
+        {
+            return $"{rotor.name}, {rotation}, {ringOffset}";
+        }
     }
     public class Rotor
     {
         public string name { get; set; }
         public string order { get; set; }
         public int turnoverNotchA { get; set; }
+        public override string ToString()
+        {
+            return $"{name}, {order}, {turnoverNotchA}";
+        }
     }
 }
