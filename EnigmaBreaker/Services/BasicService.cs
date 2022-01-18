@@ -105,13 +105,33 @@ namespace EnigmaBreaker.Services
 
             Stopwatch timer = new Stopwatch();//create new timer
             timer.Start();//start timer
-            List<BreakerResult> rotorResults = getRotorResults(cipherArr);//get the top results for rotor configurations
-            List<BreakerResult> offsetResults = getRotationOffsetResult(rotorResults,cipherArr);//using the top rotor results get the top offset settings
-            BreakerResult plugboardResult = getPlugboardResults(offsetResults, cipherArr);//using the top offset settings get the top plugboard setting
-            
-            string attemptPlaintext = _encodingService.encode(ciphertext, plugboardResult.enigmaModel);//decode the ciphertext using the suggested enigma configuration
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+            List<BreakerResult> rotorResults = getRotorResults(cipherArr,breakerConfiguration);//get the top results for rotor configurations
+            List<BreakerResult> offsetResults = getRotationOffsetResult(rotorResults,cipherArr, breakerConfiguration);//using the top rotor results get the top offset settings
+            List<BreakerResult> plugboardResults = getPlugboardResults(offsetResults, cipherArr, breakerConfiguration);//using the top offset settings get the top plugboard settings
+            List<string> attemptedPlainText = new List<string>();//create list for the attempted plaintext
+            foreach (BreakerResult result in plugboardResults)//for all the end results
+            {
+                attemptedPlainText.Add(_encodingService.encode(ciphertext, result.enigmaModel));//decode the ciphertext using the suggested enigma configuration
+            }            
             timer.Stop();//stop the timer
-            _logger.LogInformation($"Plaintext: \n{attemptPlaintext}");//print the plaintext       
+
+            string attemptPlainText = "";
+            if (plugboardResults.Count > 1)//if there is more than one plugboard setting suggested
+            {
+                Console.WriteLine("Please type in the number corrisponding to the best match");//get the user to chose which end sounds most english
+                for (int i = 1;i<attemptedPlainText.Count + 1; i++)//for each attempt at the plain text
+                {
+                    Console.WriteLine($"{i}: {attemptedPlainText[i].Substring(Math.Max(0, attemptedPlainText[i].Length - _bc.numberOfEndCharsToDisplay))}");//read the list out to the user
+                }
+                int index = Convert.ToInt32(Console.ReadLine());//get the user input (no error handeling)
+                attemptPlainText = attemptedPlainText[index - 1];//set the plaintext to the users input
+            }
+            else
+            {
+                attemptPlainText = attemptedPlainText[0];//set the attempt at plaintext to the only one left
+            }
+            _logger.LogInformation($"Plaintext: \n{attemptPlainText}");//print the plaintext       
             TimeSpan ts = timer.Elapsed;//get the elapsed time as a TimeSpan value
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds,ts.Milliseconds);//format the timespan value
             _logger.LogInformation("Run time: " + elapsedTime);//print the time taken to crack the enigma
@@ -128,10 +148,9 @@ namespace EnigmaBreaker.Services
         /// <param name="fitnessStr"></param>
         /// (Optional and for testing purposes) The fitness function resolver string to use
         /// <returns>Top few rotor configurations</returns>
-        public List<BreakerResult> getRotorResults(int[] cipherArr,string fitnessStr = "")
-        {
-            if (fitnessStr == "") { fitnessStr = "IOC"; }//if the fitness string is unspecified set it to default
-            IFitness fitness = _resolver(fitnessStr);//get the fitness function from the resolver string
+        public List<BreakerResult> getRotorResults(int[] cipherArr,BreakerConfiguration breakerConfiguration)
+        {            
+            IFitness fitness = _resolver(breakerConfiguration.RotorFitness);//get the fitness function from the resolver string
             List<BreakerResult> results = new List<BreakerResult>();//create new results list
             List<string> rotorConfigurationsToCheck = new List<string>();//create new list for the rotor combinations to check
 
@@ -158,7 +177,7 @@ namespace EnigmaBreaker.Services
 
             Parallel.For<List<BreakerResult>>(0, rotorConfigurationsToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multithreaded for loop
             {
-                threadResults.AddRange(getIndividualRotorResults(cipherArr, rotorConfigurationsToCheck[(int)i], fitness));//add to the thread results the top results for that configuration of rotors
+                threadResults.AddRange(getIndividualRotorResults(cipherArr, rotorConfigurationsToCheck[(int)i], fitness,breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
                 return threadResults;//return the thread results
             },
             (threadResults) => { 
@@ -166,8 +185,14 @@ namespace EnigmaBreaker.Services
                     {
                         results.AddRange(threadResults);//add the thread results to the results list
                     }
-            });                 
-            return sortBreakerList(results).GetRange(0, _bc.topRotorsToSearch);//return the top few enigma configurations
+            });
+
+            results = sortBreakerList(results);
+            if (results.Count > breakerConfiguration.numberOfRotorsToKeep)//if the list is longer than I would like
+            {
+                results = results.GetRange(0, breakerConfiguration.numberOfRotorsToKeep);//shorten the list
+            }
+            return results;//return the top few enigma configurations
         }
         /// <summary>
         /// Loops through each rotation configuration for this rotor combination
@@ -180,7 +205,7 @@ namespace EnigmaBreaker.Services
         /// <param name="fitness"></param>
         /// Fitness function to use when checking
         /// <returns>The top few rotation settings for this rotor combination</returns>
-        public List<BreakerResult> getIndividualRotorResults(int[] cipherArr,string emStr,IFitness fitness)
+        public List<BreakerResult> getIndividualRotorResults(int[] cipherArr,string emStr,IFitness fitness,int n)
         {
             List<BreakerResult> results = new List<BreakerResult>();//create results list
             double lowestResult = double.MinValue;//store the lowest rank in as the minimum value
@@ -203,7 +228,7 @@ namespace EnigmaBreaker.Services
                             em.rotors[1].rotation = m;//reset the rotation for the middle rotor
                             em.rotors[2].rotation = r;//reset the rotation of the right rotor
                             BreakerResult br = new BreakerResult(attemptPlainText, rating, em);//create a result object
-                            bool stillSubtract = results.Count + 1 > _bc.topSingleRotors;//if there is to many objects in the list
+                            bool stillSubtract = results.Count + 1 > n;//if there is to many objects in the list
                             while (stillSubtract)//while there is too many objects in the list
                             {
                                 double nextLowest = rating;
@@ -221,7 +246,7 @@ namespace EnigmaBreaker.Services
                                 }
                                 results.Remove(lowest);//remove the lowest result from the list
                                 lowestResult = nextLowest;//set the lowest result score to the new lowest score
-                                if (results.Count + 1 <= _bc.topSingleRotors || lowest == null)//if the list is still too long or no object could be removed
+                                if (results.Count + 1 <= n || lowest == null)//if the list is still too long or no object could be removed
                                 {
                                     stillSubtract = false;//break the while loop
                                 }
@@ -239,58 +264,71 @@ namespace EnigmaBreaker.Services
         private readonly object offsetListLock = new object();//mutex for the offset result list
 
         /// <summary>
+        /// Gets the top few rotor offset results from the top few rotor configuration setting
         /// 
+        /// Loops through the top few rotor configuration 
+        /// Adds a variance of +/- 1 to each rotor rotation
+        /// Uses multi threading to check all these variance combinations with the top few rotor combinations
         /// </summary>
         /// <param name="breakerResults"></param>
+        /// The top few rotor configuration results
         /// <param name="cipherArr"></param>
+        /// cipher text as an integer array
         /// <param name="fitnessStr"></param>
-        /// <returns></returns>
-        public List<BreakerResult> getRotationOffsetResult(List<BreakerResult> breakerResults,int[] cipherArr,string fitnessStr = "")
+        /// (Optional and for testing purposes) The fitness function resolver string to use
+        /// <returns>The top few rotor offset configurations</returns>
+        public List<BreakerResult> getRotationOffsetResult(List<BreakerResult> breakerResults,int[] cipherArr,BreakerConfiguration breakerConfiguration)
         {
-            if (fitnessStr == "") { fitnessStr = "IOC"; }
-            IFitness fitness = _resolver(fitnessStr);
-            List<BreakerResult> results = new List<BreakerResult> ();
-            List<string> offsetConfigurationsToCheck = new List<string>();
-            foreach (BreakerResult br in breakerResults)
+            IFitness fitness = _resolver(breakerConfiguration.OffsetFitness);//get the fitness class from the fitness string
+            List<BreakerResult> results = new List<BreakerResult> ();//create a list for the results
+            List<string> offsetConfigurationsToCheck = new List<string>();//create a list for the rotor configurations to check
+            foreach (BreakerResult br in breakerResults)//for each result in the top few rotor configurations
             {
-                int lbase = br.enigmaModel.rotors[0].rotation;
-                int mbase = br.enigmaModel.rotors[1].rotation;
-                int rbase = br.enigmaModel.rotors[2].rotation;
-                for (int lchange = -1; lchange < 2; lchange++)
+                int lbase = br.enigmaModel.rotors[0].rotation;//get the rotation of the left rotor
+                int mbase = br.enigmaModel.rotors[1].rotation;//get the rotation of the middle rotor
+                int rbase = br.enigmaModel.rotors[2].rotation;//get the rotation of the right rotor
+                for (int lchange = -1; lchange < 2; lchange++)//for varience in left rotor rotation
                 {
-                    br.enigmaModel.rotors[0].rotation = lbase + lchange;
-                    for (int mchange = -1; mchange < 2; mchange++)
+                    br.enigmaModel.rotors[0].rotation = lbase + lchange;//set the rotation of the left rotor
+                    for (int mchange = -1; mchange < 2; mchange++)//for varience in the middle rotor rotation
                     {
-                        br.enigmaModel.rotors[1].rotation = mbase + mchange;
-                        for (int rchange = -1; rchange < 2; rchange++)
+                        br.enigmaModel.rotors[1].rotation = mbase + mchange;//set the middle rotor rotation
+                        for (int rchange = -1; rchange < 2; rchange++)//for varience in the right rotor
                         {
-                            br.enigmaModel.rotors[2].rotation = rbase + rchange;
-                            offsetConfigurationsToCheck.Add(br.enigmaModel.toStringRotors());
+                            br.enigmaModel.rotors[2].rotation = rbase + rchange;//set the right rotor rotation
+                            offsetConfigurationsToCheck.Add(br.enigmaModel.toStringRotors());//add the string of rotor to the ones to check
                         }
                     }
                 }
             }
 
-            Parallel.For<List<BreakerResult>>(0, offsetConfigurationsToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) =>
+            Parallel.For<List<BreakerResult>>(0, offsetConfigurationsToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multi threaded for loop
             {
-                threadResults.AddRange(getOffsetResultPerChange(cipherArr, fitness, offsetConfigurationsToCheck[(int)i]));
-                return threadResults;
+                threadResults.AddRange(getOffsetResultPerChange(cipherArr, fitness, offsetConfigurationsToCheck[(int)i],breakerConfiguration.numberOfSettingsPerRotationCombinationToKeep));//add the top few results of the individual range to check to the thread results
+                return threadResults;//return the results for this thread
             },
             (threadResults) => {
-                lock (offsetListLock)
+                lock (offsetListLock)//lock the list
                 {
-                    results.AddRange(threadResults);
+                    results.AddRange(threadResults);//add the thread results to the list
                 }
             });
 
-            results = sortBreakerList(results);
-            if (results.Count > _bc.topAllRotorRotationAndOffset)
+            results = sortBreakerList(results);//sort the list
+            if (results.Count > breakerConfiguration.numberOfOffsetToKeep)//if the list is longer than I would like
             {
-                results=results.GetRange(0, _bc.topAllRotorRotationAndOffset);
+                results=results.GetRange(0, breakerConfiguration.numberOfOffsetToKeep);//shorten the list
             }
-            return results;
+            return results;//return the results
         }
-        public List<BreakerResult> getOffsetResultPerChange(int[] cipherArr, IFitness fitness, string currentRotors)
+        /// <summary>
+        /// Get the top few results per change of the
+        /// </summary>
+        /// <param name="cipherArr"></param>
+        /// <param name="fitness"></param>
+        /// <param name="currentRotors"></param>
+        /// <returns></returns>
+        public List<BreakerResult> getOffsetResultPerChange(int[] cipherArr, IFitness fitness, string currentRotors,int n)
         {
             List<string> rotorNames = new List<string>();
             List<string> rotorDetails = new List<string>();
@@ -347,7 +385,7 @@ namespace EnigmaBreaker.Services
                         em.rotors[1].rotation = m;
                         em.rotors[2].rotation = r;
                         BreakerResult br = new BreakerResult(attemptPlainText, rating, em);
-                        bool stillSubtract = results.Count + 1 > _bc.topSingleVarianceRotationAndOffset;
+                        bool stillSubtract = results.Count + 1 > n;
                         while (stillSubtract)
                         {
                             double nextLowest = rating;
@@ -365,7 +403,7 @@ namespace EnigmaBreaker.Services
                             }
                             results.Remove(lowest);
                             lowestResult = nextLowest;
-                            if(results.Count + 1 <= _bc.topSingleVarianceRotationAndOffset || lowest == null)
+                            if(results.Count + 1 <= n || lowest == null)
                             {
                                 stillSubtract = false;
                             }
@@ -380,26 +418,11 @@ namespace EnigmaBreaker.Services
         #endregion
 
         #region plugboard
-        public BreakerResult getPlugboardResults(List<BreakerResult> offsetResults, int[] cipherArr, string fitnessStr = "")
+        public List<BreakerResult> getPlugboardResults(List<BreakerResult> offsetResults, int[] cipherArr, BreakerConfiguration breakerConfiguration)
         {
-            if (fitnessStr == "")
-            {
-                fitnessStr = "IOC";
-                if (cipherArr.Length < 300)
-                {
-                    if (cipherArr.Length < 200)
-                    {
-                        fitnessStr = "TRI";
-                    }
-                    else
-                    {
-                        fitnessStr = "QUAD";
-                    }
-                }
-            }
-            IFitness fitness = _resolver(fitnessStr);
+            IFitness fitness = _resolver(breakerConfiguration.PlugboardFitness);
             
-            List<BreakerResult> allPlugboardResults = new List<BreakerResult>();
+            List<BreakerResult> results = new List<BreakerResult>();
             foreach(BreakerResult br in offsetResults)
             {
                 List<BreakerResult> onePairResults = new List<BreakerResult>() { br };
@@ -407,16 +430,20 @@ namespace EnigmaBreaker.Services
                 {
                     foreach (BreakerResult opr in onePairResults)
                     {
-                        onePairResults = onePairPlugboard(opr, cipherArr, fitness);
+                        onePairResults = onePairPlugboard(opr, cipherArr, fitness,breakerConfiguration.numberOfSinglePlugboardSettingsToKeep);
                     }
-                    allPlugboardResults.AddRange(onePairResults);
+                    results.AddRange(onePairResults);
                 }
             }
-            allPlugboardResults = sortBreakerList(allPlugboardResults);
-            return allPlugboardResults[0];
+            results = sortBreakerList(results);
+            if(results.Count > breakerConfiguration.numberOfPlugboardSettingsToKeep)
+            {
+                results = results.GetRange(0, breakerConfiguration.numberOfPlugboardSettingsToKeep);
+            }
+            return results;
         }
 
-        public List<BreakerResult> onePairPlugboard(BreakerResult br,int[] cipherArr,IFitness fitness)
+        public List<BreakerResult> onePairPlugboard(BreakerResult br,int[] cipherArr,IFitness fitness,int n)
         {
             List<int> ignoreCurrent = new List<int>();
             foreach (KeyValuePair<int, int> entry in br.enigmaModel.plugboard)
@@ -446,7 +473,12 @@ namespace EnigmaBreaker.Services
                     }
                 }                
             }
-            return sortBreakerList(results).GetRange(0,_bc.topSinglePlugboardPairs);
+            results = sortBreakerList(results);
+            if (results.Count > n)
+            {
+                results = results.GetRange(0, n);
+            }
+            return results;
         }
         #endregion
 

@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace EnigmaBreaker.Models
+{
+    public class BreakerConfiguration
+    {
+        public string RotorFitness { get; set; }
+        public int numberOfRotorsToKeep { get; set; }
+        public int numberOfSettingsPerRotorCombinationToKeep { get; set; }
+        public string OffsetFitness { get; set; }
+        public int numberOfOffsetToKeep { get; set; }
+        public int numberOfSettingsPerRotationCombinationToKeep { get; set; }
+        public string PlugboardFitness { get; set; }
+        public int numberOfPlugboardSettingsToKeep { get; set; }
+        public int numberOfSinglePlugboardSettingsToKeep { get; set; }
+        public BreakerConfiguration(int len)
+        {
+            RotorFitness = "IOC";
+            OffsetFitness = "IOC";
+
+
+            //getting plugboard fitness
+            PlugboardFitness = "IOC";
+            if (len < 330)
+            {
+                if (len >= 280)
+                {
+                    PlugboardFitness = "QUAD";
+                }
+                else if (len >= 250)
+                {
+                    PlugboardFitness = "TRI";
+                }
+                else if (len >= 180)
+                {
+                    PlugboardFitness = "BI";
+                }
+                else if (len >= 130)
+                {
+                    PlugboardFitness = "QUAD";
+                }
+                else if (len >= 50)
+                {
+                    PlugboardFitness = "BI";
+                }
+                else
+                {
+                    PlugboardFitness = "TRI";
+                }
+            }
+            numberOfSinglePlugboardSettingsToKeep = 1;
+            numberOfPlugboardSettingsToKeep = 1;
+        }
+    }
+}
