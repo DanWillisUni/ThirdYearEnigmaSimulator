@@ -435,7 +435,8 @@ namespace EnigmaBreaker.Services
                         newOPR.AddRange(onePairPlugboard(opr, cipherArr, fitness,breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
                     }
                     results.AddRange(onePairResults);
-                    onePairResults = newOPR;
+                    newOPR = sortBreakerList(newOPR);
+                    onePairResults = newOPR.GetRange(0, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep);
                 }
             }
             results = sortBreakerList(results);
@@ -445,6 +446,8 @@ namespace EnigmaBreaker.Services
             }
             return results;
         }
+
+        private readonly object plugboardListLock = new object();
 
         public List<BreakerResult> onePairPlugboard(BreakerResult br,int[] cipherArr,IFitness fitness,int n)
         {
@@ -456,8 +459,9 @@ namespace EnigmaBreaker.Services
             }
             string emJson = JsonConvert.SerializeObject(br.enigmaModel);
 
-            List<BreakerResult> results = new List<BreakerResult>();
-            for(int a = 0;a < 25; a++)
+            List<BreakerResult> results = new List<BreakerResult>(); 
+
+            Parallel.For<List<BreakerResult>>(0, 25, () => new List<BreakerResult>(), (a, loop, threadResults) => //multi threaded for loop
             {
                 if (!ignoreCurrent.Contains(a))
                 {
@@ -471,11 +475,19 @@ namespace EnigmaBreaker.Services
                             double rating = fitness.getFitness(attemptPlainText);
                             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                             em2.plugboard.Add(a, b);
-                            results.Add(new BreakerResult(attemptPlainText,rating,em2));
+                            threadResults.Add(new BreakerResult(attemptPlainText, rating, em2));
                         }
                     }
-                }                
-            }
+                }
+                return threadResults;//return the results for this thread
+            },
+            (threadResults) => {
+                lock (plugboardListLock)//lock the list
+                {
+                    results.AddRange(threadResults);//add the thread results to the list
+                }
+            });
+
             results = sortBreakerList(results);
             if (results.Count > n)
             {
