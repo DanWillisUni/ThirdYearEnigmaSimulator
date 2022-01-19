@@ -324,9 +324,10 @@ namespace EnigmaBreaker.Services
         /// <summary>
         /// Get the top few results per change of the
         /// </summary>
-        /// <param name="cipherArr"></param>
-        /// <param name="fitness"></param>
+        /// <param name="cipherArr"> Cipher text as an integer array</param>
+        /// <param name="fitness"> fitness function</param>
         /// <param name="currentRotors"></param>
+        /// <param name="n">Max number of results to return</param>
         /// <returns></returns>
         public List<BreakerResult> getOffsetResultPerChange(int[] cipherArr, IFitness fitness, string currentRotors,int n)
         {

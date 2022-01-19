@@ -31,26 +31,24 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {
-            testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//1.6 hours
-            testLength(10, 500, 10, "Plugboard", 100, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestCloseA");//2.3 hours
-            testLength(10, 350, 5, "Plugboard", 500, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestCloseB");//12.5 hours
-            //testLength(100, 2000, 100, "Offset", 25, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//3 hours
-            //testLength(100, 800, 100, "Rotors", 5, new List<string>() { "IOC", "BI", "TRI", "QUAD" },"Results/rotorLengthTestA");//16 hours
-            //testLength(900, 1300, 100, "Rotors", 5, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestB");//16 hours
-            //testLength(1400, 2000, 100, "Rotors", 5, new List<string>() { "IOC", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestC");//16 hours
+            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//4.2 hours
+            //testLength(10, 500, 10, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestCloseA");//2.8 hours
+            //testLength(10, 350, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose2");//14 hours
+            //testLength(100, 2000, 100, "Offset", 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//4 hours
+            //testLength(100, 800, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestA");//16 hours
+            //testLength(900, 1300, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestB");//16 hours
+            //testLength(1400, 2000, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestC");//16 hours
 
-            testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexSingleTest",1,3,1,false);
-            testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, true);
-            testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexSingleTest", 1, 10, 1, false);
-            testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexTest", 1, 10, 1, true);
+            //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexSingleTest",1,3,1,false);//4 hours
+            //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, true);//4 hours
+            //testIndex(100, 2000, 100, "Offset", 25, "Results/offsetIndexSingleTest", 1, 10, 1, false);//8.5
+            //testIndex(100, 2000, 100, "Offset", 25, "Results/offsetIndexTest", 1, 10, 1, true);//8.5
             //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexSingleTest", 1, 10, 1, false);
             //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexTest", 1, 10, 1, true);
 
-            //testSpeed(100, 2000, 100, "Plugboard", 500, "Results/plugboardSpeedTest");//3.9 hours
-            //testSpeed(100, 2000, 100, "Offset", 100, "Results/offsetSpeedTest");//3.7 hours
-            //testSpeed(100, 2000, 100, "Rotors", 5, "Results/rotorsSpeedTest");//15 hours
-
-
+            //testSpeed(100, 2000, 100, "Plugboard", 10, "Results/plugboardSpeedTest");
+            //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest");
+            //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest");
 
             //measureFullRunthrough(100);
         }
@@ -132,12 +130,12 @@ namespace EnigmaBreaker.Services
                     }
                 }
             }
-            _logger.LogDebug($"Rotor Fail: {(double)(rotorMiss * 100 / iterations)}%");
-            _logger.LogDebug($"Offset Fail: {(double)(offsetMiss * 100 / iterations)}%");
-            _logger.LogDebug($"Plugboard Fail: {(double)(plugboardMiss * 100 / iterations)}%");
-            _logger.LogDebug($"Success: {(double)(success * 100 / iterations)}%");
-            _logger.LogDebug($"Average Rotor Index when found: {(double)(rotorFoundPositionSum / (iterations - rotorMiss))}");
-            _logger.LogDebug($"Average Offset Index when found: {(double)(offsetFoundPositionSum / (iterations - (rotorMiss + offsetMiss)))}");
+            _logger.LogInformation($"Rotor Fail: {(double)(rotorMiss * 100 / iterations)}%");
+            _logger.LogInformation($"Offset Fail: {(double)(offsetMiss * 100 / iterations)}%");
+            _logger.LogInformation($"Plugboard Fail: {(double)(plugboardMiss * 100 / iterations)}%");
+            _logger.LogInformation($"Success: {(double)(success * 100 / iterations)}%");
+            _logger.LogInformation($"Average Rotor Index when found: {(double)(rotorFoundPositionSum / (iterations - rotorMiss))}");
+            _logger.LogInformation($"Average Offset Index when found: {(double)(offsetFoundPositionSum / (iterations - (rotorMiss + offsetMiss)))}");
         }
         public void testLength(int from, int to, int step, string toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName)
         {
@@ -234,7 +232,7 @@ namespace EnigmaBreaker.Services
                     }
 
                     TimeSpan ts = new TimeSpan(total.Ticks / iterations);
-                    elapsedTime = String.Format("{0:00}:{1:00}.{2:00}",ts.Minutes, ts.Seconds,ts.Milliseconds);
+                    elapsedTime = $"{ts.Minutes}:{ts.Seconds}.{ts.Milliseconds}";
                     
                 }
                 lineToFile += "," + elapsedTime;
@@ -271,7 +269,7 @@ namespace EnigmaBreaker.Services
                         bc.numberOfSettingsPerRotorCombinationToKeep = 26;
                         bc.numberOfRotorsToKeep = int.MaxValue;
                         bc.numberOfPlugboardSettingsToKeep = int.MaxValue;
-                        bc.numberOfSinglePlugboardSettingsToKeep = int.MaxValue;
+                        bc.numberOfSinglePlugboardSettingsToKeep = 1;
                         bc.numberOfOffsetToKeep = int.MaxValue;
                         bc.numberOfSettingsPerRotationCombinationToKeep = 26;
                         EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);

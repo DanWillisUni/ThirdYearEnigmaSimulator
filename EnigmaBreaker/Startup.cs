@@ -67,6 +67,7 @@ namespace EnigmaBreaker
 
 
             _serviceCollection.AddTransient<indexOfCoincidence>();
+            _serviceCollection.AddTransient<singleCharFitness>();
             _serviceCollection.AddTransient<doubleCharFitness>();
             _serviceCollection.AddTransient<tripleCharFitness>();
             _serviceCollection.AddTransient<fourCharFitness>();
@@ -77,6 +78,8 @@ namespace EnigmaBreaker
                 {
                     case "IOC":
                         return serviceProvider.GetService<indexOfCoincidence>();
+                    case "S":
+                        return serviceProvider.GetService<singleCharFitness>();
                     case "BI":
                         return serviceProvider.GetService<doubleCharFitness>();
                     case "TRI":

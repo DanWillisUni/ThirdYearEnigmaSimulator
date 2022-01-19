@@ -11,6 +11,7 @@ namespace EnigmaBreaker.Configuration.Models
         public int maxPlugboardSettings { get; set; }
         
         public string gramDataDir { get; set; }
+        public string singleFileName { get; set; }
         public string bigramFileName { get; set; }
         public string trigramFileName { get; set; }
         public string quadgramFileName { get; set; }
