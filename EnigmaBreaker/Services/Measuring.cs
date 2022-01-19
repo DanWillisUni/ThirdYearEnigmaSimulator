@@ -46,7 +46,7 @@ namespace EnigmaBreaker.Services
             //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexSingleTest", 1, 10, 1, false);
             //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexTest", 1, 10, 1, true);
 
-            //testSpeed(100, 2000, 100, "Plugboard", 10, "Results/plugboardSpeedTest");
+            testSpeed(100, 2000, 100, "Plugboard", 1, "Results/plugboardSpeedTest");
             //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest");
             //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest");
 

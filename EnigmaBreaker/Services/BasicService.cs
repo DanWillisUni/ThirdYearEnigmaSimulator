@@ -429,11 +429,13 @@ namespace EnigmaBreaker.Services
                 List<BreakerResult> onePairResults = new List<BreakerResult>() { br };
                 while (onePairResults[0].enigmaModel.plugboard.Count < _bc.maxPlugboardSettings)
                 {
+                    List<BreakerResult> newOPR = new List<BreakerResult>();
                     foreach (BreakerResult opr in onePairResults)
                     {
-                        onePairResults = onePairPlugboard(opr, cipherArr, fitness,breakerConfiguration.numberOfSinglePlugboardSettingsToKeep);
+                        newOPR.AddRange(onePairPlugboard(opr, cipherArr, fitness,breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
                     }
                     results.AddRange(onePairResults);
+                    onePairResults = newOPR;
                 }
             }
             results = sortBreakerList(results);

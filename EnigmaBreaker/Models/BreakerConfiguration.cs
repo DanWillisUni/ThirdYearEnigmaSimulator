@@ -50,7 +50,7 @@ namespace EnigmaBreaker.Models
                     PlugboardFitness = "TRI";
                 }
             }
-            numberOfSinglePlugboardSettingsToKeep = 1;
+            numberOfSinglePlugboardSettingsToKeep = 2;
             numberOfPlugboardSettingsToKeep = 1;
         }
     }
