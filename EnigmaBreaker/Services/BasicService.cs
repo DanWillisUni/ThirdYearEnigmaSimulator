@@ -432,35 +432,12 @@ namespace EnigmaBreaker.Services
                 while (onePairResults[0].enigmaModel.plugboard.Count < _bc.maxPlugboardSettings)
                 {
                     List<BreakerResult> newOPR = new List<BreakerResult>();
-
-                    Parallel.For<List<BreakerResult>>(0, onePairResults.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multi threaded for loop
+                    foreach (BreakerResult opr in onePairResults)
                     {
-                        threadResults.AddRange(onePairPlugboard(onePairResults[i], cipherArr, fitness, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
-                        return threadResults;//return the results for this thread
-                    },
-                    (threadResults) => {
-                        lock (plugboardListLock)//lock the list
-                        {
-                            newOPR.AddRange(threadResults);//add the thread results to the list
-                        }
-                    });
-
+                        newOPR.AddRange(onePairPlugboard(opr, cipherArr, fitness, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
+                    }
                     results.AddRange(onePairResults);
-                    newOPR = sortBreakerList(newOPR);
-                    double highestOPRS = onePairResults[0].score;
-                    int toGetRange = breakerConfiguration.numberOfSinglePlugboardSettingsToKeep;
-                    if(newOPR.Count > breakerConfiguration.numberOfSinglePlugboardSettingsToKeep)
-                    {
-                        for (int i = breakerConfiguration.numberOfSinglePlugboardSettingsToKeep + 1; i < newOPR.Count; i++)
-                        {
-                            if (newOPR[i].score <= highestOPRS)
-                            {
-                                toGetRange = i > breakerConfiguration.maxNumberOfNewSinglePlugboardSettings ? breakerConfiguration.maxNumberOfNewSinglePlugboardSettings : i;
-                                break;
-                            }
-                        }
-                    }                    
-                    onePairResults = newOPR.GetRange(0, toGetRange);
+                    onePairResults = newOPR;
                 }
             }
             results = sortBreakerList(results);

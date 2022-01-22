@@ -30,12 +30,8 @@ namespace EnigmaBreaker.Services
         }
 
         public void root()
-        {
-            string plaintext = _bs.getText();//get a random plaintext as string            
-            int[] cipherArr = _encodingService.preProccessCiphertext(plaintext);//convert the ciphertext into an array of integers
-
-            _logger.LogInformation(Convert.ToString(testPlugboard(cipherArr,100,"IOC")));
-            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours
+        {            
+            testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours
             //testLength(300, 900, 10, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 2.2 hours
             ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose2");
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours Perfect
