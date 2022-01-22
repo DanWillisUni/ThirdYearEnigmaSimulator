@@ -15,12 +15,15 @@ namespace EnigmaBreaker.Models
         public string PlugboardFitness { get; set; }
         public int numberOfPlugboardSettingsToKeep { get; set; }
         public int numberOfSinglePlugboardSettingsToKeep { get; set; }
+        public int maxNumberOfNewSinglePlugboardSettings { get; set; }
         public BreakerConfiguration(int len)
         {
             RotorFitness = "IOC";
+            numberOfRotorsToKeep = 5;
+            numberOfSettingsPerRotorCombinationToKeep = 3;
             OffsetFitness = "IOC";
-
-
+            numberOfOffsetToKeep = 5;
+            numberOfSettingsPerRotationCombinationToKeep = 5;
             //getting plugboard fitness
             PlugboardFitness = "IOC";
             if (len < 330)
@@ -50,8 +53,9 @@ namespace EnigmaBreaker.Models
                     PlugboardFitness = "TRI";
                 }
             }
-            numberOfSinglePlugboardSettingsToKeep = 2;
+            numberOfSinglePlugboardSettingsToKeep = 2;            
             numberOfPlugboardSettingsToKeep = 1;
+            maxNumberOfNewSinglePlugboardSettings = 10;
         }
     }
 }

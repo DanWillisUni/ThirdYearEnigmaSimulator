@@ -31,111 +31,105 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {
-            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//4.2 hours
-            //testLength(10, 500, 10, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestCloseA");//2.8 hours
-            //testLength(10, 350, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose2");//14 hours
-            //testLength(100, 2000, 100, "Offset", 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//4 hours
-            //testLength(100, 800, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestA");//16 hours
-            //testLength(900, 1300, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestB");//16 hours
-            //testLength(1400, 2000, 100, "Rotors", 5, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestC");//16 hours
+            string plaintext = _bs.getText();//get a random plaintext as string            
+            int[] cipherArr = _encodingService.preProccessCiphertext(plaintext);//convert the ciphertext into an array of integers
 
-            //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexSingleTest",1,3,1,false);//4 hours
-            //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, true);//4 hours
-            //testIndex(100, 2000, 100, "Offset", 25, "Results/offsetIndexSingleTest", 1, 10, 1, false);//8.5
-            //testIndex(100, 2000, 100, "Offset", 25, "Results/offsetIndexTest", 1, 10, 1, true);//8.5
-            //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexSingleTest", 1, 10, 1, false);
-            //testIndex(100, 2000, 100, "Rotors", 1, "Results/rotorsIndexTest", 1, 10, 1, true);
+            _logger.LogInformation(Convert.ToString(testPlugboard(cipherArr,100,"IOC")));
+            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours
+            //testLength(300, 900, 10, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 2.2 hours
+            ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose2");
+            //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours Perfect
+            //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//7.5 hours
+            
+            ////testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,5,1, "S");//R 4.5 hours
+            ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexOtherTest", 1, 20, 1, "O");//7.2
+            ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");            
+            //testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexSingleTest", 1, 10, 1, "S");//12
+            //testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexTest", 1, 10, 1, "F");
+            //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
+            //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexTest", 1, 3, 1, "F");
 
-            testSpeed(100, 2000, 100, "Plugboard", 1, "Results/plugboardSpeedTest");
+            //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest");
             //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest");
-            //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest");
+            //testSpeed(100, 2000, 100, "Rotors", 5, "Results/rotorsSpeedTest");
 
-            //measureFullRunthrough(100);
+            //measureFullRunthrough(100, 2000, 100,100, "Results/fullMeasure");
         }
-        public void measureFullRunthrough(int iterations)
+        public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName)
         {
-            int rotorMiss = 0;
-            int offsetMiss = 0;
-            int plugboardMiss = 0;
-            double rotorFoundPositionSum = 0.0;
-            double offsetFoundPositionSum = 0.0;
-            int success = 0;
-            for (int i = 0; i < iterations; i++)
-            {
-                string plaintext = _bs.getText();
-                EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
-                string emJson = JsonConvert.SerializeObject(em);
-                EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+            string plaintext = _bs.getText(to * 2);
+            
+            List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess" };
+            for (int i = from; i < to + 1; i += step)
+            {                
+                int[] plainArr = _encodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, i).ToArray();
 
-                _logger.LogDebug(em.toStringRotors());
-                string ciphertext = _encodingService.encode(plaintext, em);
-                int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);
-                BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
-
-                List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr,breakerConfiguration));
-
-                bool found = false;
-                foreach (BreakerResult br in initialRotorSetupResults)
+                int rotorSuccess = 0;
+                int offsetSuccess = 0;
+                int plugboardSuccess = 0;
+                for (int currentIteration = 0; currentIteration < iterations; currentIteration++)
                 {
-                    if (compareRotors(em2,br.enigmaModel))
+                    EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                    string emJson = JsonConvert.SerializeObject(em);
+                    EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+
+                    _logger.LogDebug(em.ToString());
+                    int[] cipherArr = _encodingService.encode(plainArr, em);
+                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+                    List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));
+                    bool found = false;
+                    foreach (BreakerResult br in initialRotorSetupResults)
                     {
-                        found = true;
-                        _logger.LogDebug($"R1 - {initialRotorSetupResults.IndexOf(br)}");
-                        rotorFoundPositionSum += initialRotorSetupResults.IndexOf(br) + 1;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    rotorMiss += 1;
-                }
-                else
-                {
-                    List<BreakerResult> fullRotorResultOfAll = _bs.getRotationOffsetResult(initialRotorSetupResults, cipherArr,breakerConfiguration);
-                    found = false;
-                    foreach (BreakerResult brr in fullRotorResultOfAll)
-                    {
-                        if (compareOffset(em2,brr.enigmaModel))
+                        if (compareRotors(em2, br.enigmaModel))
                         {
                             found = true;
-                            _logger.LogDebug($"O1 - {fullRotorResultOfAll.IndexOf(brr)}");
-                            offsetFoundPositionSum += fullRotorResultOfAll.IndexOf(brr) + 1;
+                            rotorSuccess++;
                             break;
                         }
                     }
-                    if (!found)
+                    if (found)
                     {
-                        offsetMiss += 1;
-                    }
-                    else
-                    {
+                        List<BreakerResult> fullRotorResultOfAll = _bs.getRotationOffsetResult(initialRotorSetupResults, cipherArr, breakerConfiguration);
                         found = false;
-                        foreach (BreakerResult brrr in fullRotorResultOfAll)
+                        foreach (BreakerResult brr in fullRotorResultOfAll)
                         {
-                            List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { brrr }, cipherArr,breakerConfiguration);
-                            if (comparePlugboard(em2.toStringPlugboard(), finalResult[0].enigmaModel.toStringPlugboard()))
+                            if (compareOffset(em2, brr.enigmaModel))
                             {
                                 found = true;
+                                offsetSuccess++;
                                 break;
                             }
                         }
-                        if (!found)
+                        if (found)
                         {
-                            plugboardMiss += 1;
-                        }
-                        else
-                        {
-                            success += 1;
+                            found = false;
+                            foreach (BreakerResult brrr in fullRotorResultOfAll)
+                            {
+                                List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { brrr }, cipherArr, breakerConfiguration);
+                                if (comparePlugboard(em2.toStringPlugboard(), finalResult[0].enigmaModel.toStringPlugboard()))
+                                {
+                                    found = true;
+                                    plugboardSuccess++;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
+                double rotorSuccessRate = (double)(rotorSuccess * 100 / iterations);
+                double offsetSuccessRate = (double)(offsetSuccess * 100 / (iterations - (iterations - rotorSuccess)));
+                double plugboardSuccessRate = (double)(plugboardSuccess * 100 / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
+                double fullSuccessRate = (double)(plugboardSuccess * 100 / iterations);
+                _logger.LogDebug($"Rotor Success: {rotorSuccessRate}%");//RotorMiss = iteration - rotorSuccess
+                _logger.LogDebug($"Offset Success: {offsetSuccessRate}%");//OffsetMiss = (iterations - (iterations-rotorSuccess)) - offsetSuccess
+                _logger.LogDebug($"Plugboard Success: {plugboardSuccessRate}%");
+                _logger.LogDebug($"Success: {fullSuccessRate}%");
+                string lineToFile = $"{i},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate}";
+                linesToFile.Add(lineToFile);
             }
-            _logger.LogInformation($"Rotor Fail: {(double)(rotorMiss * 100 / iterations)}%");
-            _logger.LogInformation($"Offset Fail: {(double)(offsetMiss * 100 / iterations)}%");
-            _logger.LogInformation($"Plugboard Fail: {(double)(plugboardMiss * 100 / iterations)}%");
-            _logger.LogInformation($"Success: {(double)(success * 100 / iterations)}%");
-            _logger.LogInformation($"Average Rotor Index when found: {(double)(rotorFoundPositionSum / (iterations - rotorMiss))}");
-            _logger.LogInformation($"Average Offset Index when found: {(double)(offsetFoundPositionSum / (iterations - (rotorMiss + offsetMiss)))}");
+
+            File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
+            _logger.LogInformation("Writing to file");
         }
         public void testLength(int from, int to, int step, string toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName)
         {
@@ -244,7 +238,7 @@ namespace EnigmaBreaker.Services
             _logger.LogInformation("Writing to file");
         }
 
-        public void testIndex(int from, int to, int step, string toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, bool isTotal)
+        public void testIndex(int from, int to, int step, string toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, string isTotal)
         {
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
@@ -266,25 +260,29 @@ namespace EnigmaBreaker.Services
                         string emJson = JsonConvert.SerializeObject(em);
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, messageLength).ToArray(), em);
                         BreakerConfiguration bc = new BreakerConfiguration(cipherArr.Length);
-                        bc.numberOfSettingsPerRotorCombinationToKeep = 26;
-                        bc.numberOfRotorsToKeep = int.MaxValue;
-                        bc.numberOfPlugboardSettingsToKeep = int.MaxValue;
-                        bc.numberOfSinglePlugboardSettingsToKeep = 1;
-                        bc.numberOfOffsetToKeep = int.MaxValue;
-                        bc.numberOfSettingsPerRotationCombinationToKeep = 26;
+                        bc.numberOfSettingsPerRotorCombinationToKeep = 10;
+                        bc.numberOfRotorsToKeep = 10;
+                        bc.numberOfPlugboardSettingsToKeep = 3;
+                        bc.numberOfSinglePlugboardSettingsToKeep = 5;
+                        bc.numberOfOffsetToKeep = 10;
+                        bc.numberOfSettingsPerRotationCombinationToKeep = 10;
                         EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
                         switch (toTest)
                         {
                             case "Plugboard":
                                 em2.plugboard = new Dictionary<int, int>();
-                                if (isTotal)
+                                if (isTotal == "F")
                                 {
                                     bc.numberOfPlugboardSettingsToKeep = combinationValue;
                                 }
-                                else
+                                else if (isTotal == "S")
                                 {
                                     bc.numberOfSinglePlugboardSettingsToKeep = combinationValue;
+                                }
+                                else
+                                {
+                                    bc.maxNumberOfNewSinglePlugboardSettings = combinationValue;
                                 }
 
                                 List<BreakerResult> finalResults = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, bc);
@@ -312,7 +310,7 @@ namespace EnigmaBreaker.Services
                                     em2.rotors[ri].ringOffset = 0;
                                 }
                                 
-                                if (isTotal)
+                                if (isTotal == "F")
                                 {
                                     bc.numberOfOffsetToKeep = combinationValue;
                                 }
@@ -340,7 +338,7 @@ namespace EnigmaBreaker.Services
                                 
                                 break;
                             case "Rotors":                                
-                                if (isTotal)
+                                if (isTotal == "F")
                                 {
                                     bc.numberOfRotorsToKeep = combinationValue;
                                 }

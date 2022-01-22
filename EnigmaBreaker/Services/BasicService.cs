@@ -297,6 +297,7 @@ namespace EnigmaBreaker.Services
                         {
                             br.enigmaModel.rotors[2].rotation = rbase + rchange;//set the right rotor rotation
                             offsetConfigurationsToCheck.Add(br.enigmaModel.toStringRotors());//add the string of rotor to the ones to check
+                            //TODO make this take a EM or atleast serilised EM
                         }
                     }
                 }
@@ -322,31 +323,31 @@ namespace EnigmaBreaker.Services
             return results;//return the results
         }
         /// <summary>
-        /// Get the top few results per change of the
+        /// Get the top few results per change of the rotor combination and rotation
         /// </summary>
         /// <param name="cipherArr"> Cipher text as an integer array</param>
         /// <param name="fitness"> fitness function</param>
-        /// <param name="currentRotors"></param>
+        /// <param name="currentRotors">string of the current reflector, rotors, rotation and offset of each rotor</param>
         /// <param name="n">Max number of results to return</param>
-        /// <returns></returns>
+        /// <returns>The top few rotor offset and rotation combinations given the rotor rotation</returns>
         public List<BreakerResult> getOffsetResultPerChange(int[] cipherArr, IFitness fitness, string currentRotors,int n)
         {
-            List<string> rotorNames = new List<string>();
-            List<string> rotorDetails = new List<string>();
-            foreach (string s in currentRotors.Split("/"))
+            List<string> rotorNames = new List<string>();//create the new list of rotor names
+            List<string> rotorDetails = new List<string>();//create the new list of rotor details
+            foreach (string rotorDetailsStr in currentRotors.Split("/"))//for each rotor in the currentRotor string
             {
-                if (s.Contains(","))
+                if (rotorDetailsStr.Contains(","))//if it isnt the reflector
                 {
-                    rotorNames.Add(s.Split(",")[0]);
-                    rotorDetails.Add(s);
+                    rotorNames.Add(rotorDetailsStr.Split(",")[0]);//add the name to the rotor names array
+                    rotorDetails.Add(rotorDetailsStr);//add the rotor details to the rotor details list
                 }
             }
             RotorModel emRefl = null;
-            foreach (Rotor refl in allReflectors)
+            foreach (Rotor refl in allReflectors)//for each relfector
             {
-                if (refl.name == currentRotors.Split("/")[0])
+                if (refl.name == currentRotors.Split("/")[0])//if its name is the same as the one passed in
                 {
-                    emRefl = new RotorModel(refl);
+                    emRefl = new RotorModel(refl);//set the relfector
                 }
             }
             List<Rotor> emRotors = new List<Rotor>();
@@ -419,6 +420,7 @@ namespace EnigmaBreaker.Services
         #endregion
 
         #region plugboard
+        private readonly object plugboardListLock = new object();
         public List<BreakerResult> getPlugboardResults(List<BreakerResult> offsetResults, int[] cipherArr, BreakerConfiguration breakerConfiguration)
         {
             IFitness fitness = _resolver(breakerConfiguration.PlugboardFitness);
@@ -430,13 +432,35 @@ namespace EnigmaBreaker.Services
                 while (onePairResults[0].enigmaModel.plugboard.Count < _bc.maxPlugboardSettings)
                 {
                     List<BreakerResult> newOPR = new List<BreakerResult>();
-                    foreach (BreakerResult opr in onePairResults)
+
+                    Parallel.For<List<BreakerResult>>(0, onePairResults.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multi threaded for loop
                     {
-                        newOPR.AddRange(onePairPlugboard(opr, cipherArr, fitness,breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
-                    }
+                        threadResults.AddRange(onePairPlugboard(onePairResults[i], cipherArr, fitness, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
+                        return threadResults;//return the results for this thread
+                    },
+                    (threadResults) => {
+                        lock (plugboardListLock)//lock the list
+                        {
+                            newOPR.AddRange(threadResults);//add the thread results to the list
+                        }
+                    });
+
                     results.AddRange(onePairResults);
                     newOPR = sortBreakerList(newOPR);
-                    onePairResults = newOPR.GetRange(0, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep);
+                    double highestOPRS = onePairResults[0].score;
+                    int toGetRange = breakerConfiguration.numberOfSinglePlugboardSettingsToKeep;
+                    if(newOPR.Count > breakerConfiguration.numberOfSinglePlugboardSettingsToKeep)
+                    {
+                        for (int i = breakerConfiguration.numberOfSinglePlugboardSettingsToKeep + 1; i < newOPR.Count; i++)
+                        {
+                            if (newOPR[i].score <= highestOPRS)
+                            {
+                                toGetRange = i > breakerConfiguration.maxNumberOfNewSinglePlugboardSettings ? breakerConfiguration.maxNumberOfNewSinglePlugboardSettings : i;
+                                break;
+                            }
+                        }
+                    }                    
+                    onePairResults = newOPR.GetRange(0, toGetRange);
                 }
             }
             results = sortBreakerList(results);
@@ -445,9 +469,7 @@ namespace EnigmaBreaker.Services
                 results = results.GetRange(0, breakerConfiguration.numberOfPlugboardSettingsToKeep);
             }
             return results;
-        }
-
-        private readonly object plugboardListLock = new object();
+        }       
 
         public List<BreakerResult> onePairPlugboard(BreakerResult br,int[] cipherArr,IFitness fitness,int n)
         {
@@ -459,9 +481,9 @@ namespace EnigmaBreaker.Services
             }
             string emJson = JsonConvert.SerializeObject(br.enigmaModel);
 
-            List<BreakerResult> results = new List<BreakerResult>(); 
+            List<BreakerResult> results = new List<BreakerResult>();
 
-            Parallel.For<List<BreakerResult>>(0, 25, () => new List<BreakerResult>(), (a, loop, threadResults) => //multi threaded for loop
+            for (int a = 0; a < 26; a++)
             {
                 if (!ignoreCurrent.Contains(a))
                 {
@@ -475,18 +497,11 @@ namespace EnigmaBreaker.Services
                             double rating = fitness.getFitness(attemptPlainText);
                             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                             em2.plugboard.Add(a, b);
-                            threadResults.Add(new BreakerResult(attemptPlainText, rating, em2));
+                            results.Add(new BreakerResult(attemptPlainText, rating, em2));
                         }
                     }
                 }
-                return threadResults;//return the results for this thread
-            },
-            (threadResults) => {
-                lock (plugboardListLock)//lock the list
-                {
-                    results.AddRange(threadResults);//add the thread results to the list
-                }
-            });
+            }
 
             results = sortBreakerList(results);
             if (results.Count > n)
