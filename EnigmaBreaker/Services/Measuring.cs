@@ -32,15 +32,14 @@ namespace EnigmaBreaker.Services
         public void root()
         {            
             testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours
-            //testLength(300, 900, 10, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 2.2 hours
-            ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose2");
+            ////testLength(5, 400, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours Perfect
             //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//7.5 hours
             
             ////testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,5,1, "S");//R 4.5 hours
             ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexOtherTest", 1, 20, 1, "O");//7.2
             ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");            
-            //testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexSingleTest", 1, 10, 1, "S");//12
+            testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexSingleTest", 1, 10, 1, "S");//12
             //testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexTest", 1, 10, 1, "F");
             //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
             //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexTest", 1, 3, 1, "F");
