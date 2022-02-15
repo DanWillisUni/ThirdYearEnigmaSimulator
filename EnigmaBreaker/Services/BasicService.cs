@@ -220,7 +220,7 @@ namespace EnigmaBreaker.Services
                         em.rotors[1].rotation = m;//set the rotation of the middle rotor
                         em.rotors[2].rotation = r;//set the rotation of the right rotor
                         int[] attemptPlainText = _encodingService.encode(cipherArr, em);//get the integer array of the attempt at decoding with the current enigma setup
-                        double rating = fitness.getFitness(attemptPlainText);//rate how english the attempt is using the fitness function
+                        double rating = fitness.getFitness(attemptPlainText,IFitness.Part.Rotor);//rate how english the attempt is using the fitness function
 
                         if (rating > lowestResult)//if the rating is higher than the current lowest result scored
                         {
@@ -379,7 +379,7 @@ namespace EnigmaBreaker.Services
                     EnigmaModel em = new EnigmaModel(emRotorModel, emRefl, new Dictionary<int, int>());
 
                     int[] attemptPlainText = _encodingService.encode(cipherArr, em);
-                    double rating = fitness.getFitness(attemptPlainText);
+                    double rating = fitness.getFitness(attemptPlainText,IFitness.Part.Offset);
 
                     if (rating > lowestResult)
                     {
@@ -429,13 +429,27 @@ namespace EnigmaBreaker.Services
             foreach(BreakerResult br in offsetResults)
             {
                 List<BreakerResult> onePairResults = new List<BreakerResult>() { br };
-                while (onePairResults[0].enigmaModel.plugboard.Count < _bc.maxPlugboardSettings)
+                int currentPlugboardLength = 0;
+                while (currentPlugboardLength < _bc.maxPlugboardSettings)
                 {
-                    foreach (BreakerResult opr in onePairResults)
-                    {
-                        onePairResults = onePairPlugboard(opr, cipherArr, fitness, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep);
-                    }
                     results.AddRange(onePairResults);
+                    currentPlugboardLength++;
+                    List<BreakerResult> newOPR = new List<BreakerResult>();
+
+                    Parallel.For<List<BreakerResult>>(0, onePairResults.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multi threaded for loop
+                    {
+                        threadResults.AddRange(onePairPlugboard(onePairResults[i], cipherArr, fitness, breakerConfiguration.numberOfSinglePlugboardSettingsToKeep));
+                        return threadResults;//return the results for this thread
+                    },
+                    (threadResults) => {
+                        lock (plugboardListLock)//lock the list
+                        {
+                            newOPR.AddRange(threadResults);//add the thread results to the list
+                        }
+                    });
+
+                    onePairResults = new List<BreakerResult>();
+                    onePairResults.AddRange(newOPR);
                 }
             }
             results = sortBreakerList(results);
@@ -469,7 +483,7 @@ namespace EnigmaBreaker.Services
                             EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                             em.plugboard.Add(a, b);
                             int[] attemptPlainText = _encodingService.encode(cipherArr, em);
-                            double rating = fitness.getFitness(attemptPlainText);
+                            double rating = fitness.getFitness(attemptPlainText,IFitness.Part.Plugboard);
                             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                             em2.plugboard.Add(a, b);
                             results.Add(new BreakerResult(attemptPlainText, rating, em2));

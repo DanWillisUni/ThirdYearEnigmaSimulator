@@ -42,7 +42,7 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<Measuring>();
+            var bs = _serviceProvider.GetRequiredService<BasicService>();
             bs.root();
             Stop();
         }
@@ -65,12 +65,12 @@ namespace EnigmaBreaker
             _serviceCollection.AddSingleton<EncodingService>();
             _serviceCollection.AddSingleton<Measuring>();
 
-
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<singleCharFitness>();
             _serviceCollection.AddTransient<doubleCharFitness>();
             _serviceCollection.AddTransient<tripleCharFitness>();
             _serviceCollection.AddTransient<fourCharFitness>();
+            _serviceCollection.AddTransient<ruleFitness>();
 
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {
@@ -86,6 +86,8 @@ namespace EnigmaBreaker
                         return serviceProvider.GetService<tripleCharFitness>();
                     case "QUAD":
                         return serviceProvider.GetService<fourCharFitness>();
+                    case "RULE":
+                        return serviceProvider.GetService<ruleFitness>();
                     default:
                         throw new KeyNotFoundException();
                 }

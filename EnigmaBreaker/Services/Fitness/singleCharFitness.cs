@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static EnigmaBreaker.Services.Fitness.IFitness;
 
 namespace EnigmaBreaker.Services.Fitness
 {
@@ -17,7 +18,7 @@ namespace EnigmaBreaker.Services.Fitness
                 singles[line.Split(",")[0][0] - 65] = float.Parse(line.Split(",")[1]);
             }
         }
-        public double getFitness(int[] input)
+        public double getFitness(int[] input, Part part)
         {
             double fitness = 0;
             for (int i = 0; i < input.Length; i++)

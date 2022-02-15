@@ -31,26 +31,26 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {            
-            testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours
-            ////testLength(5, 400, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");
-            //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours Perfect
-            //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//7.5 hours
+            //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
+            //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R Perfect
+            //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
+            //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 29 hours
             
-            ////testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,5,1, "S");//R 4.5 hours
-            ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexOtherTest", 1, 20, 1, "O");//7.2
-            ////testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");            
-            testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexSingleTest", 1, 10, 1, "S");//12
-            //testIndex(100, 2000, 100, "Offset", 100, "Results/offsetIndexTest", 1, 10, 1, "F");
-            //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
-            //testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexTest", 1, 3, 1, "F");
+            //testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
+            testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour        
+            //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
+            testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexTest", 1, 20, 1, "F");//12 hours
+            ////testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
+            //testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 3, 1, "F");
 
-            //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest");
-            //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest");
-            //testSpeed(100, 2000, 100, "Rotors", 5, "Results/rotorsSpeedTest");
+            //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest", 1, 2, 1);//perfect
+            //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest", 1, 26, 1);//R 1.5 perfect
+            ////testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest",1,3,1);//18 hours
 
-            //measureFullRunthrough(100, 2000, 100,100, "Results/fullMeasure");
+            //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
+            ////measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureUnrefined",true);//20 hours
         }
-        public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName)
+        public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName,bool withoutRefinement)
         {
             string plaintext = _bs.getText(to * 2);
             
@@ -70,7 +70,7 @@ namespace EnigmaBreaker.Services
 
                     _logger.LogDebug(em.ToString());
                     int[] cipherArr = _encodingService.encode(plainArr, em);
-                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);
                     List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));
                     bool found = false;
                     foreach (BreakerResult br in initialRotorSetupResults)
@@ -161,70 +161,83 @@ namespace EnigmaBreaker.Services
             _logger.LogInformation("Writing to file");
         }
 
-        public void testSpeed(int from, int to, int step, string toTest, int iterations, string filePathAndName)
+        public void testSpeed(int from, int to, int step, string toTest, int iterations, string filePathAndName, int singleFrom, int singleTo, int singleStep)
         {
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
-            List<string> linesToFile = new List<string>() { ",Speed" };
+            string s = "";
+            for (int combinationValue = singleFrom; combinationValue <= singleTo; combinationValue += singleStep)
+            {
+                s += $", {combinationValue}";
+            }
+            List<string> linesToFile = new List<string>() { s };
             for (int i = from; i < to + 1; i += step)
             {
                 string lineToFile = $"{i}";
                 string elapsedTime = "";
-                for (int j = 0; j < iterations; j++)
+                for (int combinationValue = singleFrom; combinationValue <= singleTo; combinationValue += singleStep)
                 {
-                    EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
-                    string emJson = JsonConvert.SerializeObject(em);
-                    int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, i).ToArray(), em);
                     TimeSpan total = TimeSpan.Zero;
-                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
-
-                    switch (toTest)
+                    for (int j = 0; j < iterations; j++)
                     {
-                        case "Plugboard":
-                            EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
-                            em2.plugboard = new Dictionary<int, int>();
+                        EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                        string emJson = JsonConvert.SerializeObject(em);
+                        int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, i).ToArray(), em);
+                        
+                        BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
 
-                            Stopwatch stopWatchPlugboard = new Stopwatch();
-                            stopWatchPlugboard.Start();
-                            List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, breakerConfiguration);
-                            stopWatchPlugboard.Stop();
-                            TimeSpan tsPlugboard = stopWatchPlugboard.Elapsed;
-                            total = total.Add(tsPlugboard);
-                            break;
-                        case "Offset":
-                            em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
-                            em2.plugboard = new Dictionary<int, int>();
-                            Random rnd = new Random();
-                            for (int ri = 0; ri < 3; ri++)
-                            {
-                                em2.rotors[ri].rotation = EncodingService.mod26(em2.rotors[ri].rotation - em2.rotors[ri].ringOffset) + rnd.Next(3) - 1;
-                                em2.rotors[ri].ringOffset = 0;
-                            }
-
-                            Stopwatch stopWatchOffset = new Stopwatch();
-                            stopWatchOffset.Start();
-                            List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, breakerConfiguration);
-                            stopWatchOffset.Stop();
-                            TimeSpan tsOffset = stopWatchOffset.Elapsed;
-                            total = total.Add(tsOffset);
-                            break;
-                        case "Rotors":
-                            Stopwatch stopWatchRotors = new Stopwatch();
-                            stopWatchRotors.Start();
-                            List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));
-                            stopWatchRotors.Stop();
-                            TimeSpan tsRotors = stopWatchRotors.Elapsed;
-                            break;
-                        default:
-                            _logger.LogWarning($"Unsure what to test: {toTest}");
-                            break;
+                        switch (toTest)
+                        {
+                            case "Plugboard":
+                                EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+                                em2.plugboard = new Dictionary<int, int>();
+                                
+                                breakerConfiguration.numberOfSinglePlugboardSettingsToKeep = combinationValue;
+                                
+                                Stopwatch stopWatchPlugboard = new Stopwatch();
+                                stopWatchPlugboard.Start();
+                                List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, breakerConfiguration);
+                                stopWatchPlugboard.Stop();
+                                TimeSpan tsPlugboard = stopWatchPlugboard.Elapsed;
+                                total = total.Add(tsPlugboard);
+                                break;
+                            case "Offset":
+                                em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
+                                em2.plugboard = new Dictionary<int, int>();
+                                Random rnd = new Random();
+                                for (int ri = 0; ri < 3; ri++)
+                                {
+                                    em2.rotors[ri].rotation = EncodingService.mod26(em2.rotors[ri].rotation - em2.rotors[ri].ringOffset) + rnd.Next(3) - 1;
+                                    em2.rotors[ri].ringOffset = 0;
+                                }                                
+                                breakerConfiguration.numberOfSettingsPerRotationCombinationToKeep = combinationValue;
+                                
+                                Stopwatch stopWatchOffset = new Stopwatch();
+                                stopWatchOffset.Start();
+                                List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, breakerConfiguration);
+                                stopWatchOffset.Stop();
+                                TimeSpan tsOffset = stopWatchOffset.Elapsed;
+                                total = total.Add(tsOffset);
+                                break;
+                            case "Rotors":                                
+                                breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep = combinationValue;
+                                
+                                Stopwatch stopWatchRotors = new Stopwatch();
+                                stopWatchRotors.Start();
+                                List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));
+                                stopWatchRotors.Stop();
+                                TimeSpan tsRotors = stopWatchRotors.Elapsed;
+                                total = total.Add(tsRotors);
+                                break;
+                            default:
+                                _logger.LogWarning($"Unsure what to test: {toTest}");
+                                break;
+                        }                        
                     }
-
                     TimeSpan ts = new TimeSpan(total.Ticks / iterations);
-                    elapsedTime = $"{ts.Minutes}:{ts.Seconds}.{ts.Milliseconds}";
-                    
+                    elapsedTime += $",{ts.Minutes}:{ts.Seconds}.{ts.Milliseconds}";
                 }
-                lineToFile += "," + elapsedTime;
+                lineToFile += elapsedTime;
                 linesToFile.Add(lineToFile);
                 _logger.LogInformation($"Finished {toTest} {i}");
             }
@@ -256,11 +269,11 @@ namespace EnigmaBreaker.Services
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, messageLength).ToArray(), em);
                         BreakerConfiguration bc = new BreakerConfiguration(cipherArr.Length);
                         bc.numberOfSettingsPerRotorCombinationToKeep = 10;
-                        bc.numberOfRotorsToKeep = 10;
-                        bc.numberOfPlugboardSettingsToKeep = 3;
-                        bc.numberOfSinglePlugboardSettingsToKeep = 5;
-                        bc.numberOfOffsetToKeep = 10;
-                        bc.numberOfSettingsPerRotationCombinationToKeep = 10;
+                        bc.numberOfRotorsToKeep = 5;
+                        bc.numberOfPlugboardSettingsToKeep = 1;
+                        bc.numberOfSinglePlugboardSettingsToKeep = 1;
+                        bc.numberOfOffsetToKeep = 5;
+                        bc.numberOfSettingsPerRotationCombinationToKeep = 26;
                         EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
                         switch (toTest)
@@ -274,11 +287,7 @@ namespace EnigmaBreaker.Services
                                 else if (isTotal == "S")
                                 {
                                     bc.numberOfSinglePlugboardSettingsToKeep = combinationValue;
-                                }
-                                else
-                                {
-                                    bc.maxNumberOfNewSinglePlugboardSettings = combinationValue;
-                                }
+                                }                                
 
                                 List<BreakerResult> finalResults = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr, bc);
                                 em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static EnigmaBreaker.Services.Fitness.IFitness;
 
 namespace EnigmaBreaker.Services.Fitness
 {
@@ -21,7 +22,7 @@ namespace EnigmaBreaker.Services.Fitness
         {
             return (a << 10) | (b << 5) | c;
         }
-        public double getFitness(int[] input)
+        public double getFitness(int[] input, Part part)
         {
             double fitness = 0;
             int current = 0;
