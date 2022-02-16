@@ -42,7 +42,7 @@ namespace EnigmaBreaker
 
         public void runMyStuff()
         {
-            var bs = _serviceProvider.GetRequiredService<BasicService>();
+            var bs = _serviceProvider.GetRequiredService<Measuring>();
             bs.root();
             Stop();
         }

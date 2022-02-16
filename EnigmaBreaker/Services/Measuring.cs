@@ -30,17 +30,18 @@ namespace EnigmaBreaker.Services
         }
 
         public void root()
-        {            
+        {
+            testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC" }, "Results/plugboardLengthTest");
             //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
-            //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R Perfect
+            ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R Perfect
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
             //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 29 hours
-            
+
             //testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
-            testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour        
+            //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour        
             //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
-            testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexTest", 1, 20, 1, "F");//12 hours
-            ////testIndex(100, 2000, 100, "Rotors", 3, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
+            //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexTest", 1, 20, 1, "F");//12 hours
+            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexSingleTest", 1, 3, 1, "S");
             //testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 3, 1, "F");
 
             //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest", 1, 2, 1);//perfect

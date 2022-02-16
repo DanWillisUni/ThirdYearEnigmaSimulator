@@ -28,7 +28,7 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {            
             double IOC = getIOC(input);
-            return Math.Abs(1.73-IOC);
+            return 0-Math.Abs(1.73-IOC);
         }
     }
 }
