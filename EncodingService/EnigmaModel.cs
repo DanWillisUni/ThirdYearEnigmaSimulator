@@ -23,7 +23,7 @@ namespace SharedCL
             this.plugboard = plugboard;
         }
 
-        public static EnigmaModel randomizeEnigma(int maxRotor = 5,int maxReflector = 3,int maxPlugboard = 10)
+        public static EnigmaModel randomizeEnigma(int maxRotor = 5,int maxReflector = 3,int maxPlugboard = 10,bool useExactPlugboard = false)
         {
             Random rnd = new Random();
             int l = rnd.Next(maxRotor);
@@ -39,6 +39,10 @@ namespace SharedCL
             }
             Dictionary<int, int> plugboard = new Dictionary<int, int>();
             int plugboardNumber = rnd.Next(maxPlugboard);
+            if (useExactPlugboard)
+            {
+                plugboardNumber = maxPlugboard;
+            }                        
             List<int> containedNumbers = new List<int>();
             for(int i = 0;i <= plugboardNumber; i++)
             {

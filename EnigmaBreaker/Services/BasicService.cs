@@ -31,58 +31,8 @@ namespace EnigmaBreaker.Services
             _encodingService = encodingService;
             _resolver = fitnessResolver;
 
-            string Rotorjson = @"[
-      {
-        'name': 'I',
-        'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotchA': 7
-
-      },
-      {
-        'name': 'II',
-        'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotchA': 25
-      },
-      {
-        'name': 'III',
-        'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotchA': 11
-      },
-      {
-        'name': 'IV',
-        'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-        'turnoverNotchA': 6
-      },
-      {
-        'name': 'V',
-        'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
-        'turnoverNotchA': 1
-      }
-    ]";
-            List<Rotor> rotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
-            allRotors = rotors.GetRange(0, _bc.numberOfRotorsInUse);
-            string Reflectorjson = @"[      
-      {
-                'name': 'A',
-        'order': 'EJMZALYXVBWFCRQUONTSPIKHGD'
-      },
-      {
-                'name': 'B',
-        'order': 'YRUHQSLDPXNGOKMIEBFZCWVJAT'
-      },
-      {
-                'name': 'C',
-        'order': 'FVPJIAOYEDRZXWGCTKUQSBNMHL'
-      }
-    ]";
-            List<Rotor> reflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
-            int reflectorStartIndex = 0;
-            if (_bc.numberOfReflectorsInUse == 1)
-            {
-                reflectorStartIndex = 1;
-            }
-            allReflectors = reflectors.GetRange(reflectorStartIndex, _bc.numberOfReflectorsInUse);
-
+            setNumOfRotors(_bc.numberOfRotorsInUse);
+            setNumOfReflectors(_bc.numberOfReflectorsInUse);
         }
 
         /// <summary>
@@ -93,7 +43,7 @@ namespace EnigmaBreaker.Services
         /// Break the ciphertext and print the attempt at plaintext
         /// Print the time taken
         /// </summary>
-        public void root()            
+        public void root(bool includeLogging = false)            
         {            
             string plaintext = getText();//get a random plaintext as string
             EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
@@ -107,8 +57,29 @@ namespace EnigmaBreaker.Services
             timer.Start();//start timer
             BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
             List<BreakerResult> rotorResults = getRotorResults(cipherArr,breakerConfiguration);//get the top results for rotor configurations
+            if (includeLogging)
+            {
+                foreach (BreakerResult br in rotorResults)
+                {
+                    _logger.LogInformation(br.enigmaModel.ToString() + " : " + br.score);
+                }
+            }
             List<BreakerResult> offsetResults = getRotationOffsetResult(rotorResults,cipherArr, breakerConfiguration);//using the top rotor results get the top offset settings
+            if (includeLogging)
+            {
+                foreach (BreakerResult br in offsetResults)
+                {
+                    _logger.LogInformation(br.enigmaModel.ToString() + " : " + br.score);
+                }
+            }
             List<BreakerResult> plugboardResults = getPlugboardResults(offsetResults, cipherArr, breakerConfiguration);//using the top offset settings get the top plugboard settings
+            if (includeLogging)
+            {
+                foreach (BreakerResult br in plugboardResults)
+                {
+                    _logger.LogInformation(br.enigmaModel.ToString() + " : " + br.score);
+                }
+            }
             List<string> attemptedPlainText = new List<string>();//create list for the attempted plaintext
             foreach (BreakerResult result in plugboardResults)//for all the end results
             {
@@ -540,6 +511,64 @@ namespace EnigmaBreaker.Services
                 r = r.Substring(0, length);
             }
             return r;
+        }
+
+        public void setNumOfRotors(int num)
+        {
+            string Rotorjson = @"[
+      {
+        'name': 'I',
+        'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+        'turnoverNotchA': 7
+
+      },
+      {
+        'name': 'II',
+        'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+        'turnoverNotchA': 25
+      },
+      {
+        'name': 'III',
+        'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+        'turnoverNotchA': 11
+      },
+      {
+        'name': 'IV',
+        'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+        'turnoverNotchA': 6
+      },
+      {
+        'name': 'V',
+        'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
+        'turnoverNotchA': 1
+      }
+    ]";
+            List<Rotor> rotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
+            allRotors = rotors.GetRange(0, num);
+        }
+        public void setNumOfReflectors(int num)
+        {
+            string Reflectorjson = @"[      
+      {
+                'name': 'A',
+        'order': 'EJMZALYXVBWFCRQUONTSPIKHGD'
+      },
+      {
+                'name': 'B',
+        'order': 'YRUHQSLDPXNGOKMIEBFZCWVJAT'
+      },
+      {
+                'name': 'C',
+        'order': 'FVPJIAOYEDRZXWGCTKUQSBNMHL'
+      }
+    ]";
+            List<Rotor> reflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
+            int reflectorStartIndex = 0;
+            if (num == 1)
+            {
+                reflectorStartIndex = 1;
+            }
+            allReflectors = reflectors.GetRange(reflectorStartIndex, num);
         }
         #endregion
     }
