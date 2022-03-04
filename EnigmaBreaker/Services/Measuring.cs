@@ -31,14 +31,15 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {
+            testText();
             //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
             //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 9 hours perfect
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
-            //testLength(100, 2000, 100, "Rotors", 3, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
+            ////testLength(100, 2000, 100, "Rotors", 30, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
 
-            testPlugboardLength(100, 2000, 100, "Plugboard", 1, "Results/plugboardPlugboardLengthTest", 0, 10, 1);
-            testPlugboardLength(100, 2000, 100, "Offset", 1, "Results/offsetPlugboardLengthTest", 0, 10, 1);
-            //testPlugboardLength(100, 2000, 100, "Rotors", 1, "Results/rotorPlugboardLengthTest",0,10,1);
+            //testPlugboardLength(100, 2000, 100, "Plugboard", 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            //testPlugboardLength(100, 2000, 100, "Offset", 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
+            ////testPlugboardLength(100, 2000, 100, "Rotors", 1, "Results/rotorPlugboardLengthTest",0,10,1);
 
             //testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
             //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
@@ -52,14 +53,35 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest",1,3,1);//R 18 hours perfect
 
             //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
-            ////measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureUnrefined",true);//20 hours
+            //measureFullRunthrough(100, 2000, 100,20, "Results/fullMeasureUnrefined",true);//20 hours
+        }
+        public void testText()
+        {            
+            List<string> fitnessList = new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" };
+            List<string> linesToWriteToFile = new List<string>() { "Name,CharCount," + string.Join(",", fitnessList) };
+            
+            foreach (string fileName in _bc.textFileNames)
+            {
+                string newLine = fileName;
+                string plaintext = System.IO.File.ReadAllText(System.IO.Path.Combine(_bc.textDir, fileName + ".txt"));
+                List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+                newLine += $",{plainArr.Count}";
+                foreach (string fitnessStr in fitnessList)
+                {
+                    IFitness fitnessFunc = _resolver(fitnessStr);
+                    double fitness = fitnessFunc.getFitness(plainArr.ToArray());
+                    newLine += "," + fitness;
+                }                
+                linesToWriteToFile.Add(newLine);
+            }
+            File.WriteAllLines("Results/TextTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToWriteToFile);
         }
         public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName,bool withoutRefinement)
         {
             string plaintext = _bs.getText(to * 2);
             
             List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime" };
-            for (int i = from; i < to + 1; i += step)
+            for (int i = from; i <= to; i += step)
             {                
                 int[] plainArr = _encodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, i).ToArray();
 
@@ -129,8 +151,17 @@ namespace EnigmaBreaker.Services
                     }
                 }
                 TimeSpan tsRotor = new TimeSpan(rotorTS.Ticks / iterations);
-                TimeSpan tsOffset = new TimeSpan(rotorTS.Ticks / (iterations - (iterations - rotorSuccess)));
-                TimeSpan tsPlugboard = new TimeSpan(rotorTS.Ticks / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
+                TimeSpan tsOffset = TimeSpan.Zero;
+                TimeSpan tsPlugboard = TimeSpan.Zero;
+                if (iterations - (iterations - rotorSuccess) > 0)
+                {
+                    tsOffset = new TimeSpan(rotorTS.Ticks / (iterations - (iterations - rotorSuccess)));
+                }
+                if ((iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)) > 0)
+                {
+                    tsPlugboard = new TimeSpan(rotorTS.Ticks / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
+                }              
+                
                 double rotorSuccessRate = (double)(rotorSuccess * 100 / iterations);
                 double offsetSuccessRate = (double)(offsetSuccess * 100 / (iterations - (iterations - rotorSuccess)));
                 double plugboardSuccessRate = (double)(plugboardSuccess * 100 / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
@@ -172,7 +203,7 @@ namespace EnigmaBreaker.Services
                         bool wasCorrect = false;
                         switch (toTest)
                         {
-                            case "Plugboard":
+                            case "Plugboard":                                
                                 wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);
                                 break;
                             case "Offset":
@@ -209,7 +240,6 @@ namespace EnigmaBreaker.Services
                 _bc.numberOfReflectorsInUse = trueNumOfRelfectors;
             }
         }
-
         public void testSpeed(int from, int to, int step, string toTest, int iterations, string filePathAndName, int singleFrom, int singleTo, int singleStep)
         {
             string plaintext = _bs.getText(to * 2);
@@ -294,7 +324,6 @@ namespace EnigmaBreaker.Services
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
         }
-
         public void testIndex(int from, int to, int step, string toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, string isTotal)
         {
             string plaintext = _bs.getText(to * 2);
@@ -443,7 +472,7 @@ namespace EnigmaBreaker.Services
             for (int lengthOfPlainText = from; lengthOfPlainText < to + 1; lengthOfPlainText += step)
             {
                 string lineToFile = $"{lengthOfPlainText}";
-                for (int plugboardLength = plugboardFrom; plugboardLength < plugboardTo; plugboardLength += plugbopardStep)
+                for (int plugboardLength = plugboardFrom; plugboardLength <= plugboardTo; plugboardLength += plugbopardStep)
                 {
                     int correctCount = 0;
                     for (int i = 0; i < iterations; i++)
@@ -472,7 +501,7 @@ namespace EnigmaBreaker.Services
                         }
                         
                     }
-                    lineToFile += $", {(double)correctCount / iterations}";
+                    lineToFile += $", {100*((double)correctCount / iterations)}";
                 }
                 _logger.LogInformation($"Finished {toTest} {lengthOfPlainText}");                
                 linesToFile.Add(lineToFile);

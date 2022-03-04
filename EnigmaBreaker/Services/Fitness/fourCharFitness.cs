@@ -9,11 +9,11 @@ namespace EnigmaBreaker.Services.Fitness
     public class fourCharFitness : IFitness
     {
         private readonly float[] quadgrams;
-        public fourCharFitness(BasicConfiguration bc)
+        public fourCharFitness(FitnessConfiguration gc)
         {
             quadgrams = new float[845626];
             Array.Fill(quadgrams, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.gramDataDir, bc.quadgramFileName)))
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramDataDir, gc.quadgramFileName)))
             {
                 quadgrams[quadIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65, line.Split(",")[0][3] - 65)] = float.Parse(line.Split(",")[1]);
             }

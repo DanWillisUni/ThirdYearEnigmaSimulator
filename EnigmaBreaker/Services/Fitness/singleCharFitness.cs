@@ -9,11 +9,11 @@ namespace EnigmaBreaker.Services.Fitness
     public class singleCharFitness : IFitness
     {
         private readonly float[] singles;
-        public singleCharFitness(BasicConfiguration bc)
+        public singleCharFitness(FitnessConfiguration gc)
         {
             singles = new float[26];
             Array.Fill(singles, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(bc.gramDataDir, bc.singleFileName)))
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramDataDir, gc.singleFileName)))
             {
                 singles[line.Split(",")[0][0] - 65] = float.Parse(line.Split(",")[1]);
             }

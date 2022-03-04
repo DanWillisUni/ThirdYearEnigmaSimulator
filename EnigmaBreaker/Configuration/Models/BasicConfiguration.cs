@@ -8,13 +8,8 @@ namespace EnigmaBreaker.Configuration.Models
     {
         public int numberOfRotorsInUse { get; set; }
         public int numberOfReflectorsInUse { get; set; }
-        public int maxPlugboardSettings { get; set; }
+        public int maxPlugboardSettings { get; set; }        
         
-        public string gramDataDir { get; set; }
-        public string singleFileName { get; set; }
-        public string bigramFileName { get; set; }
-        public string trigramFileName { get; set; }
-        public string quadgramFileName { get; set; }
         public string textDir { get; set; }
         public List<string> textFileNames { get; set; }
 

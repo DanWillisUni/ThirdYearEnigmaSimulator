@@ -57,7 +57,10 @@ namespace EnigmaBreaker
 
             var BasicSettings = new BasicConfiguration();
             configuration.Bind("BasicSettings", BasicSettings);
-            _serviceCollection.AddSingleton(BasicSettings);            
+            _serviceCollection.AddSingleton(BasicSettings);
+            var FitnessSettings = new FitnessConfiguration();
+            configuration.Bind("FitnessSettings", FitnessSettings);
+            _serviceCollection.AddSingleton(FitnessSettings);
 
             _serviceCollection.AddSingleton<Program>();
             _serviceCollection.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Debug);

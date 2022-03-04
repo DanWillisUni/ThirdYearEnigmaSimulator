@@ -58,7 +58,7 @@ namespace EnigmaBreaker.Models
                     }
                 }
                 numberOfSettingsPerRotationCombinationToKeep = 20;//set high because it makes little differnece to the timing
-                numberOfSinglePlugboardSettingsToKeep = 2;//set to 2 as it is only adds a few seconds        
+                numberOfSinglePlugboardSettingsToKeep = 1;//set to 2 as it is only adds a few seconds        
                 numberOfPlugboardSettingsToKeep = 1;//keep only top 1 else the user would have to pick and only makes an average of 1.4% differnce changing it to 3
             }
             else
