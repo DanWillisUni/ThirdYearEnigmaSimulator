@@ -20,18 +20,21 @@ namespace EnigmaBreaker.Services
         private readonly EncodingService _encodingService;
         private readonly IFitness.FitnessResolver _resolver;
         private readonly BasicService _bs;
-        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs) 
+        private readonly CSVReaderService<WeightFile> _csvReader;
+        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs,CSVReaderService<WeightFile> csvReader) 
         {
             _logger = logger;
             _bc = bc;
             _encodingService = encodingService;
             _resolver = fitnessResolver;
             _bs = bs;
+            _csvReader = csvReader;
         }
 
         public void root()
         {
-            testText();
+            test();
+            //testText();
             //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
             //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 9 hours perfect
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
@@ -54,6 +57,15 @@ namespace EnigmaBreaker.Services
 
             //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
             //measureFullRunthrough(100, 2000, 100,20, "Results/fullMeasureUnrefined",true);//20 hours
+        }
+
+        public void test()
+        {
+            var weights = _csvReader.readFromFile("C:/Users/danny/source/repos/EnigmaSimulator/EnigmaBreaker/bin/Release/netcoreapp3.1/Results/ToUse", "plugboardLengthTest_20220123_005753");
+            foreach (var w in weights)
+            {
+                _logger.LogInformation(w.length + ": " + string.Join(Environment.NewLine, w.weights));
+            }            
         }
         public void testText()
         {            

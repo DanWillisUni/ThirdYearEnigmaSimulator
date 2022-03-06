@@ -67,6 +67,7 @@ namespace EnigmaBreaker
             _serviceCollection.AddSingleton<BasicService>();
             _serviceCollection.AddSingleton<EncodingService>();
             _serviceCollection.AddSingleton<Measuring>();
+            _serviceCollection.AddSingleton<CSVReaderService<Models.WeightFile>>();
 
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<singleCharFitness>();

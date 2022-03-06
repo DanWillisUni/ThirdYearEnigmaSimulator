@@ -13,7 +13,7 @@ namespace EnigmaBreaker.Services.Fitness
         {
             singles = new float[26];
             Array.Fill(singles, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramDataDir, gc.singleFileName)))
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramFiles.gramDataDir, gc.gramFiles.singleFileName)))
             {
                 singles[line.Split(",")[0][0] - 65] = float.Parse(line.Split(",")[1]);
             }
