@@ -22,7 +22,7 @@ namespace EnigmaBreaker.Models
             PlugboardFitness = "RULE";
             if (!withoutRefinement)
             {                
-                numberOfRotorsToKeep = 3;
+                numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
                 numberOfSettingsPerRotorCombinationToKeep = 3;
                 
                 numberOfOffsetToKeep = 5; //altered because it increases the computing time as the plugboard is searching through a few of them

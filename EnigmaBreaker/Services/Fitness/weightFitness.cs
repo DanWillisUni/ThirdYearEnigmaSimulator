@@ -11,11 +11,17 @@ namespace EnigmaBreaker.Services.Fitness
         private readonly FitnessConfiguration _fc;
         private readonly IFitness.FitnessResolver _resolver;
         private readonly CSVReaderService<WeightFile> _csvR;
+        private List<WeightFile> rotorWeightFile;
+        private List<WeightFile> offsetWeightFile;
+        private List<WeightFile> plugboardWeightFile;
         public weightFitness(FitnessConfiguration fc,IFitness.FitnessResolver resolver,CSVReaderService<WeightFile> csvR)
         {
             _resolver = resolver;
             _fc = fc;
             _csvR = csvR;
+            rotorWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.rotorFileName);
+            offsetWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.offsetFileName);
+            plugboardWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.plugboardFileName);
         }
         public double getFitness(int[] input, IFitness.Part part = IFitness.Part.None)
         {
@@ -27,20 +33,19 @@ namespace EnigmaBreaker.Services.Fitness
 
         private double getHitRate(int length, string fitnessString, IFitness.Part part = IFitness.Part.None)
         {
-            string fileName = "";
+            List<WeightFile> wf = new List<WeightFile>();
             if (part == IFitness.Part.Rotor)
             {
-                fileName = _fc.weightFiles.rotorFileName;
+                wf = rotorWeightFile;
             }
             else if (part == IFitness.Part.Offset)
             {
-                fileName= _fc.weightFiles.offsetFileName;
+                wf = offsetWeightFile;
             }
             else if(part == IFitness.Part.Plugboard)
             {
-                fileName = _fc.weightFiles.plugboardFileName;
-            }
-            List<WeightFile> wf = _csvR.readFromFile(_fc.weightFiles.dir,fileName);
+                wf = plugboardWeightFile;
+            }            
             int previous = 0;
             double r = -1;
             foreach (WeightFile w in wf)
@@ -54,7 +59,7 @@ namespace EnigmaBreaker.Services.Fitness
             }
             if (r == -1)
             {
-                r = wf[-1].weights[fitnessString];
+                r = wf[wf.Count-1].weights[fitnessString];
             }
             return r;
         }

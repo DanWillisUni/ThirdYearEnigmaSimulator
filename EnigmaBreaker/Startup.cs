@@ -75,6 +75,7 @@ namespace EnigmaBreaker
             _serviceCollection.AddTransient<tripleCharFitness>();
             _serviceCollection.AddTransient<fourCharFitness>();
             _serviceCollection.AddTransient<ruleFitness>();
+            _serviceCollection.AddTransient<weightFitness>();
 
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {
@@ -92,6 +93,8 @@ namespace EnigmaBreaker
                         return serviceProvider.GetService<fourCharFitness>();
                     case "RULE":
                         return serviceProvider.GetService<ruleFitness>();
+                    case "WEIGHT":
+                        return serviceProvider.GetService<weightFitness>();
                     default:
                         throw new KeyNotFoundException();
                 }

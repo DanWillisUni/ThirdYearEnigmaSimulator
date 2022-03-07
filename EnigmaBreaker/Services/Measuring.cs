@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static EnigmaBreaker.Services.Fitness.IFitness;
 
 namespace EnigmaBreaker.Services
 {
@@ -33,30 +34,36 @@ namespace EnigmaBreaker.Services
 
         public void root()
         {
-            test();
-            //testText();
+            //test();
+            //testText(new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" });
+
             //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
             //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 9 hours perfect
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
             ////testLength(100, 2000, 100, "Rotors", 30, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
 
-            //testPlugboardLength(100, 2000, 100, "Plugboard", 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
-            //testPlugboardLength(100, 2000, 100, "Offset", 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
+            ////testPlugboardLength(100, 2000, 100, "Plugboard", 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            ////testPlugboardLength(100, 2000, 100, "Offset", 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
             ////testPlugboardLength(100, 2000, 100, "Rotors", 1, "Results/rotorPlugboardLengthTest",0,10,1);
 
             //testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
             //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
             //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
             //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            //testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexSingleTest", 1, 3, 1, "S"); //60 hours
-            //testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 3, 1, "F"); //60 hours
+            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexSingleTest", 1, 3, 1, "S"); //60 hours
+            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 3, 1, "F"); //60 hours
 
             //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest",1,3,1);//R 18 hours perfect
 
+            ////testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//1.5 hour
+            ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//4 hour
+            ////testLength(100, 2000, 100, Part.Offset, 50, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//1.5 hour
+            //testLength(100, 2000, 100, "Rotors", 30, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+
             //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
-            //measureFullRunthrough(100, 2000, 100,20, "Results/fullMeasureUnrefined",true);//20 hours
+            ////measureFullRunthrough(100, 2000, 100,20, "Results/fullMeasureUnrefined",true);//40 hours
         }
 
         public void test()
@@ -67,9 +74,15 @@ namespace EnigmaBreaker.Services
                 _logger.LogInformation(w.length + ": " + string.Join(Environment.NewLine, w.weights));
             }            
         }
-        public void testText()
+        /// <summary>
+        /// This function tests the texts that I have and saves the results to a file
+        /// 
+        /// It checks the IOC, letter frequency, bigrams, trigrams, quadragrams scores of all the files
+        /// From these I can see which texts have the highest "Englishness" score.
+        /// I also made the fitness weights based upon these values
+        /// </summary>
+        public void testText(List<string> fitnessList)
         {            
-            List<string> fitnessList = new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" };
             List<string> linesToWriteToFile = new List<string>() { "Name,CharCount," + string.Join(",", fitnessList) };
             
             foreach (string fileName in _bc.textFileNames)
@@ -88,6 +101,16 @@ namespace EnigmaBreaker.Services
             }
             File.WriteAllLines("Results/TextTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToWriteToFile);
         }
+        /// <summary>
+        /// Measure the accuracy of the full run through of the breaker
+        /// Used to track the accuracy asI attempted to improve it
+        /// </summary>
+        /// <param name="from"></param> starting ciphertext length
+        /// <param name="to"></param> finishing ciphertext length
+        /// <param name="step"></param> step in cipertext length
+        /// <param name="iterations"></param> number of iteration to do to get the accuracy
+        /// <param name="filePathAndName"></param> location to save the results
+        /// <param name="withoutRefinement"></param> True if you want to use the most recent version else false
         public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName,bool withoutRefinement)
         {
             string plaintext = _bs.getText(to * 2);
@@ -189,11 +212,21 @@ namespace EnigmaBreaker.Services
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
         }
-        public void testLength(int from, int to, int step, string toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName)
+        /// <summary>
+        /// Tests different fitness functions accuracies at different lengths of ciphertext
+        /// </summary>
+        /// <param name="from"></param> starting ciphertext length
+        /// <param name="to"></param> finishing ciphertext length
+        /// <param name="step"></param> step in cipertext length 
+        /// <param name="toTest"></param> Area to test
+        /// <param name="iterations"></param> number of iteration to do to get the accuracy
+        /// <param name="fitnessStrToTest"></param> List of the different fitness function keys to test
+        /// <param name="filePathAndName"></param> Location to save results
+        public void testLength(int from, int to, int step, Part toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName)
         {
             int trueNumOfRotors = _bc.numberOfRotorsInUse;
             int trueNumOfRelfectors = _bc.numberOfReflectorsInUse;            
-            if (toTest == "Rotor")
+            if (toTest == Part.Rotor)
             {                
                 _bc.numberOfRotorsInUse = 3;
                 _bc.numberOfReflectorsInUse = 1;
@@ -206,6 +239,10 @@ namespace EnigmaBreaker.Services
             for (int lengthOfPlainText = from; lengthOfPlainText < to + 1; lengthOfPlainText += step)
             {
                 List<int> correctCount = new List<int>();
+                foreach (string s in fitnessStrToTest)
+                {
+                    correctCount.Add(0);
+                }
                 string lineToFile = $"{lengthOfPlainText}";
                 for (int i = 0; i < iterations; i++)
                 {
@@ -215,13 +252,13 @@ namespace EnigmaBreaker.Services
                         bool wasCorrect = false;
                         switch (toTest)
                         {
-                            case "Plugboard":                                
+                            case Part.Plugboard:                                
                                 wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);
                                 break;
-                            case "Offset":
+                            case Part.Offset:
                                 wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);
                                 break;
-                            case "Rotors":                                
+                            case Part.Rotor:                                
                                 wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);                                
                                 break;
                             default:
@@ -244,7 +281,7 @@ namespace EnigmaBreaker.Services
             
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
-            if (toTest == "Rotor")
+            if (toTest == Part.Rotor)
             {
                 _bs.setNumOfRotors(_bc.numberOfRotorsInUse);
                 _bs.setNumOfReflectors(_bc.numberOfReflectorsInUse);
@@ -252,7 +289,19 @@ namespace EnigmaBreaker.Services
                 _bc.numberOfReflectorsInUse = trueNumOfRelfectors;
             }
         }
-        public void testSpeed(int from, int to, int step, string toTest, int iterations, string filePathAndName, int singleFrom, int singleTo, int singleStep)
+        /// <summary>
+        /// Tests the speed of decryption over different lengths of text and different single index sizes
+        /// </summary>
+        /// <param name="from"></param> starting ciphertext length
+        /// <param name="to"></param> finishing ciphertext length
+        /// <param name="step"></param> step in cipertext length 
+        /// <param name="toTest"></param> Area to test
+        /// <param name="iterations"></param> number of iteration to do to get the accuracy
+        /// <param name="filePathAndName"></param> Location to save results
+        /// <param name="singleFrom"></param> single index from value
+        /// <param name="singleTo"></param> single index to value
+        /// <param name="singleStep"></param> single index step value
+        public void testSpeed(int from, int to, int step, Part toTest, int iterations, string filePathAndName, int singleFrom, int singleTo, int singleStep)
         {
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
@@ -279,7 +328,7 @@ namespace EnigmaBreaker.Services
 
                         switch (toTest)
                         {
-                            case "Plugboard":
+                            case Part.Plugboard:
                                 EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                                 em2.plugboard = new Dictionary<int, int>();
                                 
@@ -292,7 +341,7 @@ namespace EnigmaBreaker.Services
                                 TimeSpan tsPlugboard = stopWatchPlugboard.Elapsed;
                                 total = total.Add(tsPlugboard);
                                 break;
-                            case "Offset":
+                            case Part.Offset:
                                 em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
                                 em2.plugboard = new Dictionary<int, int>();
                                 Random rnd = new Random();
@@ -310,7 +359,7 @@ namespace EnigmaBreaker.Services
                                 TimeSpan tsOffset = stopWatchOffset.Elapsed;
                                 total = total.Add(tsOffset);
                                 break;
-                            case "Rotors":                                
+                            case Part.Rotor:                                
                                 breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep = combinationValue;
                                 
                                 Stopwatch stopWatchRotors = new Stopwatch();
@@ -336,7 +385,20 @@ namespace EnigmaBreaker.Services
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
         }
-        public void testIndex(int from, int to, int step, string toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, string isTotal)
+        /// <summary>
+        /// Testing how accurate the breaker is with different index parameters so that I can get the optimal amount
+        /// </summary>
+        /// <param name="from"></param> starting ciphertext length
+        /// <param name="to"></param> finishing ciphertext length
+        /// <param name="step"></param> step in cipertext length 
+        /// <param name="toTest"></param> Area to test
+        /// <param name="iterations"></param> number of iteration to do to get the accuracy
+        /// <param name="filePathAndName"></param> Location to save results
+        /// <param name="singleFrom"></param> single index from value
+        /// <param name="singleTo"></param> single index to value
+        /// <param name="singleStep"></param> single index step value
+        /// <param name="isTotal"></param> True for overall index testing false for single inde testing
+        public void testIndex(int from, int to, int step, Part toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, string isTotal)
         {
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
@@ -368,7 +430,7 @@ namespace EnigmaBreaker.Services
 
                         switch (toTest)
                         {
-                            case "Plugboard":
+                            case Part.Plugboard:
                                 em2.plugboard = new Dictionary<int, int>();
                                 if (isTotal == "F")
                                 {
@@ -395,7 +457,7 @@ namespace EnigmaBreaker.Services
                                     missNumber++;
                                 }
                                 break;
-                            case "Offset":
+                            case Part.Offset:
                                 em2.plugboard = new Dictionary<int, int>();
                                 Random rnd = new Random();
                                 for (int ri = 0; ri < 3; ri++)
@@ -431,7 +493,7 @@ namespace EnigmaBreaker.Services
 
                                 
                                 break;
-                            case "Rotors":                                
+                            case Part.Rotor:                                
                                 if (isTotal == "F")
                                 {
                                     bc.numberOfRotorsToKeep = combinationValue;
@@ -471,7 +533,19 @@ namespace EnigmaBreaker.Services
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
         }
-        public void testPlugboardLength(int from, int to, int step, string toTest, int iterations, string filePathAndName, int plugboardFrom, int plugboardTo, int plugbopardStep)
+        /// <summary>
+        /// Test how the accuracy of the different parts varies with different lengths of text and different plugboard lengths
+        /// </summary>
+        /// <param name="from"></param> starting ciphertext length
+        /// <param name="to"></param> finishing ciphertext length
+        /// <param name="step"></param> step in cipertext length 
+        /// <param name="toTest"></param> Area to test
+        /// <param name="iterations"></param> number of iteration to do to get the accuracy
+        /// <param name="filePathAndName"></param> Location to save results
+        /// <param name="plugboardFrom"></param>
+        /// <param name="plugboardTo"></param>
+        /// <param name="plugbopardStep"></param>
+        public void testPlugboardLength(int from, int to, int step, Part toTest, int iterations, string filePathAndName, int plugboardFrom, int plugboardTo, int plugbopardStep)
         {
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
@@ -494,13 +568,13 @@ namespace EnigmaBreaker.Services
                         bool wasCorrect = false;
                         switch (toTest)
                         {
-                            case "Plugboard":
+                            case Part.Plugboard:
                                 wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em);
                                 break;
-                            case "Offset":
+                            case Part.Offset:
                                 wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em);
                                 break;
-                            case "Rotors":
+                            case Part.Rotor:
                                 wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em);
                                 break;
                             default:
@@ -523,7 +597,14 @@ namespace EnigmaBreaker.Services
             _logger.LogInformation("Writing to file");
         }
         #region testing individual sections
-        public bool testRotor(int[] plaintext, EnigmaModel em, string fitnessStr = "")
+        /// <summary>
+        /// Returns a bool of if the plaintext encoded by the enigma model was decoded correctly
+        /// </summary>
+        /// <param name="plaintext"></param> The plaintext to test on as 
+        /// <param name="em"></param> (Optional) Enigma model to encode with
+        /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
+        /// <returns></returns>
+        public bool testRotor(int[] plaintext, EnigmaModel em = null, string fitnessStr = "")
         {
             if(em == null)
             {
@@ -550,7 +631,14 @@ namespace EnigmaBreaker.Services
             }
             return false;
         }
-        public bool testOffset(int[] plaintext, EnigmaModel em, string fitnessStr = "")
+        /// <summary>
+        /// Returns a bool of if the plaintext encoded by the enigma model was decoded correctly
+        /// </summary>
+        /// <param name="plaintext"></param> The plaintext to test on as 
+        /// <param name="em"></param> (Optional) Enigma model to encode with
+        /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
+        /// <returns></returns>
+        public bool testOffset(int[] plaintext, EnigmaModel em = null, string fitnessStr = "")
         {
             if (em == null)
             {
@@ -588,7 +676,14 @@ namespace EnigmaBreaker.Services
             }
             return false;
         }
-        public bool testPlugboard(int[] plaintext,EnigmaModel em, string fitnessStr = "")
+        /// <summary>
+        /// Returns a bool of if the plaintext encoded by the enigma model was decoded correctly
+        /// </summary>
+        /// <param name="plaintext"></param> The plaintext to test on as 
+        /// <param name="em"></param> (Optional) Enigma model to encode with
+        /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
+        /// <returns></returns>
+        public bool testPlugboard(int[] plaintext,EnigmaModel em = null, string fitnessStr = "")
         {
             if (em == null)
             {
@@ -617,6 +712,12 @@ namespace EnigmaBreaker.Services
         #endregion
 
         #region helper
+        /// <summary>
+        /// Compares the rotors to make sure that they are near enough the same to progress onto the next stage
+        /// </summary>
+        /// <param name="actual"></param> Actual Enigma model
+        /// <param name="attempt"></param> Attempt at the enigma model
+        /// <returns> boolean of if the rotors are the "Same"</returns>
         public bool compareRotors(EnigmaModel actual,EnigmaModel attempt)
         {
             if (attempt.reflector.rotor.name == actual.reflector.rotor.name && attempt.rotors[0].rotor.name == actual.rotors[0].rotor.name && attempt.rotors[1].rotor.name == actual.rotors[1].rotor.name && attempt.rotors[2].rotor.name == actual.rotors[2].rotor.name)
@@ -634,6 +735,12 @@ namespace EnigmaBreaker.Services
             }
             return false;
         }
+        /// <summary>
+        /// Compares the rotors offsets to make sure that they are near enough the same to progress onto the next stage
+        /// </summary>
+        /// <param name="actual"></param> Actual Enigma model
+        /// <param name="attempt"></param> Attempt at the enigma model
+        /// <returns> boolean of if the rotors are the "Same"</returns>
         public bool compareOffset(EnigmaModel actual,EnigmaModel attempt)
         {
             if (attempt.rotors[0].rotation == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) && attempt.rotors[0].ringOffset == 0)
@@ -649,6 +756,12 @@ namespace EnigmaBreaker.Services
             }
             return false;
         }
+        /// <summary>
+        /// Compares the plugboards to make sure that they are the same
+        /// </summary>
+        /// <param name="actual"></param> Actual Enigma model plugboard string
+        /// <param name="attempt"></param> Attempt at the enigma model plugboard string
+        /// <returns> boolean of if the plugboards are equivilent</returns>
         public bool comparePlugboard(string actual, string attempt)
         {
             if (actual.Length == attempt.Length)
