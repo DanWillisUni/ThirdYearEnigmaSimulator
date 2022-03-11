@@ -18,8 +18,8 @@ namespace EnigmaBreaker.Services
         }
         public List<T> readFromFile(string dir, string fileName)
         {
-            _logger.LogInformation("Reading from Dir: " + dir);
-            _logger.LogInformation("Reading from fileName: " + fileName);
+            _logger.LogDebug("Reading from Dir: " + dir);
+            _logger.LogDebug("Reading from fileName: " + fileName);
             List<string> headers = new List<string>();
             List<T> r = new List<T>(); 
             using (StreamReader reader = new StreamReader(Path.Combine(dir, fileName + ".csv")))
@@ -39,7 +39,7 @@ namespace EnigmaBreaker.Services
                     }  
                 }
             }
-            _logger.LogInformation("Finished reading file");
+            _logger.LogDebug("Finished reading file");
             return r;
         }
 

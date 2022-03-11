@@ -35,31 +35,32 @@ namespace EnigmaBreaker.Services
         public void root()
         {
             //test();
-            //testText(new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" });
+            //testText(new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" });//3 seconds
 
             //testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
             //testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 9 hours perfect
             //testLength(100, 2000, 100, "Offset", 50, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
-            ////testLength(100, 2000, 100, "Rotors", 30, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
+            ////testLength(100, 2000, 100, Part.Rotor, 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
+            ////testLength(10, 300, 10, Part.Rotor, 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestClose");//R 10 hours
 
-            ////testPlugboardLength(100, 2000, 100, "Plugboard", 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
-            ////testPlugboardLength(100, 2000, 100, "Offset", 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
-            ////testPlugboardLength(100, 2000, 100, "Rotors", 1, "Results/rotorPlugboardLengthTest",0,10,1);
+            ////testPlugboardLength(100, 2000, 100, Part.Plugboard, 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            ////testPlugboardLength(100, 2000, 100, Part.Offset, 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
+            ////testPlugboardLength(100, 2000, 100, Part.Rotor, 20, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
             //testIndex(100, 2000, 100, "Plugboard", 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
             //testIndex(100, 2000, 100, "Plugboard", 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
             //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
             //testIndex(100, 2000, 100, "Offset", 50, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexSingleTest", 1, 3, 1, "S"); //60 hours
-            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 3, 1, "F"); //60 hours
+            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexSingleTest", 1, 5, 1, "S"); //60 hours
+            ////testIndex(100, 2000, 100, "Rotors", 10, "Results/rotorsIndexTest", 1, 5, 1, "F"); //60 hours
 
             //testSpeed(100, 2000, 100, "Plugboard", 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, "Offset", 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, "Rotors", 3, "Results/rotorsSpeedTest",1,3,1);//R 18 hours perfect
 
-            ////testLength(100, 2000, 100, "Plugboard", 100, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//1.5 hour
-            ////testLength(5, 500, 5, "Plugboard", 500, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//4 hour
-            ////testLength(100, 2000, 100, Part.Offset, 50, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//1.5 hour
+            //testLength(100, 2000, 100, Part.Plugboard, 100, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
+            ////testLength(5, 500, 5, Part.Plugboard, 10, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
+            ////testLength(100, 2000, 100, Part.Offset, 100, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
             //testLength(100, 2000, 100, "Rotors", 30, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
 
             //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
@@ -274,7 +275,7 @@ namespace EnigmaBreaker.Services
                 _logger.LogInformation($"Finished {toTest} {lengthOfPlainText}");
                 foreach(int i in correctCount)
                 {
-                    lineToFile += $", {(double)i/iterations}";
+                    lineToFile += $", {100 * (double)i/iterations}";
                 }
                 linesToFile.Add(lineToFile);
             }
@@ -547,6 +548,16 @@ namespace EnigmaBreaker.Services
         /// <param name="plugbopardStep"></param>
         public void testPlugboardLength(int from, int to, int step, Part toTest, int iterations, string filePathAndName, int plugboardFrom, int plugboardTo, int plugbopardStep)
         {
+            int trueNumOfRotors = _bc.numberOfRotorsInUse;
+            int trueNumOfRelfectors = _bc.numberOfReflectorsInUse;
+            if (toTest == Part.Rotor)
+            {
+                _bc.numberOfRotorsInUse = 3;
+                _bc.numberOfReflectorsInUse = 1;
+                _bs.setNumOfRotors(3);
+                _bs.setNumOfReflectors(1);
+            }
+
             string plaintext = _bs.getText(to * 2);
             List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
             string s = "";
@@ -595,6 +606,14 @@ namespace EnigmaBreaker.Services
 
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);
             _logger.LogInformation("Writing to file");
+
+            if (toTest == Part.Rotor)
+            {
+                _bs.setNumOfRotors(_bc.numberOfRotorsInUse);
+                _bs.setNumOfReflectors(_bc.numberOfReflectorsInUse);
+                _bc.numberOfRotorsInUse = trueNumOfRotors;
+                _bc.numberOfReflectorsInUse = trueNumOfRelfectors;
+            }
         }
         #region testing individual sections
         /// <summary>
@@ -664,7 +683,7 @@ namespace EnigmaBreaker.Services
             if (fitnessStr != "") { breakerConfiguration.OffsetFitness = fitnessStr; }
 
             List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,breakerConfiguration);
-            bool found = false;
+            
             foreach (BreakerResult brr in fullRotorOffset)
             {
                 bool correctOffset = compareOffset(em3, brr.enigmaModel);

@@ -24,9 +24,9 @@ namespace EnigmaBreaker.Services
         /// <param name="all">Data to export</param>
         public void writeToFile(string dir,string fileName,List<T> all)
         {
-            _logger.LogInformation("Writing to Dir: " + dir);
-            _logger.LogInformation("Writing to fileName: " + fileName);
-            _logger.LogInformation("Object Count: " + all.Count);
+            _logger.LogDebug("Writing to Dir: " + dir);
+            _logger.LogDebug("Writing to fileName: " + fileName);
+            _logger.LogDebug("Object Count: " + all.Count);
             var lines = getStringOutput(all);
             using (StreamWriter outputFile = new StreamWriter(Path.Combine(dir, fileName +".csv")))
             {
@@ -35,7 +35,7 @@ namespace EnigmaBreaker.Services
                     outputFile.WriteLine(line);
                 }                
             }
-            _logger.LogInformation("Finished writing to file");
+            _logger.LogDebug("Finished writing to file");
         }
 
         public List<string> getStringOutput(List<T> all)
@@ -49,7 +49,7 @@ namespace EnigmaBreaker.Services
                 string nameToAdd = dp != null ? dp.DisplayName : headers[i].Name;
 
                 headerLine += nameToAdd;
-                _logger.LogInformation(nameToAdd);
+                _logger.LogDebug(nameToAdd);
                 if (i != headers.Length - 1)
                 {
                     headerLine += ",";
@@ -61,7 +61,7 @@ namespace EnigmaBreaker.Services
                 //_logger.LogDebug("Object" + Convert.ToString(Regex.Matches(output, "\n").Count));
                 output.Add(ToCsv(data, headers));
             }
-            _logger.LogInformation(Convert.ToString(output.Count - 1) + " objects found");
+            _logger.LogDebug(Convert.ToString(output.Count - 1) + " objects found");
             return output;
         }
         public virtual string ToCsv(T obj,System.Reflection.PropertyInfo[] properties)
