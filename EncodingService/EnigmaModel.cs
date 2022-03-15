@@ -44,7 +44,7 @@ namespace SharedCL
                 plugboardNumber = maxPlugboard;
             }                        
             List<int> containedNumbers = new List<int>();
-            for(int i = 0;i <= plugboardNumber; i++)
+            for(int i = 0;i < plugboardNumber; i++)
             {
                 int a = rnd.Next(26);
                 int b = rnd.Next(26);             

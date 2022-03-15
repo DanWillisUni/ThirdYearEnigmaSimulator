@@ -43,7 +43,7 @@ namespace EnigmaBreaker.Services
             ////testLength(100, 2000, 100, Part.Rotor, 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R 10 hours
             ////testLength(10, 300, 10, Part.Rotor, 25, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestClose");//R 10 hours
 
-            ////testPlugboardLength(100, 2000, 100, Part.Plugboard, 50, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            testPlugboardLength(1000, 2000, 100, Part.Plugboard, 1, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
             ////testPlugboardLength(100, 2000, 100, Part.Offset, 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
             ////testPlugboardLength(100, 2000, 100, Part.Rotor, 20, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
