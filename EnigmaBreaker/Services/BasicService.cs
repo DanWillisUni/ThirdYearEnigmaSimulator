@@ -401,7 +401,7 @@ namespace EnigmaBreaker.Services
             {
                 List<BreakerResult> onePairResults = new List<BreakerResult>() { br };
                 int currentPlugboardLength = 0;
-                while (currentPlugboardLength < _bc.maxPlugboardSettings)
+                while (currentPlugboardLength <= _bc.maxPlugboardSettings)
                 {
                     results.AddRange(onePairResults);
                     currentPlugboardLength++;
