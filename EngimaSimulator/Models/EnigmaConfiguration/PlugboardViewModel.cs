@@ -18,5 +18,16 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         {
             plugboard = new Dictionary<int, int>();
         }
+
+        public List<string> getNotAllowedOptions()
+        {
+            List<string> notAllowedOptions = new List<string>();
+            foreach (KeyValuePair<int, int> entry in this.plugboard)
+            {
+                notAllowedOptions.Add(Convert.ToString(Convert.ToChar(65+entry.Key)));
+                notAllowedOptions.Add(Convert.ToString(Convert.ToChar(65 + entry.Value)));
+            }
+            return notAllowedOptions;
+        }
     }
 }

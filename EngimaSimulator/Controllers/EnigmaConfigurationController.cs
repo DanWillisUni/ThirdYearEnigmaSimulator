@@ -27,37 +27,59 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Physical Configuration: " + JsonConvert.SerializeObject(_physicalConfiguration));
             _logger.LogDebug("Basic Configuration: " + JsonConvert.SerializeObject(_basicConfiguration));
         }
+        /// <summary>
+        /// Get a View the current plugboard
+        /// </summary>
+        /// <returns>View of Plugboard.html</returns>
         public IActionResult Plugboard()
         {
             _logger.LogInformation("Get Plugboard");
-            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));  //Loads the current enigma state from file
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
-            PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);
+            PlugboardViewModel pvm = new PlugboardViewModel(currentSave.plugboard);//Creates a new View model from the current plugboard
             return View(pvm);
         }
-        [HttpPost]
+        /// <summary>
+        /// Performs tasks based on posts from the plugboard page
+        /// 
+        /// These tasks are to clear the plugboard or go back to the main enigma page (saving the current plugboard)
+        /// </summary>
+        /// <param name="modelIn">The model passed in from the View</param>
+        /// <returns>View of the next page</returns>
+        [HttpPost]        
         public IActionResult Plugboard(PlugboardViewModel modelIn)
         {
+            //TODO log this more
             _logger.LogInformation("Post Plugboard");
             PlugboardViewModel modelOut = new PlugboardViewModel();
             EnigmaModel enigmaModel = new EnigmaModel();
             switch (modelIn.Command)
             {
                 case "clear":
-                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    enigmaModel.plugboard = new Dictionary<int, int>();
-                    Services.FileHandler.overwrite(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//TODO could be load rather than merge
+                    enigmaModel.plugboard = new Dictionary<int, int>();//set the plugboard to empty
+                    Services.FileHandler.overwrite(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//overwrite the existing
                     return View(modelOut);
                 case "Enigma":
-                    //ideally there would be a check here to see if the letter had been selected before but I havent got around to it yet
+                    //TODO check here to see if the letter had been selected before but I havent got around to it yet
+                    List<string> usedPlugboardLetters = new List<string>();
                     for (int i = 1; i <= 10; i++)
                     {
                         var a = Request.Form[$"Pair {i} A"].ToString();
                         var b = Request.Form[$"Pair {i} B"].ToString();
-                        if(a != "" && b != "")
+                        if(usedPlugboardLetters.Contains(a) || usedPlugboardLetters.Contains(b))
                         {
-                            enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) -65);
-                        }                        
+                            _logger.LogWarning("Letter used twice");
+                        }
+                        else
+                        {
+                            usedPlugboardLetters.Add(a);
+                            usedPlugboardLetters.Add(b);
+                            if (a != "" && b != "")
+                            {
+                                enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) - 65);
+                            }
+                        }                                                
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));

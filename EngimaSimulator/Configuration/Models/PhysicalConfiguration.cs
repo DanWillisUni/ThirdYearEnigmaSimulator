@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace EngimaSimulator.Configuration.Models
 {
+    /// <summary>
+    /// This class is to represent the physical attributes of the machiene that are interchangeable and available
+    /// </summary>
     public class PhysicalConfiguration
     {
         public List<Rotor> rotors { get; set; }
