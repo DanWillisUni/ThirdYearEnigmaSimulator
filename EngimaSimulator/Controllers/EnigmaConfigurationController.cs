@@ -27,6 +27,203 @@ namespace EngimaSimulator.Controllers
             _logger.LogDebug("Physical Configuration: " + JsonConvert.SerializeObject(_physicalConfiguration));
             _logger.LogDebug("Basic Configuration: " + JsonConvert.SerializeObject(_basicConfiguration));
         }
+
+        #region rotors
+        /// <summary>
+        /// Get the rotors view page
+        /// </summary>
+        /// <returns>Rotors view page</returns>
+        public IActionResult Rotors()
+        {
+            _logger.LogInformation("Get rotors");
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//load the current state of the enigma model
+            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
+            RotorViewModel rvm = new RotorViewModel(currentSave.rotors,_physicalConfiguration);//construct a new rotor model from the physical configuration and the enigma model
+            return View(rvm);
+        }
+        /// <summary>
+        /// Processes all the post requests from the Rotors View
+        /// 
+        /// These perform tasks such as saving new rotors, changing rotor order or loading the main view page
+        /// </summary>
+        /// <param name="modelIn">Model posted</param>
+        /// <returns>View for next page</returns>
+        [HttpPost]
+        public IActionResult Rotors(RotorViewModel modelIn)
+        {
+            _logger.LogInformation("Post rotors");
+            RotorViewModel modelOut = new RotorViewModel();//construct new model
+            modelOut._physicalConfiguration = this._physicalConfiguration;//set the Physical configuration
+            EnigmaModel enigmaModel = new EnigmaModel();
+            switch (modelIn.Command)
+            {
+                case "rotorSave"://edit which rotors are selected
+                    _logger.LogInformation("Save the rotors");
+                    _logger.LogInformation("Saving rotors to: " + String.Join(", ", modelIn.liveRotorsNames.ToArray()));
+                    foreach (string rn in modelIn.liveRotorsNames)//for each rotor name
+                    {
+                        foreach (Rotor r in _physicalConfiguration.rotors) //for each rotor in physical configurations
+                        {
+                            if (r.name == rn)//if the physical configuration name is the same as the name
+                            {
+                                enigmaModel.rotors.Add(new RotorModel(r));//add the rotor from the physical configuration
+                                break;//break the for loop of physical configuration
+                            }
+                        }
+                    }
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the rotors with the last configuration saved
+                    foreach (RotorModel r in enigmaModel.rotors) //for each new rotor
+                    {
+                        modelOut.liveRotorsNames.Add(r.rotor.name);//set the rotor names on out model
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//set teh rotation on the out model
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//set the offset on the out model
+                    }
+                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+                    return View(modelOut);//return the view of the configuration
+                case "rotorSaveOrder"://save the new order of rotors
+                    _logger.LogInformation("ReOrder rotors");
+                    //get new order
+                    bool continueOn = true;
+                    int counter = 1;
+                    List<int> newRotorOrder = new List<int>();
+                    do
+                    {//do while previous was not null
+                        var newItem = Request.Form[$"rotorOrder_{counter}"].ToString();//request item
+                        if (String.IsNullOrEmpty(newItem))
+                        {
+                            continueOn = false;
+                        }
+                        else
+                        {
+                            newRotorOrder.Add(Convert.ToInt32(newItem));//add the string to new order
+                        }
+                        counter++;//increase the counter
+                    } while (continueOn); 
+                    //get previous order
+                    EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//load the current save of the enigma model
+                    foreach (RotorModel r in currentSave.rotors)// for each rotor in the current model
+                    {
+                        modelOut.liveRotorsNames.Add(r.rotor.name);//add the names to the model out
+                    }
+                    _logger.LogInformation("Previous Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
+                    //order swap
+                    List<string> tempRotors = new List<string>();
+                    for(int newRotorOrderIndex = 0; newRotorOrderIndex<=newRotorOrder.Count - 1; newRotorOrderIndex++)//for every new rotor
+                    {
+                        int counterSwap = 0;
+                        foreach (int newRotorOrderItem in newRotorOrder)//for each item in the new rotor order
+                        {
+                            if(newRotorOrderItem-1 == newRotorOrderIndex)//if the item -1 is equal to the index
+                            {
+                                tempRotors.Add(modelOut.liveRotorsNames[counterSwap]);//add the swap that needs to happen to the temp rotors
+                                break;//break the for each item
+                            }
+                            counterSwap++;//increase the counter swap
+                        }
+                    }                    
+                    modelOut.liveRotorsNames = tempRotors;//set the model out rotors to the new order
+                    _logger.LogInformation("New Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
+                    //update the enigma model rotor order
+                    foreach (string rn in modelOut.liveRotorsNames)//for each rotor name in the new order
+                    {
+                        foreach (Rotor r in _physicalConfiguration.rotors)//for each rotor in the physical configuration
+                        {
+                            if (r.name == rn)//if the rotor name matches
+                            {
+                                enigmaModel.rotors.Add(new RotorModel(r));//add the rotor model to the enigma rotors
+                                break;//break the for
+                            }
+                        }
+                    }
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes of the enigma model
+                    //modelOut.liveRotorsNames = new List<string>();
+                    foreach (RotorModel r in enigmaModel.rotors)//for each rotor
+                    {
+                        //modelOut.liveRotorsNames.Add(r.rotor.name);
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//add the rotation to the out model
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//add the ringoffset to the out model
+                    }
+                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+                    return View(modelOut);
+                case "rotorSaveEdit"://edit offset and step
+                    _logger.LogInformation("Edit Rotors");
+                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//load the latest enigma model
+                    _logger.LogInformation("Before: " + JsonConvert.SerializeObject(enigmaModel));
+                    foreach (RotorModel r in enigmaModel.rotors)//for each rotor
+                    {
+                        modelOut.liveRotorsNames.Add(r.rotor.name);//add the r
+                        var offset = Request.Form[$"{r.rotor.name} offset"].ToString();//got the ring offset from form
+                        var rotation = Request.Form[$"{r.rotor.name} step"].ToString();//get the rotation from the form
+                        r.ringOffset = Convert.ToInt32(offset);//update the offset on enigma model
+                        r.rotation = Convert.ToInt32(Convert.ToChar(rotation) - 65);//update the rotation on the enigma model
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//add the rotation to the out model
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//add the ringoffset to the out model
+                    }
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge with previous save state
+                    _logger.LogInformation("After: " + JsonConvert.SerializeObject(enigmaModel));
+                    return View(modelOut);
+                case "Enigma":
+                    _logger.LogInformation("Go to the simulator from rotors");
+                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//get the current model                    
+                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
+                    MainViewModel mainviewmodel = new MainViewModel(enigmaModel);//creare a new MainView model from the enigma model
+                    return View("../Enigma/Index", mainviewmodel);
+                default://unknown command
+                    return View(modelOut);
+            }            
+        }
+        #endregion
+
+        #region relflector
+        /// <summary>
+        /// Get reflector
+        /// </summary>
+        /// <returns>Reflector view</returns>
+        public IActionResult Reflector()
+        {
+            _logger.LogInformation("Get reflector");
+            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//get the current save
+            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
+            ReflectorViewModel rvm = new ReflectorViewModel(currentSave.reflector, _physicalConfiguration);//construct new Reflector view model from physical configuraion and current save
+            return View(rvm);//return the view
+        }
+        /// <summary>
+        /// Post function for Reflector
+        /// </summary>
+        /// <param name="modelIn">The model past in</param>
+        /// <returns>View of next page</returns>
+        [HttpPost]
+        public IActionResult Reflector(ReflectorViewModel modelIn)
+        {
+            _logger.LogInformation("Post reflector");
+            ReflectorViewModel modelOut = new ReflectorViewModel();
+            modelOut._physicalConfiguration = this._physicalConfiguration;//set the physical configuration of the out model
+            EnigmaModel enigmaModel = new EnigmaModel();
+            foreach (Rotor r in _physicalConfiguration.reflectors)//for each reflector
+            {
+                if (r.name == modelIn.liveReflectorName)//if the reflector name is the same as the new reflector name
+                {
+                    _logger.LogInformation("New reflector: " + modelIn.liveReflectorName);
+                    enigmaModel.reflector = new RotorModel(r);//set the new reflector
+                    break;//breaking searching
+                }
+            }
+            EnigmaModel mergedEnigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the new reflector in
+            modelOut.liveReflectorName = mergedEnigmaModel.reflector.rotor.name;//set the model our reflector name
+            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(mergedEnigmaModel));
+            switch (modelIn.Command)
+            {              
+                case "Enigma"://go to main page
+                    _logger.LogInformation("Go to simulator from Reflector");
+                    MainViewModel mainviewmodel = new MainViewModel(mergedEnigmaModel);//construct main model
+                    return View("../Enigma/Index", mainviewmodel);//return the view
+                default://unrecognised command
+                    return View(modelOut);
+            }            
+        }
+        #endregion
+
+        #region plugboard
         /// <summary>
         /// Get a View the current plugboard
         /// </summary>
@@ -46,7 +243,7 @@ namespace EngimaSimulator.Controllers
         /// </summary>
         /// <param name="modelIn">The model passed in from the View</param>
         /// <returns>View of the next page</returns>
-        [HttpPost]        
+        [HttpPost]
         public IActionResult Plugboard(PlugboardViewModel modelIn)
         {
             //TODO log this more
@@ -61,202 +258,23 @@ namespace EngimaSimulator.Controllers
                     Services.FileHandler.overwrite(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//overwrite the existing
                     return View(modelOut);
                 case "Enigma":
-                    //TODO check here to see if the letter had been selected before but I havent got around to it yet
-                    List<string> usedPlugboardLetters = new List<string>();
                     for (int i = 1; i <= 10; i++)
                     {
                         var a = Request.Form[$"Pair {i} A"].ToString();
                         var b = Request.Form[$"Pair {i} B"].ToString();
-                        if(usedPlugboardLetters.Contains(a) || usedPlugboardLetters.Contains(b))
+                        if (a != "" && b != "") // should always be true, but nice to double check
                         {
-                            _logger.LogWarning("Letter used twice");
+                            enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) - 65);
                         }
-                        else
-                        {
-                            usedPlugboardLetters.Add(a);
-                            usedPlugboardLetters.Add(b);
-                            if (a != "" && b != "")
-                            {
-                                enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) - 65);
-                            }
-                        }                                                
                     }
-                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes to the plugboard with the current state
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
-                    MainViewModel mainviewmodel = new MainViewModel(enigmaModel);
-                    return View("../Enigma/Index", mainviewmodel);
-                default:
+                    MainViewModel mainviewmodel = new MainViewModel(enigmaModel);//construct a new Main View Model from the enigma model
+                    return View("../Enigma/Index", mainviewmodel);//load the main view
+                default://Unknown command
                     return View(modelOut);
-            }            
-        }
-
-        public IActionResult Rotors()
-        {
-            _logger.LogInformation("Get rotors");
-            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
-            RotorViewModel rvm = new RotorViewModel(currentSave.rotors,_physicalConfiguration);
-            return View(rvm);
-        }
-        [HttpPost]
-        public IActionResult Rotors(RotorViewModel modelIn)
-        {
-            _logger.LogInformation("Post rotors");
-            RotorViewModel modelOut = new RotorViewModel();
-            modelOut._physicalConfiguration = this._physicalConfiguration;
-            EnigmaModel enigmaModel = new EnigmaModel();
-            switch (modelIn.Command)
-            {
-                case "rotorSave":
-                    _logger.LogInformation("Save the rotors");
-                    _logger.LogInformation("Saving rotors to: " + String.Join(", ", modelIn.liveRotorsNames.ToArray()));
-                    foreach (string rn in modelIn.liveRotorsNames)
-                    {
-                        foreach (Rotor r in _physicalConfiguration.rotors)
-                        {
-                            if (r.name == rn)
-                            {
-                                enigmaModel.rotors.Add(new RotorModel(r));
-                                break;
-                            }
-                        }
-                    }
-                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    foreach (RotorModel r in enigmaModel.rotors)
-                    {
-                        modelOut.liveRotorsNames.Add(r.rotor.name);
-                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));
-                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());
-                    }
-                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
-                    return View(modelOut);
-                case "rotorSaveOrder":
-                    _logger.LogInformation("ReOrder rotors");
-                    //get new order
-                    bool continueOn = true;
-                    int counter = 1;
-                    List<int> newRotorOrder = new List<int>();
-                    do
-                    {
-                        var newItem = Request.Form[$"rotorOrder_{counter}"].ToString();
-                        if (String.IsNullOrEmpty(newItem))
-                        {
-                            continueOn = false;
-                        }
-                        else
-                        {
-                            newRotorOrder.Add(Convert.ToInt32(newItem));
-                        }
-                        counter++;
-                    } while (continueOn);
-                    //get previous order
-                    EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    foreach (RotorModel r in currentSave.rotors)
-                    {
-                        modelOut.liveRotorsNames.Add(r.rotor.name);
-                    }
-                    _logger.LogInformation("Previous Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
-                    //order swap
-                    List<string> tempRotors = new List<string>();
-                    for(int i = 0; i<=newRotorOrder.Count - 1; i++)
-                    {
-                        int counterSwap = 0;
-                        foreach (int o in newRotorOrder)
-                        {
-                            if(o-1 == i)
-                            {
-                                tempRotors.Add(modelOut.liveRotorsNames[counterSwap]);
-                                break;
-                            }
-                            counterSwap++;
-                        }
-                    }                    
-                    modelOut.liveRotorsNames = tempRotors;
-                    _logger.LogInformation("New Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
-                    foreach (string rn in modelOut.liveRotorsNames)
-                    {
-                        foreach (Rotor r in _physicalConfiguration.rotors)
-                        {
-                            if (r.name == rn)
-                            {
-                                enigmaModel.rotors.Add(new RotorModel(r));
-                                break;
-                            }
-                        }
-                    }
-                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    modelOut.liveRotorsNames = new List<string>();
-                    foreach (RotorModel r in enigmaModel.rotors)
-                    {
-                        modelOut.liveRotorsNames.Add(r.rotor.name);
-                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));
-                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());
-                    }
-                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
-                    return View(modelOut);
-                case "rotorSaveEdit":
-                    _logger.LogInformation("Edit Rotors");
-                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    _logger.LogInformation("Before: " + JsonConvert.SerializeObject(enigmaModel));
-                    foreach (RotorModel r in enigmaModel.rotors)
-                    {
-                        modelOut.liveRotorsNames.Add(r.rotor.name);
-                        var offset = Request.Form[$"{r.rotor.name} offset"].ToString();
-                        var rotation = Request.Form[$"{r.rotor.name} step"].ToString();
-                        r.ringOffset = Convert.ToInt32(offset);
-                        r.rotation = Convert.ToInt32(Convert.ToChar(rotation) - 65);
-                    }
-                    enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    _logger.LogInformation("After: " + JsonConvert.SerializeObject(enigmaModel));
-                    return View(modelOut);
-                case "Enigma":
-                    _logger.LogInformation("Go to the simulator from rotors");
-                    enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-                    
-                    _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
-                    MainViewModel mainviewmodel = new MainViewModel(enigmaModel);
-                    return View("../Enigma/Index", mainviewmodel);
-                default:
-                    return View(modelOut);
-            }            
-        }
-
-        public IActionResult Reflector()
-        {
-            _logger.LogInformation("Get reflector");
-            EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
-            ReflectorViewModel rvm = new ReflectorViewModel(currentSave.reflector, _physicalConfiguration);
-            return View(rvm);
-        }
-        [HttpPost]
-        public IActionResult Reflector(ReflectorViewModel modelIn)
-        {
-            _logger.LogInformation("Post reflector");
-            ReflectorViewModel modelOut = new ReflectorViewModel();
-            modelOut._physicalConfiguration = this._physicalConfiguration;
-            EnigmaModel enigmaModel = new EnigmaModel();
-            foreach (Rotor r in _physicalConfiguration.reflectors)
-            {
-                if (r.name == modelIn.liveReflectorName)
-                {
-                    _logger.LogInformation("New reflector: " + modelIn.liveReflectorName);
-                    enigmaModel.reflector = new RotorModel(r);
-                    break;
-                }
             }
-            EnigmaModel mergedEnigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
-            modelOut.liveReflectorName = mergedEnigmaModel.reflector.rotor.name;
-            _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(mergedEnigmaModel));
-            switch (modelIn.Command)
-            {              
-                case "Enigma":
-                    _logger.LogInformation("Go to simulator from Reflector");
-                    MainViewModel mainviewmodel = new MainViewModel(mergedEnigmaModel);
-                    return View("../Enigma/Index", mainviewmodel);
-                default:
-                    return View(modelOut);
-            }            
         }
+        #endregion
     }
 }
