@@ -15,19 +15,19 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
 
         public ReflectorViewModel()
         {
-            liveReflectorName = "";
+            liveReflectorName = "";//set  the reflector name to empty
         }
         public ReflectorViewModel(RotorModel reflector, PhysicalConfiguration physicalConfiguration)
         {
-            if (reflector != null)
+            if (reflector != null)//if the reflector is not null
             {
-                liveReflectorName = reflector.rotor.name;
+                liveReflectorName = reflector.rotor.name;//set the reflector name to the reflector passed ins name
             }
             else
             {
                 liveReflectorName = "";
             }
-            _physicalConfiguration = physicalConfiguration;
+            _physicalConfiguration = physicalConfiguration;//set the physical configuration
         }
     }
 }

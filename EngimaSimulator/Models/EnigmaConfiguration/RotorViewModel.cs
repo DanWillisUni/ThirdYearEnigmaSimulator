@@ -15,23 +15,23 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
         public List<string> rotorStepOffset { get; set; }
         public RotorViewModel() 
         {
-            liveRotorsNames = new List<string>();
-            rotorStepOffset = new List<string>();
+            liveRotorsNames = new List<string>();//empty list for rotor names
+            rotorStepOffset = new List<string>();//empty list for offset and rotaions
         }
         public RotorViewModel(List<RotorModel> rotors, PhysicalConfiguration physicalConfiguration)
         {
-            liveRotorsNames = new List<string>();
-            rotorStepOffset = new List<string>();
-            if (rotors != null)
+            liveRotorsNames = new List<string>();//empty list for rotor names
+            rotorStepOffset = new List<string>();//empty list for offset and rotaions
+            if (rotors != null)//if the rotors are not null
             {
-                foreach (RotorModel r in rotors)
+                foreach (RotorModel r in rotors)//for each rotor
                 {
-                    liveRotorsNames.Add(r.rotor.name);
-                    rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65+ r.rotation)));
-                    rotorStepOffset.Add(r.ringOffset.ToString());
+                    liveRotorsNames.Add(r.rotor.name);//add the rotor name
+                    rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65+ r.rotation)));//add the rotation as a char
+                    rotorStepOffset.Add(r.ringOffset.ToString());//add the offset
                 }
             }            
-            _physicalConfiguration = physicalConfiguration;
+            _physicalConfiguration = physicalConfiguration;//set the physical configuration
         }
     }
 }

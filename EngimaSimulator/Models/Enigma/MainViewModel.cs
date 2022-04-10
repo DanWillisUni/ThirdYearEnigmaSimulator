@@ -13,25 +13,25 @@ namespace EngimaSimulator.Models.Enigma
         public string Command { get; set; }
         public string outputTextBox { get; set; }
         public string inputTextBox { get; set; }
-        public string plugboardPairs { get {
+        public string plugboardPairs { get {//used for main page to display the plugboard in a readable way
                 string r = "";
-                foreach(KeyValuePair<int, int> entry in enigmaModel.plugboard)
+                foreach(KeyValuePair<int, int> entry in enigmaModel.plugboard)//for each entry in the plugboard
                 {
-                    r += Convert.ToChar(entry.Key + 65);
-                    r += Convert.ToChar(entry.Value + 65);
-                    r += " ";
+                    r += Convert.ToChar(entry.Key + 65);//add the uppercase char of the key
+                    r += Convert.ToChar(entry.Value + 65);//add the uppercase char of the value
+                    r += " ";//add a space
                 }
                 return r;
             } }
         public MainViewModel()
         {
-            this.enigmaModel = new EnigmaModel();
-            outputTextBox = "";
+            this.enigmaModel = new EnigmaModel();//new enigma model
+            outputTextBox = "";//empty output box
         }
         public MainViewModel(EnigmaModel enigmaModel)
         {
-            this.enigmaModel = enigmaModel;
-            outputTextBox = "";
+            this.enigmaModel = enigmaModel;//set the enigma model
+            outputTextBox = "";//empty output box
         }
         
     }
