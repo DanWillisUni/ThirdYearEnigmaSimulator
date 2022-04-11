@@ -22,7 +22,8 @@ namespace EnigmaBreaker.Services
         private readonly IFitness.FitnessResolver _resolver;
         private readonly BasicService _bs;
         private readonly CSVReaderService<WeightFile> _csvReader;
-        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs,CSVReaderService<WeightFile> csvReader) 
+        private readonly PhysicalConfiguration _physicalConfiguration;
+        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs,CSVReaderService<WeightFile> csvReader,PhysicalConfiguration physicalConfiguration) 
         {
             _logger = logger;
             _bc = bc;
@@ -30,6 +31,7 @@ namespace EnigmaBreaker.Services
             _resolver = fitnessResolver;
             _bs = bs;
             _csvReader = csvReader;
+            _physicalConfiguration = physicalConfiguration;
         }
 
         public void root()
@@ -129,7 +131,7 @@ namespace EnigmaBreaker.Services
                 TimeSpan plugboardTS = TimeSpan.Zero;
                 for (int currentIteration = 0; currentIteration < iterations; currentIteration++)
                 {
-                    EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                    EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration,_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                     string emJson = JsonConvert.SerializeObject(em);
                     EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
 
@@ -247,7 +249,7 @@ namespace EnigmaBreaker.Services
                 string lineToFile = $"{lengthOfPlainText}";
                 for (int i = 0; i < iterations; i++)
                 {
-                    EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                    EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                     foreach (string fitnessStr in fitnessStrToTest)
                     {
                         bool wasCorrect = false;
@@ -321,7 +323,7 @@ namespace EnigmaBreaker.Services
                     TimeSpan total = TimeSpan.Zero;
                     for (int j = 0; j < iterations; j++)
                     {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                        EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                         string emJson = JsonConvert.SerializeObject(em);
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, i).ToArray(), em);
                         
@@ -417,7 +419,7 @@ namespace EnigmaBreaker.Services
                     int missNumber = 0;
                     for (int currentIteration = 0; currentIteration < iterations; currentIteration++)
                     {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                        EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
                         string emJson = JsonConvert.SerializeObject(em);
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, messageLength).ToArray(), em);
                         BreakerConfiguration bc = new BreakerConfiguration(cipherArr.Length);
@@ -574,7 +576,7 @@ namespace EnigmaBreaker.Services
                     int correctCount = 0;
                     for (int i = 0; i < iterations; i++)
                     {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, plugboardLength,true);
+                        EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, plugboardLength,true);
                         
                         bool wasCorrect = false;
                         switch (toTest)
@@ -627,7 +629,7 @@ namespace EnigmaBreaker.Services
         {
             if(em == null)
             {
-                em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
             }            
             string emJson = JsonConvert.SerializeObject(em);
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
@@ -661,7 +663,7 @@ namespace EnigmaBreaker.Services
         {
             if (em == null)
             {
-                em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
             }
             string emJson = JsonConvert.SerializeObject(em);
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);
@@ -706,7 +708,7 @@ namespace EnigmaBreaker.Services
         {
             if (em == null)
             {
-                em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
+                em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);
             }
             string emJson = JsonConvert.SerializeObject(em);
             EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);

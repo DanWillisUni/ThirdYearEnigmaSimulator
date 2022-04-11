@@ -13,9 +13,15 @@ namespace SharedCL
         public Dictionary<int, int> plugboard { get; set; }
         public EnigmaModel()
         {
-            rotors = new List<RotorModel>();
-            plugboard = new Dictionary<int, int>();
+            rotors = new List<RotorModel>();//sets rotors to an empty list
+            plugboard = new Dictionary<int, int>();//sets plugboard to an empty dictionary
         }
+        /// <summary>
+        /// Constructs a enigma model from the individual parts
+        /// </summary>
+        /// <param name="rotors">List of Rotor models</param>
+        /// <param name="reflector">Reflector rotor model</param>
+        /// <param name="plugboard">plugboard dictionary</param>
         public EnigmaModel(List<RotorModel> rotors, RotorModel reflector, Dictionary<int, int> plugboard)
         {
             this.rotors = rotors;
@@ -23,98 +29,54 @@ namespace SharedCL
             this.plugboard = plugboard;
         }
 
-        public static EnigmaModel randomizeEnigma(int maxRotor = 5,int maxReflector = 3,int maxPlugboard = 10,bool useExactPlugboard = false)
+        /// <summary>
+        /// Creates an enigma model randomly
+        /// 
+        /// Uses the max Rotors as the maximum number of rotors to select from
+        /// Use the max Reflector as the maximum number of reflectors
+        /// </summary>
+        /// <param name="maxRotor">Max rotor in physical configuration to go to</param>
+        /// <param name="maxReflector">Max Reflector index to go up to in Physical configuration</param>
+        /// <param name="maxPlugboard">max number of plugboard pairs</param>
+        /// <param name="useExactPlugboard">is the number of plugboards used exactly the max plugboard</param>
+        /// <returns>New Enigma model</returns>
+        public static EnigmaModel randomizeEnigma(PhysicalConfiguration pc,int maxRotor = 5,int maxReflector = 3,int maxPlugboard = 10,bool useExactPlugboard = false)
         {
             Random rnd = new Random();
-            int l = rnd.Next(maxRotor);
-            int m = rnd.Next(maxRotor);
-            int r = rnd.Next(maxRotor);
-            while(m == l)
+            int l = rnd.Next(maxRotor);//random left rotor
+            int m = rnd.Next(maxRotor);//random right rotor         
+            while(m == l)//while the left rotor equals middle
             {
-                m = rnd.Next(maxRotor);
+                m = rnd.Next(maxRotor);//select new middle rotor
             }
-            while (r == l || r == m)
+            int r = rnd.Next(maxRotor);//randomly select right rotor
+            while (r == l || r == m)//while the right rotor is equal to the left or middle
             {
-                r = rnd.Next(maxRotor);
+                r = rnd.Next(maxRotor);//randomly select another right rotor
             }
-            Dictionary<int, int> plugboard = new Dictionary<int, int>();
-            int plugboardNumber = rnd.Next(maxPlugboard);
-            if (useExactPlugboard)
-            {
-                plugboardNumber = maxPlugboard;
-            }                        
-            List<int> containedNumbers = new List<int>();
-            for(int i = 0;i < plugboardNumber; i++)
-            {
-                int a = rnd.Next(26);
-                int b = rnd.Next(26);             
-                while (a==b || containedNumbers.Contains(a) || containedNumbers.Contains(b))
-                {
-                    a = rnd.Next(26);
-                    b = rnd.Next(26);
-                }
-                plugboard.Add(a, b);
-                containedNumbers.Add(a);
-                containedNumbers.Add(b);
-            }
+            
+            List<RotorModel> emRotors = new List<RotorModel>();
+            emRotors.Add(new RotorModel(pc.rotors[l], rnd.Next(26), rnd.Next(26)));//add leftmost rotor and randomise offset and rotation
+            emRotors.Add(new RotorModel(pc.rotors[m], rnd.Next(26), rnd.Next(26)));//add middle rotor and randomise offset and rotation
+            emRotors.Add(new RotorModel(pc.rotors[r], rnd.Next(26), rnd.Next(26)));//add rightmost rotor and randomise offset and rotation
 
-            string Rotorjson = @"[
-      {
-        'name': 'I',
-        'order': 'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-        'turnoverNotchA': 7
-
-      },
-      {
-        'name': 'II',
-        'order': 'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-        'turnoverNotchA': 25
-      },
-      {
-        'name': 'III',
-        'order': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-        'turnoverNotchA': 11
-      },
-      {
-        'name': 'IV',
-        'order': 'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-        'turnoverNotchA': 6
-      },
-      {
-        'name': 'V',
-        'order': 'VZBRGITYUPSDNHLXAWMJQOFECK',
-        'turnoverNotchA': 1
-      }
-    ]";
-            List<Rotor> rotors = JsonConvert.DeserializeObject<List<Rotor>>(Rotorjson);
-            string Reflectorjson = @"[      
-      {
-                'name': 'A',
-        'order': 'EJMZALYXVBWFCRQUONTSPIKHGD'
-      },
-      {
-                'name': 'B',
-        'order': 'YRUHQSLDPXNGOKMIEBFZCWVJAT'
-      },
-      {
-                'name': 'C',
-        'order': 'FVPJIAOYEDRZXWGCTKUQSBNMHL'
-      }
-    ]";
-            List<Rotor> reflectors = JsonConvert.DeserializeObject<List<Rotor>>(Reflectorjson);
-            int reflectorStartIndex = 0;
-            if (maxReflector == 1)
-            {
-                reflectorStartIndex = 1;
-            }
+            List<Rotor> reflectors = pc.reflectors;
+            int reflectorStartIndex = maxReflector == 1? 1:0;            
             reflectors = reflectors.GetRange(reflectorStartIndex, maxReflector);
 
-            List<RotorModel> emRotors = new List<RotorModel>();
-            emRotors.Add(new RotorModel(rotors[l], rnd.Next(26), rnd.Next(26)));
-            emRotors.Add(new RotorModel(rotors[m], rnd.Next(26), rnd.Next(26)));
-            emRotors.Add(new RotorModel(rotors[r], rnd.Next(26), rnd.Next(26)));
+            Dictionary<int, int> plugboard = new Dictionary<int, int>();//create a new dictionary
+            int plugboardNumber = useExactPlugboard ? maxPlugboard : rnd.Next(maxPlugboard);//randomise the number of plugboard connections if required                       
+            List<int> allowedNumbers = Enumerable.Range(0, 26).Take(26).ToList();//initilise allowed numbers for plugboard
+            for (int i = 0; i < plugboardNumber; i++)//for each plugboard pair
+            {
+                int a = allowedNumbers[rnd.Next(allowedNumbers.Count)];//select random int in the list
+                allowedNumbers.Remove(a);//remove the item from the list
+                int b = allowedNumbers[rnd.Next(allowedNumbers.Count)];//select second random item from the list
+                allowedNumbers.Remove(b);//remove the second item from the list
+                plugboard.Add(a, b);//add both items to the plugboard dictionary
+            }
 
-            EnigmaModel rEM = new EnigmaModel(emRotors, new RotorModel(reflectors[rnd.Next(maxReflector)]), plugboard);
+            EnigmaModel rEM = new EnigmaModel(emRotors, new RotorModel(reflectors[rnd.Next(maxReflector)]), plugboard);//combine all elements together to get new Enigma model
             return rEM;
         }
 

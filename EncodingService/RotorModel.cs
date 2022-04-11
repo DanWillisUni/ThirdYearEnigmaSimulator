@@ -16,6 +16,10 @@ namespace SharedCL
             this.rotation = rotation;
             this.ringOffset = ringOffset;
         }
+        /// <summary>
+        /// Override the normal to string
+        /// </summary>
+        /// <returns>Name, rotation, ring offset</returns>
         public override string ToString()
         {
             return $"{rotor.name}, {rotation}, {ringOffset}";
@@ -26,6 +30,10 @@ namespace SharedCL
         public string name { get; set; }
         public string order { get; set; }
         public int turnoverNotchA { get; set; }
+        /// <summary>
+        /// Overrides to string
+        /// </summary>
+        /// <returns>name, order, turnover notch</returns>
         public override string ToString()
         {
             return $"{name}, {order}, {turnoverNotchA}";

@@ -1,10 +1,9 @@
-﻿using SharedCL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EngimaSimulator.Configuration.Models
+namespace SharedCL
 {
     /// <summary>
     /// This class is to represent the physical attributes of the machiene that are interchangeable and available

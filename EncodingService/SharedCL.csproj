@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="EncodingService.cs" />
     <Compile Include="EnigmaModel.cs" />
+    <Compile Include="PhysicalConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RotorModel.cs" />
   </ItemGroup>

@@ -22,12 +22,14 @@ namespace EngimaSimulator.Controllers
         private readonly ILogger<EnigmaController> _logger;
         private readonly BasicConfiguration _basicConfiguration;
         private readonly EncodingService _encodingService;
+        private readonly PhysicalConfiguration _physicalConfiguration;
 
-        public EnigmaController(ILogger<EnigmaController> logger, BasicConfiguration basicConfiguration, EncodingService encodingService)
+        public EnigmaController(ILogger<EnigmaController> logger, BasicConfiguration basicConfiguration, EncodingService encodingService, PhysicalConfiguration physicalConfiguration)
         {
             _logger = logger;
             _basicConfiguration = basicConfiguration;
             _encodingService = encodingService;
+            _physicalConfiguration = physicalConfiguration;
         }        
 
         /// <summary>
@@ -75,7 +77,7 @@ namespace EngimaSimulator.Controllers
                     //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     break;
                 case "Randomize"://Randomise the enigma model
-                    modelOut.enigmaModel = EnigmaModel.randomizeEnigma();//randomise the model
+                    modelOut.enigmaModel = EnigmaModel.randomizeEnigma(_physicalConfiguration);//randomise the model
                     Services.FileHandler.overwrite(modelOut.enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//save the model
                     break;
                 default://unrecognised command

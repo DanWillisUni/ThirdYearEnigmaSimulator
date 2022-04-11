@@ -24,12 +24,14 @@ namespace EnigmaBreaker.Services
         
         private List<Rotor> allRotors { get; set; }
         private List<Rotor> allReflectors { get; set; }
-        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver)
+        private PhysicalConfiguration _physicalConfiguration { get; set; }
+        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,PhysicalConfiguration physicalConfiguration)
         {
             _logger = logger;
             _bc = bc;
             _encodingService = encodingService;
             _resolver = fitnessResolver;
+            _physicalConfiguration = physicalConfiguration;
 
             setNumOfRotors(_bc.numberOfRotorsInUse);
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
@@ -46,7 +48,7 @@ namespace EnigmaBreaker.Services
         public void root(bool includeLogging = false)            
         {            
             string plaintext = getText();//get a random plaintext as string
-            EnigmaModel em = EnigmaModel.randomizeEnigma(_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
+            EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration,_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
             _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
             _logger.LogInformation(em.ToString());//print the enigma model
             string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext
