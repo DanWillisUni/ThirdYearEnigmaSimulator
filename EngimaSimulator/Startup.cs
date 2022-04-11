@@ -22,10 +22,12 @@ namespace EngimaSimulator
     {
         public Startup()
         {
+            //create new configuration loading the appsettings json
             var builder = new ConfigurationBuilder()
               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)              
               .AddEnvironmentVariables();
 
+            //create a new logger
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
@@ -43,6 +45,7 @@ namespace EngimaSimulator
         {
             services.AddControllersWithViews();
 
+            //Adds the objects that are stored in appsettings folder and registers each object
             var physicalSettings = new PhysicalConfiguration();
             Configuration.Bind("PhysicalConfiguration", physicalSettings);
             services.AddSingleton(physicalSettings);
@@ -50,6 +53,7 @@ namespace EngimaSimulator
             Configuration.Bind("BasicSettings", basicSettings);
             services.AddSingleton(basicSettings);
 
+            //if the temp file exists delete it on startup
             if(File.Exists(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName))) { 
                 //File.Delete(Path.Combine(basicSettings.tempConfig.dir, basicSettings.tempConfig.fileName));
             }

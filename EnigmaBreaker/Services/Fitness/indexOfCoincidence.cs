@@ -25,7 +25,7 @@ namespace EnigmaBreaker.Services.Fitness
             double ioc = sumOfFrequencyCalc * (26 / textLengthMultiplication);
             return ioc;
         }
-        public double getFitness(int[] input, Part part)
+        public double getFitness(int[] input, Part part=Part.None)
         {            
             double IOC = getIOC(input);
             return IOC;

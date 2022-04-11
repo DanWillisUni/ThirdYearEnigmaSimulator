@@ -7,59 +7,65 @@
 
 <form asp-controller="EnigmaConfiguration" asp-action="Rotors" method="post">
     <div class="col-md-12">
-        @if (Model._physicalConfiguration.rotors != null)
-        {
-            @if (Model._physicalConfiguration.rotors.Count == 0)
-            {
-                <p>No Rotors Configured</p>
-            }
-            else
-            {
-                <table class="table table-striped table-bordered table-sm small runDataTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Order</th>
-                            <th>Checkbox</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var r in Model._physicalConfiguration.rotors)
-                        {
-                            <tr>
-                                <td>@r.name</td>
-                                <td>@r.order</td>
-                                @if (Model.liveRotorsNames.Contains(r.name))
-                                {
-                                    <td><input name="liveRotorsNames" value="@r.name" type="checkbox" checked></td>
-                                }
-                                else
-                                {
-                                    <td><input name="liveRotorsNames" value="@r.name" type="checkbox"></td>
-                                }
-                            </tr>
-                        }
-                    </tbody>
-                </table><br />
-                        <div class="row">
-                            <div class="col-sm-2">
-                                <button type="submit" name="Command" value="rotorSave" class="btn btn-primary">Save</button>
-                            </div>
-                            <div class="col-sm-6"></div>
-                            <div class="col-sm-2">
-                                <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorModal" onclick="openEditOrderForm()">Edit</a>
-                            </div>
-                            <div class="col-sm-2">
-                                <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorOrderModal" onclick="openEditOrderForm()">Edit Order</a>
-                            </div>
-                        </div>
-            }
-        }
-        else
+        <!--If there is rotors configured-->        
+        @if (Model._physicalConfiguration.rotors?.Count == 0)
         {
             <p>No Rotors Configured</p>
         }
+        <!--Else the is rotors configured-->
+        else
+        {
+            <table class="table table-striped table-bordered table-sm small runDataTable">
+                <thead>
+                    <!--Attributes of the rotor-->
+                    <tr>
+                        <th>Name</th>
+                        <th>Order</th>
+                        <th>Checkbox</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--For each rotor-->
+                    @foreach (var r in Model._physicalConfiguration.rotors)
+                    {
+                        <tr>
+                            <!--Display rotor name and order-->
+                            <td>@r.name</td>
+                            <td>@r.order</td>
+                            <!--if the rotor is live-->
+                            @if (Model.liveRotorsNames.Contains(r.name))
+                            {
+                                <!--Check the checkbox-->
+                                <td><input name="liveRotorsNames" value="@r.name" type="checkbox" checked></td>
+                            }
+                            else
+                            {
+                                <!--Unchecked checkbox-->
+                                <td><input name="liveRotorsNames" value="@r.name" type="checkbox"></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table><br />
+                    <div class="row">
+                        <!--Save the rotors button-->
+                        <div class="col-sm-2">
+                            <button type="submit" name="Command" value="rotorSave" class="btn btn-primary">Save</button>
+                        </div>
+                        <div class="col-sm-6"></div>
+                        <!--Edit Offset and rotatation button-->
+                        <div class="col-sm-2">
+                            <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorModal" onclick="openEditOrderForm()">Edit</a>
+                        </div>
+                        <!--Edit rotor order-->
+                        <div class="col-sm-2">
+                            <a class="btn btn-primary btn-sm text-white" data-toggle="modal" data-target="#editRotorOrderModal" onclick="openEditOrderForm()">Edit Order</a>
+                        </div>
+                    </div>
+        }
+        
     </div>
+    <!--Go to main page button-->
     <div class="form-group col-md-12 row">
         <div class="col-sm-8"></div>
         <div class="col-sm-4">

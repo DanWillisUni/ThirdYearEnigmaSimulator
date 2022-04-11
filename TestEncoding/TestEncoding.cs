@@ -162,7 +162,6 @@ namespace UnitTests
                 }
             }
         }
-
         [Test]
         public void EncodeOneCharRingSettings()
         {
@@ -269,7 +268,7 @@ namespace UnitTests
         [Test]
         public void EncodeAndInverse()
         {
-            foreach (Rotor reflector in pc.reflectors)
+            foreach (Rotor rotor in pc.rotors)
             {
                 for (int r = 0; r <= 25; r++)
                 {
@@ -277,8 +276,8 @@ namespace UnitTests
                     {
                         for (int i = 0; i <= 25; i++)
                         {
-                            RotorModel rm = new RotorModel(reflector, r, o);
-                            RotorModel rm2 = new RotorModel(reflector, r, o);
+                            RotorModel rm = new RotorModel(rotor, r, o);
+                            RotorModel rm2 = new RotorModel(rotor, r, o);
                             int outFirst = encodingService.rotorEncode(rm, i);
                             int outFromDoubleEncode = encodingService.rotorEncodeInverse(rm2, outFirst);
                             Assert.AreEqual(i, outFromDoubleEncode);
@@ -304,7 +303,6 @@ namespace UnitTests
                 }
             }
         }
-
 
         [Test]
         public void AllPlugboardSettings()

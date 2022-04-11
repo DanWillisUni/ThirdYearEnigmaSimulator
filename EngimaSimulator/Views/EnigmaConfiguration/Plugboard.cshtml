@@ -4,6 +4,7 @@
     ViewData["Title"] = "Plugboard";
 }
 <h1>@ViewData["Title"]</h1>
+<!--CSS for page-->
 <style>
     th, td {
         padding-left: 15px;
@@ -18,54 +19,75 @@
 <form asp-controller="EnigmaConfiguration" asp-action="Plugboard" method="post">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <div class="col-md-12">
-        <table>            
+        <table>         
+            <!--Table to evenly space the plugboard pairs-->
             <tbody>                
+                <!--For every plugboard index-->
                 @for (int i = 1; i <= 10; i++)
                 {
                     string AValue = "";
                     string BValue = "";
+                    <!--If a value exists in the plugboard-->
                     @if (Model.plugboard.Count >= i)
                     {
+                        <!--Set the char values of the-->
                         AValue = @Convert.ToString(Convert.ToChar(65+Model.plugboard.ElementAt(i - 1).Key));
                         BValue = @Convert.ToString(Convert.ToChar(65+Model.plugboard.ElementAt(i - 1).Value));
                     }
+                    <!--Each row consists of the pair number, a value in a select box and b value in another select box-->
                     <tr>
                         <td>Pair @i:</td>
                         <td>
+                            <!--A value select box-->
                             <select class="select" value="@AValue" name="Pair @i A" id="Pair @i A">
+                                <!--If the A value is not assigned-->
                                 @if (AValue == "")
                                 {
+                                    <!--Set the placeholder-->
                                     <option value="" disabled selected hidden>Choose here</option>
                                 }
+                                <!--Setting the options with for loop-->
                                 @for (int a = 0; a <= 25; a++)
                                 {
+                                    <!--convert the integer to a char value-->
                                     string option = Convert.ToString(Convert.ToChar(65 + a));
+                                    <!--If the option is the assigned value set it to selected-->
                                     if (option == AValue)
                                     {
                                         <option value="@option" selected>@option</option>
                                     }
+                                    <!--Else if the option char is not selected in any other-->
                                     else if (!Model.getNotAllowedOptions().Contains(option))
                                     {
+                                        <!--Set the option-->
                                         <option value="@option">@option</option>
                                     }
                                 }
                             </select>
                         </td>
                         <td>
+                            <!--B value select box-->
                             <select class="select" value="@BValue" name="Pair @i B" id="Pair @i B">
+                                <!--If the B value is not assigned-->
                                 @if (BValue == "")
                                 {
+                                    <!--Set the placeholder-->
                                     <option value="" disabled selected hidden>Choose here</option>
                                 }
+                                <!--Setting the options with for loop-->
                                 @for (int b = 0; b <= 25; b++)
                                 {
+                                    <!--convert the integer to a char value-->
                                     string option = Convert.ToString(Convert.ToChar(65 + b));
+                                    <!--If the option is the assigned value set it to selected-->
                                     if (option == BValue)
                                     {
                                         <option value="@option" selected>@option</option>
                                     }
+                                    <!--Else if the option char is not selected in any other-->
                                     else if (!Model.getNotAllowedOptions().Contains(option))
                                     {
+                                        <!--Set the option-->
                                         <option value="@option">@option</option>
                                     }
                                 }
@@ -78,9 +100,11 @@
     </div>
     <div class="form-group col-md-12 row">
         <div class="col-sm-6"></div>
+        <!--Clear button-->
         <div class="col-sm-2">
             <button type="submit" name="Command" value="clear" class="btn btn-primary">Clear</button>
         </div>
+        <!--Go to main page button-->
         <div class="col-sm-4">
             <button type="submit" name="Command" value="Enigma" class="btn btn-primary">Go to Simulator</button>
         </div>
@@ -89,6 +113,7 @@
 
 @section scripts{
     <script>
+        //script to remove the value if it gets selected in another select box
        $(document).ready(function(){
            $('select').on('change', function(event ) {
                //restore previously selected value

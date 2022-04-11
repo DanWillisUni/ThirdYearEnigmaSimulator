@@ -3,28 +3,35 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-
+<!--If the enigma model is null-->
 @if (Model.enigmaModel == null)
 {
+    <!--Tell the user to configure the enigma-->
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your enigma</p>
     </div>
 }
-else if (Model.enigmaModel.rotors.Count == 0)
+<!--If the rotors are null-->
+else if (Model.enigmaModel.rotors?.Count == 0)
 {
+    <!--Tell the users to configure the rotors-->
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your rotors</p>
     </div>
 }
+<!--If reflector is null-->
 else if (Model.enigmaModel.reflector == null)
 {
+    <!--Tell the user to configure a reflector-->
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your reflector</p>
     </div>
 }
+<!--No plugboard requirement as it is possible to not have a plugboard-->
 else
 {
     <table class="table table-striped table-bordered table-sm small">
+        <!--Table for info on each rotor-->
         <thead>
             <tr>
                 <th>Part</th>
@@ -34,6 +41,7 @@ else
                 <th>Ring Offset</th>
             </tr>
         </thead>
+        <!--For loop all hte rotors and extract the information-->
         <tbody>
             @for (int i = 0; i < Model.enigmaModel.rotors.Count; i++)
             {
@@ -46,6 +54,7 @@ else
                 </tr>
 
             }
+            <!--The reflector is essentially a rotor but with no rotation or offser so can be displayed in the same table-->
             <tr>
                 <td>Reflector</td>
                 <td>@Model.enigmaModel.reflector.rotor.name</td>
@@ -53,6 +62,7 @@ else
                 <td>NA</td>
                 <td>NA</td>
             </tr>
+            <!--Display the plugboard pairs across all the columns at the bottom of the table-->
             <tr>
                 <td colspan="5">
                     Plugboard Pairs: @Model.plugboardPairs
@@ -62,14 +72,17 @@ else
     </table>
 }
 <form asp-controller="Enigma" asp-action="Index" method="post">
+    <!--Text boxes-->
     <div class="col-md-12">
         <input type="text" name="inputTextBox" value="@Model.inputTextBox" rows="8" cols="50" />
         <textarea name="outputTextBox" rows="8" cols="50">@Model.outputTextBox</textarea>
         <br><br>
     </div>
+    <!--Randomize button-->
     <div class="col-sm-4">
         <button type="submit" name="Command" value="Randomize" class="btn btn-primary">Randomize</button>
     </div>
+    <!--Convert button-->
     <div class="col-sm-4">
         <button type="submit" name="Command" value="Convert" class="btn btn-primary">Convert</button>
     </div>
