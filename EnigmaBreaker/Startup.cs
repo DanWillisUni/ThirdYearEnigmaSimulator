@@ -61,6 +61,9 @@ namespace EnigmaBreaker
             var FitnessSettings = new FitnessConfiguration();
             configuration.Bind("FitnessSettings", FitnessSettings);
             _serviceCollection.AddSingleton(FitnessSettings);
+            var physicalSettings = new PhysicalConfiguration();
+            configuration.Bind("PhysicalConfiguration", physicalSettings);
+            _serviceCollection.AddSingleton(physicalSettings);
 
             _serviceCollection.AddSingleton<Program>();
             _serviceCollection.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Debug);
@@ -99,9 +102,6 @@ namespace EnigmaBreaker
                         throw new KeyNotFoundException();
                 }
             });
-
-
-
 
             _serviceProvider = _serviceCollection.BuildServiceProvider(true);
         }
