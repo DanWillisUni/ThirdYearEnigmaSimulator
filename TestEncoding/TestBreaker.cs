@@ -61,29 +61,19 @@ namespace UnitTests
     ]
   }";
             pc = JsonConvert.DeserializeObject<PhysicalConfiguration>(json);
-        }
+        }        
 
         [Test]
         public void IOC()
         {
+            //Run more than one test
             indexOfCoincidence ioc = new indexOfCoincidence();
             string input = @"One thing was certain, that the white kitten had had nothing to do with it:—it was the black kitten’s fault entirely. For the white kitten had been having its face washed by the old cat for the last quarter of an hour (and bearing it pretty well, considering); so you see that it couldn’t have had any hand in the mischief.";
-            double actual = ioc.getFitness(preProccessCiphertext(input));//https://www.dcode.fr/index-coincidence
+            double actual = ioc.getFitness(EncodingService.preProccessCiphertext(input));//https://www.dcode.fr/index-coincidence
 
             Assert.AreEqual(1.88, Math.Round(actual,2));
         }
-
+        //TODO
         //Test other fitness functions
-
-        private int[] preProccessCiphertext(string ciphertext)
-        {
-            string formattedInput = Regex.Replace(ciphertext.ToUpper(), @"[^A-Z]", string.Empty);
-            int[] r = new int[formattedInput.Length];
-            for (int i = 0; i < formattedInput.Length; i++)
-            {
-                r[i] = Convert.ToInt16(formattedInput[i]) - 65;
-            }
-            return r;
-        }
     }
 }

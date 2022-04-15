@@ -53,7 +53,7 @@ namespace EnigmaBreaker.Services
             _logger.LogInformation(em.ToString());//print the enigma model
             string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext
             _logger.LogInformation($"Ciphertext: {ciphertext.Length}\n" + ciphertext);//print the ciphertext
-            int[] cipherArr = _encodingService.preProccessCiphertext(ciphertext);//convert the ciphertext into an array of integers
+            int[] cipherArr = EncodingService.preProccessCiphertext(ciphertext);//convert the ciphertext into an array of integers
 
             Stopwatch timer = new Stopwatch();//create new timer
             timer.Start();//start timer
@@ -498,7 +498,7 @@ namespace EnigmaBreaker.Services
                 input.Remove(r[r.Count-1]);
             }
             return r;
-        }               
+        }            
 
         public string getText(int length = -1)
         {

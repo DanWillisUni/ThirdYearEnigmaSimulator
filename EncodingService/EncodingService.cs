@@ -146,7 +146,7 @@ namespace SharedCL
         /// </summary>
         /// <param name="input">input integer array</param>
         /// <returns>String equivilent of array</returns>
-        public string getStringFromIntArr(int[] input)
+        public static string getStringFromIntArr(int[] input)
         {
             string r = "";
             foreach (int c in input)//for each value in the array
@@ -160,7 +160,7 @@ namespace SharedCL
         /// </summary>
         /// <param name="text">text input</param>
         /// <returns>integer array of the equivilent</returns>
-        public int[] preProccessCiphertext(string text)
+        public static int[] preProccessCiphertext(string text)
         {
             string formattedInput = Regex.Replace(text.ToUpper(), @"[^A-Z]", string.Empty);//remove any character that isnt a letter and uppercase
             int[] r = new int[formattedInput.Length];//create new integer array of the length of the formatted string

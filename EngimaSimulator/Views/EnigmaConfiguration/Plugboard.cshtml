@@ -52,11 +52,11 @@
                                     <!--convert the integer to a char value-->
                                     string option = Convert.ToString(Convert.ToChar(65 + a));
                                     <!--If the option is the assigned value set it to selected-->
+                                    <!--Else if the option char is not selected in any other-->
                                     if (option == AValue)
                                     {
                                         <option value="@option" selected>@option</option>
-                                    }
-                                    <!--Else if the option char is not selected in any other-->
+                                    }                                    
                                     else if (!Model.getNotAllowedOptions().Contains(option))
                                     {
                                         <!--Set the option-->
@@ -80,11 +80,12 @@
                                     <!--convert the integer to a char value-->
                                     string option = Convert.ToString(Convert.ToChar(65 + b));
                                     <!--If the option is the assigned value set it to selected-->
+                                    <!--Else if the option char is not selected in any other-->
                                     if (option == BValue)
                                     {
                                         <option value="@option" selected>@option</option>
                                     }
-                                    <!--Else if the option char is not selected in any other-->
+                                    
                                     else if (!Model.getNotAllowedOptions().Contains(option))
                                     {
                                         <!--Set the option-->

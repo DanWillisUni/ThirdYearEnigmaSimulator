@@ -92,7 +92,7 @@ namespace EnigmaBreaker.Services
             {
                 string newLine = fileName;
                 string plaintext = System.IO.File.ReadAllText(System.IO.Path.Combine(_bc.textDir, fileName + ".txt"));
-                List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+                List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
                 newLine += $",{plainArr.Count}";
                 foreach (string fitnessStr in fitnessList)
                 {
@@ -121,7 +121,7 @@ namespace EnigmaBreaker.Services
             List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime" };
             for (int i = from; i <= to; i += step)
             {                
-                int[] plainArr = _encodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, i).ToArray();
+                int[] plainArr = EncodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, i).ToArray();
 
                 int rotorSuccess = 0;
                 int offsetSuccess = 0;
@@ -237,7 +237,7 @@ namespace EnigmaBreaker.Services
                 _bs.setNumOfReflectors(1);
             }
             string plaintext = _bs.getText(to * 2);
-            List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+            List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
             List<string> linesToFile = new List<string>() { "," + string.Join(",", fitnessStrToTest) };
             for (int lengthOfPlainText = from; lengthOfPlainText < to + 1; lengthOfPlainText += step)
             {
@@ -256,13 +256,13 @@ namespace EnigmaBreaker.Services
                         switch (toTest)
                         {
                             case Part.Plugboard:                                
-                                wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);
+                                wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);
                                 break;
                             case Part.Offset:
-                                wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);
+                                wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);
                                 break;
                             case Part.Rotor:                                
-                                wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr);                                
+                                wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);                                
                                 break;
                             default:
                                 _logger.LogWarning($"Unsure what to test: {toTest}");
@@ -307,7 +307,7 @@ namespace EnigmaBreaker.Services
         public void testSpeed(int from, int to, int step, Part toTest, int iterations, string filePathAndName, int singleFrom, int singleTo, int singleStep)
         {
             string plaintext = _bs.getText(to * 2);
-            List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+            List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
             string s = "";
             for (int combinationValue = singleFrom; combinationValue <= singleTo; combinationValue += singleStep)
             {
@@ -404,7 +404,7 @@ namespace EnigmaBreaker.Services
         public void testIndex(int from, int to, int step, Part toTest, int iterations, string filePathAndName,int singleFrom,int singleTo,int singleStep, string isTotal)
         {
             string plaintext = _bs.getText(to * 2);
-            List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+            List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
             string s = "";
             for (int combinationValue = singleFrom; combinationValue <= singleTo; combinationValue += singleStep)
             {
@@ -561,7 +561,7 @@ namespace EnigmaBreaker.Services
             }
 
             string plaintext = _bs.getText(to * 2);
-            List<int> plainArr = _encodingService.preProccessCiphertext(plaintext).ToList();
+            List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
             string s = "";
             for(int i = plugboardFrom; i <= plugboardTo; i+= plugbopardStep)
             {
@@ -625,7 +625,7 @@ namespace EnigmaBreaker.Services
         /// <param name="em"></param> (Optional) Enigma model to encode with
         /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
         /// <returns></returns>
-        public bool testRotor(int[] plaintext, EnigmaModel em = null, string fitnessStr = "")
+        public bool testRotor(int[] plaintext, EnigmaModel em = null, string fitnessStr = "",bool withoutRefinement=false)
         {
             if(em == null)
             {
@@ -637,7 +637,7 @@ namespace EnigmaBreaker.Services
             _logger.LogDebug(em.ToString());
             int[] cipherArr = _encodingService.encode(plaintext, em);
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);
             if (fitnessStr != "") { breakerConfiguration.RotorFitness = fitnessStr; }
             List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr,breakerConfiguration));
 
@@ -659,7 +659,7 @@ namespace EnigmaBreaker.Services
         /// <param name="em"></param> (Optional) Enigma model to encode with
         /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
         /// <returns></returns>
-        public bool testOffset(int[] plaintext, EnigmaModel em = null, string fitnessStr = "")
+        public bool testOffset(int[] plaintext, EnigmaModel em = null, string fitnessStr = "", bool withoutRefinement = false)
         {
             if (em == null)
             {
@@ -681,7 +681,7 @@ namespace EnigmaBreaker.Services
             }
             _logger.LogDebug($"Input: {em2.toStringRotors()}");
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);
             if (fitnessStr != "") { breakerConfiguration.OffsetFitness = fitnessStr; }
 
             List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,breakerConfiguration);
@@ -704,7 +704,7 @@ namespace EnigmaBreaker.Services
         /// <param name="em"></param> (Optional) Enigma model to encode with
         /// <param name="fitnessStr"></param> (Optional) String of fitness model to decode with
         /// <returns></returns>
-        public bool testPlugboard(int[] plaintext,EnigmaModel em = null, string fitnessStr = "")
+        public bool testPlugboard(int[] plaintext,EnigmaModel em = null, string fitnessStr = "", bool withoutRefinement = false)
         {
             if (em == null)
             {
@@ -716,7 +716,7 @@ namespace EnigmaBreaker.Services
             _logger.LogDebug(em.ToString());
             int[] cipherArr = _encodingService.encode(plaintext, em);
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);
             if (fitnessStr != "") { breakerConfiguration.PlugboardFitness = fitnessStr; }
             em2.plugboard = new Dictionary<int, int>();                
             List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,breakerConfiguration);
