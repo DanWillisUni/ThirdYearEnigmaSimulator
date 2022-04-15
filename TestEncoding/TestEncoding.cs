@@ -72,14 +72,16 @@ namespace UnitTests
         [Test]
         public void MirrorForAllRotations()
         {
-            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";            
+            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";//pangram
+            //for each rotation combination
             for (int l = 0; l <= 25; l++)
             {
                 for (int m = 0; m <= 25; m++)
                 {
                     for (int r = 0; r <= 25; r++)
                     {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(pc);
+                        EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomize enigma
+                        //set the rotation
                         em.rotors[0].rotation = l;
                         em.rotors[1].rotation = m;
                         em.rotors[2].rotation = r;
@@ -98,7 +100,8 @@ namespace UnitTests
         [Test]
         public void MirrorForAllRingSettings()
         {
-            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";
+            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";//pangram
+            //for each offset combination
             for (int l = 0; l <= 25; l++)
             {
                 for (int m = 0; m <= 25; m++)
@@ -125,7 +128,7 @@ namespace UnitTests
         [Test]
         public void EncodeOneCharRingSettings()
         {
-            //for every ring setting
+            //for every offset ring setting combinaiton
             for (int l = 0; l <= 25; l++)
             {
                 for (int m = 0; m <= 25; m++)
@@ -229,12 +232,12 @@ namespace UnitTests
         {            
             for (int a = 0; a <= 25; a++)//for each letter
             {
-                for (int b = a + 1; b <= 25; b++)//for each letter above a
+                for (int b = a + 1; b <= 25; b++)//for each letter above first
                 {
                     Dictionary<int, int> pb1 = new Dictionary<int, int>();//create a new plugboard
                     pb1.Add(a, b);//add the pair to plugboard
                     Dictionary<int, int> pb2 = new Dictionary<int, int>();//create a new plugboard
-                    pb2.Add(b, a);//add the pair to plugboard
+                    pb2.Add(b, a);//add the pair to plugboard in reverse
                     for (int i = 0; i <= 25; i++)//for every letter
                     {
                         int expectedResult = i == a ? b : i == b?a:i;//set expected result                        
@@ -253,6 +256,7 @@ namespace UnitTests
         [Test]
         public void Step()
         {
+            //for each rotor combination
             foreach (Rotor left in pc.rotors)
             {
                 foreach (Rotor middle in pc.rotors)
@@ -263,26 +267,27 @@ namespace UnitTests
                         {
                             if (left.name != right.name && middle.name != right.name)
                             {                                
-                                for (int r = 0; r <= 25; r++)
+                                for (int r = 0; r <= 25; r++)// for each rotoation
                                 {
-                                    //TODO look at offset here
                                     List<RotorModel> rotors = new List<RotorModel>();
-                                    rotors.Add(new RotorModel(left));
-                                    rotors.Add(new RotorModel(middle));
-                                    rotors.Add(new RotorModel(right, r));
-                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);
-                                    em.rotors = rotors;
-                                    em = encodingService.stepRotors(em);
-                                    Assert.AreEqual((r + 1) % 26, em.rotors[2].rotation);
-                                    if (right.turnoverNotchA == r)
+                                    //randomise offset
+                                    Random rand = new Random();
+                                    rotors.Add(new RotorModel(left,0,rand.Next(26)));
+                                    rotors.Add(new RotorModel(middle, 0, rand.Next(26)));
+                                    rotors.Add(new RotorModel(right,r, rand.Next(26)));
+                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomise enigma model
+                                    em.rotors = rotors;//set the rotors
+                                    em = encodingService.stepRotors(em);//step the rotors
+                                    Assert.AreEqual((r + 1) % 26, em.rotors[2].rotation);//test the right rotor has moved one place
+                                    if (right.turnoverNotchA == r)//if the rotor should have turned the second
                                     {
-                                        Assert.AreEqual(1, em.rotors[1].rotation);
+                                        Assert.AreEqual(1, em.rotors[1].rotation);//check the second rotor has turned
                                     }
-                                    else
+                                    else//else
                                     {
-                                        Assert.AreEqual(0, em.rotors[1].rotation);
+                                        Assert.AreEqual(0, em.rotors[1].rotation);//check the second rotor hasn turned
                                     }
-                                    Assert.AreEqual(0, em.rotors[0].rotation);
+                                    Assert.AreEqual(0, em.rotors[0].rotation);//check the third  rotor hasnt changed
                                 }
                             }
                         }
@@ -290,9 +295,13 @@ namespace UnitTests
                 }
             }
         }
+        /// <summary>
+        /// Test stepping 2 rotors
+        /// </summary>
         [Test]
         public void StepTurnOver2()
         {
+            //for each rotor combinaiton
             foreach (Rotor left in pc.rotors)
             {
                 foreach (Rotor middle in pc.rotors)
@@ -303,23 +312,25 @@ namespace UnitTests
                         {
                             if (left.name != right.name && middle.name != right.name)
                             {
-                                for (int m = 0; m <= 25; m++)
+                                for (int m = 0; m <= 25; m++)//for each middle rotaiton
                                 {
                                     List<RotorModel> rotors = new List<RotorModel>();
-                                    rotors.Add(new RotorModel(left, 0));
-                                    rotors.Add(new RotorModel(middle, m));
-                                    rotors.Add(new RotorModel(right, right.turnoverNotchA));
-                                    EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
-                                    em = encodingService.stepRotors(em);
-                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);
-                                    Assert.AreEqual((m + 1) % 26, em.rotors[1].rotation);
-                                    if (middle.turnoverNotchA == m)
+                                    Random rand = new Random();//set random offset
+                                    rotors.Add(new RotorModel(left, 0,rand.Next(26)));
+                                    rotors.Add(new RotorModel(middle, m, rand.Next(26)));
+                                    rotors.Add(new RotorModel(right, right.turnoverNotchA, rand.Next(26)));//set the rotation to turnove
+                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomize enigma
+                                    em.rotors = rotors;//set the rotors
+                                    em = encodingService.stepRotors(em);//step the rotors
+                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);//check the right rotor moved one
+                                    Assert.AreEqual((m + 1) % 26, em.rotors[1].rotation);//check the middle rotor moved one
+                                    if (middle.turnoverNotchA == m)//if the middle should have turned the third
                                     {
-                                        Assert.AreEqual(1, em.rotors[0].rotation);
+                                        Assert.AreEqual(1, em.rotors[0].rotation);//check the third turned
                                     }
-                                    else
+                                    else//else
                                     {
-                                        Assert.AreEqual(0, em.rotors[0].rotation);
+                                        Assert.AreEqual(0, em.rotors[0].rotation);//check the third didnt turn
                                     }
                                     
                                 }
@@ -329,9 +340,13 @@ namespace UnitTests
                 }
             }
         }
+        /// <summary>
+        /// Test stepping all 3 rotors
+        /// </summary>
         [Test]
         public void StepTurnOver3()
         {
+            //for each combination of rotors
             foreach (Rotor left in pc.rotors)
             {
                 foreach (Rotor middle in pc.rotors)
@@ -342,17 +357,19 @@ namespace UnitTests
                         {
                             if (left.name != right.name && middle.name != right.name)
                             {
-                                for (int l = 0; l <= 25; l++)
+                                for (int l = 0; l <= 25; l++)//for each left rotation position
                                 {
                                     List<RotorModel> rotors = new List<RotorModel>();
-                                    rotors.Add(new RotorModel(left, l));
-                                    rotors.Add(new RotorModel(middle, middle.turnoverNotchA));
-                                    rotors.Add(new RotorModel(right, right.turnoverNotchA));
-                                    EnigmaModel em = new EnigmaModel(rotors, new RotorModel(pc.reflectors[0]), new Dictionary<int, int>());
-                                    em = encodingService.stepRotors(em);
-                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);
-                                    Assert.AreEqual((middle.turnoverNotchA + 1) % 26, em.rotors[1].rotation);
-                                    Assert.AreEqual((l + 1) % 26, em.rotors[0].rotation);
+                                    Random rand = new Random();//set random offset
+                                    rotors.Add(new RotorModel(left, l,rand.Next(26)));
+                                    rotors.Add(new RotorModel(middle, middle.turnoverNotchA, rand.Next(26)));
+                                    rotors.Add(new RotorModel(right, right.turnoverNotchA, rand.Next(26)));
+                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomize enigma
+                                    em.rotors = rotors;//set rotors
+                                    em = encodingService.stepRotors(em);//step
+                                    Assert.AreEqual((right.turnoverNotchA + 1) % 26, em.rotors[2].rotation);//check right turned 1
+                                    Assert.AreEqual((middle.turnoverNotchA + 1) % 26, em.rotors[1].rotation);//check middle turned 1
+                                    Assert.AreEqual((l + 1) % 26, em.rotors[0].rotation);//check left turned 1
                                 }
                                     
                             }
@@ -363,6 +380,9 @@ namespace UnitTests
             }
         }
 
+        /// <summary>
+        /// Test invalid characters being removed
+        /// </summary>
         [Test]
         public void InvalidCharacters()
         {
@@ -371,24 +391,27 @@ namespace UnitTests
             {
                 s += Convert.ToChar(i);//convert to char and add to string
             }
-            EnigmaModel em = EnigmaModel.randomizeEnigma(pc);
-            string output = encodingService.encode(s,em);
-            Assert.AreEqual(52, output.Length);
+            EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//random enigma
+            string output = encodingService.encode(s,em);//encode
+            Assert.AreEqual(52, output.Length);//check by length that it got rid of bad chars
         }
+        /// <summary>
+        /// Test the transformation of the string to an integer array and back
+        /// </summary>
         [Test]
         public void TextTransformations()
         {
-            for (int i = 0;i<= 1000; i++)
+            for (int i = 0;i<= 1000; i++)//run 1000 times
             {
                 string expected = "";
-                for (int l = 0; l <= 100; l++)
+                for (int l = 0; l <= 100; l++)//word length 100
                 {
                     Random rand = new Random();
-                    expected += Convert.ToChar(rand.Next(26) + 65);
+                    expected += Convert.ToChar(rand.Next(26) + 65);//randomize character
                 }
-                int[] preProcessed = EncodingService.preProccessCiphertext(expected);
-                string actual = EncodingService.getStringFromIntArr(preProcessed);
-                Assert.AreEqual(expected, actual);
+                int[] preProcessed = EncodingService.preProccessCiphertext(expected);//get in array
+                string actual = EncodingService.getStringFromIntArr(preProcessed);//get string back from int array
+                Assert.AreEqual(expected, actual);//expected is equal to double transformed
             }            
         }
     }    
