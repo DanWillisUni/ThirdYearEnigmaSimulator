@@ -53,12 +53,12 @@ namespace EnigmaBreaker.Services
             //testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
             //After that I set the indexes for every part
-            //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
-            //testIndex(100, 2000, 100, Part.Plugboard, 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
-            //testIndex(100, 2000, 100, Part.Offset, 100, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
-            //testIndex(100, 2000, 100, Part.Offset, 100, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
-            //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
+            //testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
+            //testIndex(100, 4000, 100, Part.Plugboard, 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
+            //testIndex(100, 4000, 100, Part.Offset, 100, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
+            //testIndex(100, 4000, 100, Part.Offset, 100, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
+            //testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
+            //testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
             //Now it is ready to test
             //testPlugboardLength(100, 4000, 100, Part.Plugboard, 100, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
@@ -69,7 +69,7 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 4000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 4000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
 
-            //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
+            //measureFullRunthrough(100, 4000, 100,10, "Results/fullMeasureRefined");
             measureFullRunthrough(100, 4000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
