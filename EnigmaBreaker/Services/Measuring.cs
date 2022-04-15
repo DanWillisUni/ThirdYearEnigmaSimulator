@@ -38,17 +38,21 @@ namespace EnigmaBreaker.Services
         {
             //test();
             //testText(new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" });//3 seconds
+            //These are all run unrefined
+            testLength(100, 4000, 100, Part.Plugboard, 500, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest",true);//R 3.3 hours perfect
+            testLength(5, 500, 5, Part.Plugboard, 1000, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose",true);//R 9 hours perfect
+            testLength(100, 4000, 100, Part.Offset, 1000, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest",true);//R 2.9 hours perfect
+            testLength(100, 4000, 100, Part.Rotor, 200, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest",true);//R perfect
+            testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestClose",true);//R perfect
 
-            testLength(100, 4000, 100, Part.Plugboard, 500, new List<string>() { "IOC", "S", "BI", "TRI","QUAD" },"Results/plugboardLengthTest");//R 3.3 hours perfect
-            testLength(5, 500, 5, Part.Plugboard, 1000, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose");//R 9 hours perfect
-            testLength(100, 4000, 100, Part.Offset, 1000, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/offsetLengthTest");//R 2.9 hours perfect
-            testLength(100, 4000, 100, Part.Rotor, 200, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTest");//R perfect
-            testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" },"Results/rotorLengthTestClose");//R perfect
+            //Then I take modify the breaker configuration to make the rules
+            //testLength(100, 4000, 100, Part.Plugboard, 500, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
+            //testLength(5, 500, 5, Part.Plugboard, 1000, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
+            //testLength(100, 4000, 100, Part.Offset, 1000, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
+            //testLength(100, 4000, 100, Part.Rotors, 200, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            //testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
-            //testPlugboardLength(100, 2000, 100, Part.Plugboard, 100, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
-            //testPlugboardLength(100, 2000, 100, Part.Offset, 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
-            //testPlugboardLength(100, 4000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
-
+            //After that I set the indexes for every part
             //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
             //testIndex(100, 2000, 100, Part.Plugboard, 100, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
             //testIndex(100, 2000, 100, Part.Offset, 100, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
@@ -56,14 +60,14 @@ namespace EnigmaBreaker.Services
             //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
             //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
-            testSpeed(100, 4000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
-            testSpeed(100, 4000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
-            testSpeed(100, 4000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
+            //Now it is ready to test
+            //testPlugboardLength(100, 4000, 100, Part.Plugboard, 100, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            //testPlugboardLength(100, 4000, 100, Part.Offset, 100, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
+            //testPlugboardLength(100, 4000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
-            //testLength(100, 4000, 100, Part.Plugboard, 1000, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
-            //testLength(5, 500, 5, Part.Plugboard, 1000, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
-            //testLength(100, 4000, 100, Part.Offset, 1000, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
-            //testLength(100, 4000, 100, Part.Rotors, 1000, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            //testSpeed(100, 4000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
+            //testSpeed(100, 4000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
+            //testSpeed(100, 4000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
 
             //measureFullRunthrough(100, 2000, 100,10, "Results/fullMeasureRefined");
             measureFullRunthrough(100, 4000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
@@ -225,7 +229,7 @@ namespace EnigmaBreaker.Services
         /// <param name="iterations"></param> number of iteration to do to get the accuracy
         /// <param name="fitnessStrToTest"></param> List of the different fitness function keys to test
         /// <param name="filePathAndName"></param> Location to save results
-        public void testLength(int from, int to, int step, Part toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName)
+        public void testLength(int from, int to, int step, Part toTest, int iterations, List<string> fitnessStrToTest, string filePathAndName,bool withoutRefinement = false)
         {
             int trueNumOfRotors = _bc.numberOfRotorsInUse;
             int trueNumOfRelfectors = _bc.numberOfReflectorsInUse;            
@@ -256,13 +260,13 @@ namespace EnigmaBreaker.Services
                         switch (toTest)
                         {
                             case Part.Plugboard:                                
-                                wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);
+                                wasCorrect = testPlugboard(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr, withoutRefinement);
                                 break;
                             case Part.Offset:
-                                wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);
+                                wasCorrect = testOffset(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr, withoutRefinement);
                                 break;
                             case Part.Rotor:                                
-                                wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr,true);                                
+                                wasCorrect = testRotor(plainArr.GetRange(0, lengthOfPlainText).ToArray(), em, fitnessStr, withoutRefinement);                                
                                 break;
                             default:
                                 _logger.LogWarning($"Unsure what to test: {toTest}");
