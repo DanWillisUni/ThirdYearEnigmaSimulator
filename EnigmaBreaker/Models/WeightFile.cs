@@ -12,7 +12,6 @@ namespace EnigmaBreaker.Models
         public string BI { get; set; }
         public string TRI { get; set; }
         public string QUAD { get; set; }
-        public string RULE { get; set; }
 
         public Dictionary<string, double> weights { get
             {
@@ -36,10 +35,6 @@ namespace EnigmaBreaker.Models
                 if (QUAD != null)
                 {
                     r.Add("QUAD", Convert.ToDouble(QUAD)/100);
-                }
-                if (RULE != null)
-                {
-                    r.Add("RULE", Convert.ToDouble(RULE)/100);
                 }
                 return r; 
             }

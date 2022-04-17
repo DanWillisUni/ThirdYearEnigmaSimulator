@@ -8,39 +8,27 @@ namespace EnigmaBreaker.Services.Fitness
     public class ruleFitness : IFitness
     {
         private readonly IFitness.FitnessResolver _resolver;
-        public ruleFitness(IFitness.FitnessResolver resolver)
+        private readonly SharedUtilities _sharedUtilities;
+        public ruleFitness(IFitness.FitnessResolver resolver, SharedUtilities sharedUtilities)
         {
             _resolver = resolver;
+            _sharedUtilities = sharedUtilities;
         }
         public double getFitness(int[] input, Part part)
         {
             int len = input.Length;
-            string fitnessStr = "IOC";            
-
-            if(part == Part.Plugboard)
+            double highest = 0;
+            string highestString = null;
+            foreach (string fitnessStr in new List<string>() { "S", "BI", "TRI", "QUAD" })
             {
-                if (len < 405)
+                double current = _sharedUtilities.getHitRate(input.Length, fitnessStr, part);
+                if(current > highest) 
                 {
-                    if (len >= 285)
-                    {
-                        fitnessStr = "S";
-                    }
-                    else if (len >= 200)
-                    {
-                        fitnessStr = "QUAD";
-                    }
-                    else if (len >= 120)
-                    {
-                        fitnessStr = "BI";
-                    }
-                    else
-                    {
-                        fitnessStr = "QUAD";
-                    }
+                    highest = current;
+                    highestString = fitnessStr;
                 }
-            }            
-
-            IFitness newFit = _resolver(fitnessStr);
+            }
+            IFitness newFit = _resolver(highestString);
             return newFit.getFitness(input, Part.None);
         }
     }

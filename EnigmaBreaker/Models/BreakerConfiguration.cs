@@ -16,12 +16,17 @@ namespace EnigmaBreaker.Models
         public int numberOfPlugboardSettingsToKeep { get; set; }
         public int numberOfSinglePlugboardSettingsToKeep { get; set; }
         public BreakerConfiguration(int len,bool withoutRefinement=false)
-        {
-            RotorFitness = "IOC";
-            OffsetFitness = "IOC";
-            PlugboardFitness = "RULE";
+        {            
             if (!withoutRefinement)
-            {                
+            {
+                RotorFitness = "RULE";
+                OffsetFitness = "RULE";
+                PlugboardFitness = "RULE";
+
+                //string rotorFileName = "../resources/data/rotorWeights.csv";
+                //string offsetFileName = "../resources/data/offsetWeights.csv";
+                //string plugboardFileName = "../resources/data/plugboardWeights.csv";
+
                 numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
                 numberOfSettingsPerRotorCombinationToKeep = 3;
                 
@@ -63,6 +68,9 @@ namespace EnigmaBreaker.Models
             }
             else
             {
+                RotorFitness = "IOC";
+                OffsetFitness = "IOC";
+                PlugboardFitness = "IOC";
                 numberOfRotorsToKeep = 3;
                 numberOfSettingsPerRotorCombinationToKeep = 3;
                 numberOfOffsetToKeep = 10;
@@ -70,6 +78,31 @@ namespace EnigmaBreaker.Models
                 numberOfSinglePlugboardSettingsToKeep = 1;
                 numberOfPlugboardSettingsToKeep = 1;
             }
+        }
+
+        private int getIndex(IndexFile indexFile,int length)
+        {
+            int prevLength = 0;
+            indexFileItem fileItemToUse = indexFile.IndexFiles[indexFile.IndexFiles.Count - 1];
+            foreach (indexFileItem i in indexFile.IndexFiles)
+            {
+                if (i.length >= length && prevLength < length)
+                {
+                    fileItemToUse = i;
+                    break;
+                }
+            }
+
+            int r = -1;
+            foreach (KeyValuePair<int,double> entry in fileItemToUse.data)
+            {
+                r = entry.Key;
+                if(entry.Value < 10)
+                {
+                    break;
+                }
+            }
+            return r;
         }
     }
 }
