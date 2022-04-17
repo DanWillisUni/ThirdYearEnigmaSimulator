@@ -44,6 +44,7 @@ namespace EnigmaBreaker
         {
             var bs = _serviceProvider.GetRequiredService<Measuring>();
             bs.root();
+            //bs.testRandom()
             Stop();
         }
 
@@ -72,13 +73,14 @@ namespace EnigmaBreaker
             _serviceCollection.AddSingleton<Measuring>();
             _serviceCollection.AddSingleton<CSVReaderService<Models.WeightFile>>();
 
+            _serviceCollection.AddSingleton<SharedUtilities>();
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<singleCharFitness>();
             _serviceCollection.AddTransient<doubleCharFitness>();
             _serviceCollection.AddTransient<tripleCharFitness>();
             _serviceCollection.AddTransient<fourCharFitness>();
             _serviceCollection.AddTransient<ruleFitness>();
-            _serviceCollection.AddTransient<weightFitness>();
+            _serviceCollection.AddTransient<weightFitness>(); 
 
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {

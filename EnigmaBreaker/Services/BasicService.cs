@@ -37,6 +37,13 @@ namespace EnigmaBreaker.Services
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
         }
 
+        public void testRandom()
+        {
+            string plaintext = getText();//get a random plaintext as string
+            EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
+            root(plaintext, em);
+        }
+
         /// <summary>
         /// Randomly select a plaintext
         /// Randomly generate an Enigma configuration
@@ -45,10 +52,8 @@ namespace EnigmaBreaker.Services
         /// Break the ciphertext and print the attempt at plaintext
         /// Print the time taken
         /// </summary>
-        public void root(bool includeLogging = false)            
-        {            
-            string plaintext = getText();//get a random plaintext as string
-            EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration,_bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
+        public void root(string plaintext, EnigmaModel em,bool includeLogging = false)            
+        {                        
             _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
             _logger.LogInformation(em.ToString());//print the enigma model
             string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext

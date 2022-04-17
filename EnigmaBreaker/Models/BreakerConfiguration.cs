@@ -15,10 +15,16 @@ namespace EnigmaBreaker.Models
         public string PlugboardFitness { get; set; }
         public int numberOfPlugboardSettingsToKeep { get; set; }
         public int numberOfSinglePlugboardSettingsToKeep { get; set; }
+        /// <summary>
+        /// Provides a full configuration on the ideal way to break the enigma the fastest and most accurate based upon all my tests
+        /// </summary>
+        /// <param name="len">length of the ciphertext</param>
+        /// <param name="withoutRefinement">This is useful for measuring test how much difference was made by the tests</param>
         public BreakerConfiguration(int len,bool withoutRefinement=false)
         {            
-            if (!withoutRefinement)
+            if (!withoutRefinement)//if it is refined
             {
+                //set the fitness strings
                 RotorFitness = "RULE";
                 OffsetFitness = "RULE";
                 PlugboardFitness = "RULE";
@@ -66,7 +72,7 @@ namespace EnigmaBreaker.Models
                 numberOfSinglePlugboardSettingsToKeep = 1;//set to 2 as it is only adds a few seconds        
                 numberOfPlugboardSettingsToKeep = 1;//keep only top 1 else the user would have to pick and only makes an average of 1.4% differnce changing it to 3
             }
-            else
+            else//else set my original guess at a decent configuration in there
             {
                 RotorFitness = "IOC";
                 OffsetFitness = "IOC";

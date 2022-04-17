@@ -11,16 +11,24 @@ namespace EnigmaBreaker.Services.Fitness
         private readonly float[] quadgrams;
         public fourCharFitness(FitnessConfiguration gc)
         {
-            quadgrams = new float[845626];
-            Array.Fill(quadgrams, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramFiles.gramDataDir, gc.gramFiles.quadgramFileName)))
+            quadgrams = new float[845626];//set the new array size
+            Array.Fill(quadgrams, (float)Math.Log10(float.Epsilon));//set the array to empty
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramFiles.gramDataDir, gc.gramFiles.quadgramFileName)))//for each line in the file
             {
-                quadgrams[quadIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65, line.Split(",")[0][3] - 65)] = float.Parse(line.Split(",")[1]);
+                quadgrams[quadIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65, line.Split(",")[0][3] - 65)] = float.Parse(line.Split(",")[1]);//set the value in the quadgram array
             }
         }
+        /// <summary>
+        /// Get the index of the game
+        /// </summary>
+        /// <param name="a">First letter</param>
+        /// <param name="b">Second letter</param>
+        /// <param name="c">Third letter</param>
+        /// <param name="d">Fourth letter</param>
+        /// <returns>index of the array that corrisponds to the location</returns>
         private static int quadIndex(int a, int b, int c, int d)
         {
-            return (a << 15) | (b << 10) | (c << 5) | d;
+            return (a << 15) | (b << 10) | (c << 5) | d;//uses logical shifts because it is faster
         }
         public double getFitness(int[] input, Part part)
         {
@@ -29,13 +37,13 @@ namespace EnigmaBreaker.Services.Fitness
             int next1 = input[0];
             int next2 = input[1];
             int next3 = input[2];
-            for (int i = 3; i < input.Length; i++)
+            for (int i = 3; i < input.Length; i++)//for each group for 4 letters
             {
                 current = next1;
                 next1 = next2;
                 next2 = next3;
                 next3 = input[i];
-                fitness += quadgrams[quadIndex(current, next1, next2,next3)];
+                fitness += quadgrams[quadIndex(current, next1, next2,next3)];//add the value of the quadgram to that
             }
             return fitness;
         }

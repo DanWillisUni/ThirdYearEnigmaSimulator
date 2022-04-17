@@ -11,16 +11,23 @@ namespace EnigmaBreaker.Services.Fitness
         private readonly float[] trigrams;
         public tripleCharFitness(FitnessConfiguration gc)
         {
-            trigrams = new float[26426];
-            Array.Fill(trigrams, (float)Math.Log10(float.Epsilon));
-            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramFiles.gramDataDir, gc.gramFiles.trigramFileName)))
+            trigrams = new float[26426];//set the size of the array
+            Array.Fill(trigrams, (float)Math.Log10(float.Epsilon));//set the array to all epsilon
+            foreach (string line in System.IO.File.ReadLines(System.IO.Path.Combine(gc.gramFiles.gramDataDir, gc.gramFiles.trigramFileName)))//for each line in the file
             {
-                trigrams[triIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65)] = float.Parse(line.Split(",")[1]);
+                trigrams[triIndex(line.Split(",")[0][0] - 65, line.Split(",")[0][1] - 65, line.Split(",")[0][2] - 65)] = float.Parse(line.Split(",")[1]);//set the entry in the correct place in the arrya
             }
         }
+        /// <summary>
+        /// Get the index of the score for the combination of letters
+        /// </summary>
+        /// <param name="a">first letter</param>
+        /// <param name="b">second letter</param>
+        /// <param name="c">third letter</param>
+        /// <returns>index in the array for that combination</returns>
         private static int triIndex(int a, int b, int c)
         {
-            return (a << 10) | (b << 5) | c;
+            return (a << 10) | (b << 5) | c;//using left shift because it is faster
         }
         public double getFitness(int[] input, Part part)
         {
@@ -28,12 +35,12 @@ namespace EnigmaBreaker.Services.Fitness
             int current = 0;
             int next1 = input[0];
             int next2 = input[1];
-            for (int i = 2; i < input.Length; i++)
+            for (int i = 2; i < input.Length; i++)//for every 3 consecutive letters
             {
                 current = next1;
                 next1 = next2;
                 next2 = input[i];
-                fitness += trigrams[triIndex(current, next1, next2)];
+                fitness += trigrams[triIndex(current, next1, next2)];//get the score for those letter and add to the sum
             }
             return fitness;
         }

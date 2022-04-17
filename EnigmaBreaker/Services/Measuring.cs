@@ -33,7 +33,9 @@ namespace EnigmaBreaker.Services
             _csvReader = csvReader;
             _physicalConfiguration = physicalConfiguration;
         }
-
+        /// <summary>
+        /// All tests are run from here and uncommented when needed to be run
+        /// </summary>
         public void root()
         {
             //test();
@@ -73,14 +75,6 @@ namespace EnigmaBreaker.Services
             //measureFullRunthrough(100, 4000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
-        public void test()
-        {
-            var weights = _csvReader.readFromFile("C:/Users/danny/source/repos/EnigmaSimulator/EnigmaBreaker/bin/Release/netcoreapp3.1/Results/ToUse", "plugboardLengthTest_20220123_005753");
-            foreach (var w in weights)
-            {
-                _logger.LogInformation(w.length + ": " + string.Join(Environment.NewLine, w.weights));
-            }            
-        }
         /// <summary>
         /// This function tests the texts that I have and saves the results to a file
         /// 
@@ -92,21 +86,21 @@ namespace EnigmaBreaker.Services
         {            
             List<string> linesToWriteToFile = new List<string>() { "Name,CharCount," + string.Join(",", fitnessList) };
             
-            foreach (string fileName in _bc.textFileNames)
+            foreach (string fileName in _bc.textFileNames)//for each file
             {
                 string newLine = fileName;
-                string plaintext = System.IO.File.ReadAllText(System.IO.Path.Combine(_bc.textDir, fileName + ".txt"));
-                List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();
+                string plaintext = System.IO.File.ReadAllText(System.IO.Path.Combine(_bc.textDir, fileName + ".txt"));//read the file
+                List<int> plainArr = EncodingService.preProccessCiphertext(plaintext).ToList();//proccess the file into an integer array
                 newLine += $",{plainArr.Count}";
-                foreach (string fitnessStr in fitnessList)
+                foreach (string fitnessStr in fitnessList)//for each fitness function
                 {
                     IFitness fitnessFunc = _resolver(fitnessStr);
-                    double fitness = fitnessFunc.getFitness(plainArr.ToArray());
-                    newLine += "," + fitness;
+                    double fitness = fitnessFunc.getFitness(plainArr.ToArray());//get the fitness
+                    newLine += "," + fitness;//add the fitness to the line to write
                 }                
-                linesToWriteToFile.Add(newLine);
+                linesToWriteToFile.Add(newLine);//add the new line to the output
             }
-            File.WriteAllLines("Results/TextTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToWriteToFile);
+            File.WriteAllLines("Results/TextTest_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToWriteToFile);//write all lines to file
         }
         /// <summary>
         /// Measure the accuracy of the full run through of the breaker

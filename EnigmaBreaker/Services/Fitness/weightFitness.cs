@@ -19,10 +19,10 @@ namespace EnigmaBreaker.Services.Fitness
         }
         public double getFitness(int[] input, IFitness.Part part = IFitness.Part.None)
         {
-            double r = _sharedUtilities.getHitRate(input.Length, "IOC", part) * _resolver("IOC").getFitness(input);
-            foreach (string fitnessStr in new List<string>() { "S", "BI","TRI","QUAD" })
+            double r = _sharedUtilities.getHitRate(input.Length, "IOC", part) * _resolver("IOC").getFitness(input);//get the IOC
+            foreach (string fitnessStr in new List<string>() { "S", "BI","TRI","QUAD" })//for each frequency fitness function
             {
-                r += _fc.fitnessWeights[fitnessStr] * _sharedUtilities.getHitRate(input.Length, fitnessStr, part) * _resolver(fitnessStr).getFitness(input) / input.Length;
+                r += _fc.fitnessWeights[fitnessStr] * _sharedUtilities.getHitRate(input.Length, fitnessStr, part) * _resolver(fitnessStr).getFitness(input) / input.Length;//get the fitness weight multiplied by the accuracy weighting multiplied by the score divide by the length
             }                
             return r;
         }

@@ -28,54 +28,65 @@ namespace EnigmaBreaker.Services
             _logger.LogDebug("Writing to fileName: " + fileName);
             _logger.LogDebug("Object Count: " + all.Count);
             var lines = getStringOutput(all);
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(dir, fileName +".csv")))
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(dir, fileName +".csv")))//opens file
             {
-                foreach(string line in lines)
+                foreach(string line in lines)//for each line
                 {
-                    outputFile.WriteLine(line);
+                    outputFile.WriteLine(line);//write line
                 }                
             }
             _logger.LogDebug("Finished writing to file");
         }
 
+        /// <summary>
+        /// Converts list of objects to a list of lines to write to the file
+        /// </summary>
+        /// <param name="all">the list of objects</param>
+        /// <returns>List of lines for the file</returns>
         public List<string> getStringOutput(List<T> all)
         {
             List<string> output = new List<string>();
-            var headers = typeof(T).GetProperties();
+            var headers = typeof(T).GetProperties();//set the headers as every property
             string headerLine = "";
-            for (var i = 0; i < headers.Length; i++)
+            for (var i = 0; i < headers.Length; i++)//for eahc header
             {
-                DisplayNameAttribute dp = headers[i].GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();
-                string nameToAdd = dp != null ? dp.DisplayName : headers[i].Name;
+                DisplayNameAttribute dp = headers[i].GetCustomAttributes(typeof(DisplayNameAttribute), true).Cast<DisplayNameAttribute>().SingleOrDefault();//get display attribute
+                string nameToAdd = dp != null ? dp.DisplayName : headers[i].Name;//get the name
 
-                headerLine += nameToAdd;
+                headerLine += nameToAdd;//add to the headerline
                 _logger.LogDebug(nameToAdd);
                 if (i != headers.Length - 1)
                 {
-                    headerLine += ",";
+                    headerLine += ",";//adding commas for csv
                 }
             }
-            output.Add(headerLine);
-            foreach (T data in all)
+            output.Add(headerLine);//add headerline to return
+            foreach (T data in all)//for each peice of data
             {
                 //_logger.LogDebug("Object" + Convert.ToString(Regex.Matches(output, "\n").Count));
-                output.Add(ToCsv(data, headers));
+                output.Add(ToCsv(data, headers));//convert the data to a string and add it
             }
             _logger.LogDebug(Convert.ToString(output.Count - 1) + " objects found");
             return output;
         }
+        /// <summary>
+        /// Convert the data to a string
+        /// </summary>
+        /// <param name="obj">object to convert</param>
+        /// <param name="properties">properties of object</param>
+        /// <returns></returns>
         public virtual string ToCsv(T obj,System.Reflection.PropertyInfo[] properties)
         {
             string output = ""; 
-            for (var i = 0; i < properties.Length; i++)
+            for (var i = 0; i < properties.Length; i++)//for eahc property
             {
-                var value = properties[i].GetValue(obj);
-                string s = value != null ? value.ToString() : "null";                
+                var value = properties[i].GetValue(obj);//get value
+                string s = value != null ? value.ToString() : "null"; //convert value to string               
                 _logger.LogDebug(properties[i].Name + ": " + s);
-                output += s;
+                output += s;//add the string to the return
                 if (i != properties.Length - 1)
                 {
-                    output += ",";
+                    output += ",";//add comma for csv
                 }
             }
             return output;
