@@ -732,15 +732,15 @@ namespace EnigmaBreaker.Services
         /// <param name="actual"></param> Actual Enigma model
         /// <param name="attempt"></param> Attempt at the enigma model
         /// <returns> boolean of if the rotors are the "Same"</returns>
-        public bool compareRotors(EnigmaModel actual,EnigmaModel attempt)
+        public static bool compareRotors(EnigmaModel actual,EnigmaModel attempt)
         {
             if (attempt.reflector.rotor.name == actual.reflector.rotor.name && attempt.rotors[0].rotor.name == actual.rotors[0].rotor.name && attempt.rotors[1].rotor.name == actual.rotors[1].rotor.name && attempt.rotors[2].rotor.name == actual.rotors[2].rotor.name)//if all rotors and reflector are in the correct order
             {
-                if (attempt.rotors[0].rotation - 1 == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) || attempt.rotors[0].rotation == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) || attempt.rotors[0].rotation + 1 == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset))//if the rotation of the first rotor is +/- 1 out from the offset and rotation of the actual
+                if (EncodingService.mod26(attempt.rotors[0].rotation - 1) == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) || attempt.rotors[0].rotation == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) || EncodingService.mod26(attempt.rotors[0].rotation + 1) == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset))//if the rotation of the first rotor is +/- 1 out from the offset and rotation of the actual
                 {
-                    if (attempt.rotors[1].rotation - 1 == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset) || attempt.rotors[1].rotation == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset) || attempt.rotors[1].rotation + 1 == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset))//if the rotation of the second rotor is +/- 1 out from the offset and rotation of the actual
+                    if (EncodingService.mod26(attempt.rotors[1].rotation - 1) == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset) || attempt.rotors[1].rotation == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset) || EncodingService.mod26(attempt.rotors[1].rotation + 1) == EncodingService.mod26(actual.rotors[1].rotation - actual.rotors[1].ringOffset))//if the rotation of the second rotor is +/- 1 out from the offset and rotation of the actual
                     {
-                        if (attempt.rotors[2].rotation - 1 == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset) || attempt.rotors[2].rotation == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset) || attempt.rotors[2].rotation + 1 == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset))//if the rotation of the third rotor is +/- 1 out from the offset and rotation of the actual
+                        if (EncodingService.mod26(attempt.rotors[2].rotation - 1) == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset) || attempt.rotors[2].rotation == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset) || EncodingService.mod26(attempt.rotors[2].rotation + 1) == EncodingService.mod26(actual.rotors[2].rotation - actual.rotors[2].ringOffset))//if the rotation of the third rotor is +/- 1 out from the offset and rotation of the actual
                         {
                             return true;
                         }
@@ -755,7 +755,7 @@ namespace EnigmaBreaker.Services
         /// <param name="actual"></param> Actual Enigma model
         /// <param name="attempt"></param> Attempt at the enigma model
         /// <returns> boolean of if the rotors are the "Same"</returns>
-        public bool compareOffset(EnigmaModel actual,EnigmaModel attempt)
+        public static bool compareOffset(EnigmaModel actual,EnigmaModel attempt)
         {
             if (attempt.rotors[0].rotation == EncodingService.mod26(actual.rotors[0].rotation - actual.rotors[0].ringOffset) && attempt.rotors[0].ringOffset == 0)//if the right rotor is correct
             {
@@ -776,30 +776,33 @@ namespace EnigmaBreaker.Services
         /// <param name="actual"></param> Actual Enigma model plugboard string
         /// <param name="attempt"></param> Attempt at the enigma model plugboard string
         /// <returns> boolean of if the plugboards are equivilent</returns>
-        public bool comparePlugboard(string actual, string attempt)
+        public static bool comparePlugboard(string actual, string attempt)
         {
-            if (actual.Length == attempt.Length)//if the lengths are the same
+            if (actual != attempt) 
             {
-                foreach (string a in actual.Split(" "))
+                if (actual.Length == attempt.Length)//if the lengths are the same
                 {
-                    bool found = false;
-                    foreach (string r in attempt.Split(" "))
+                    foreach (string actualPairChars in actual.Split(" "))//for each pair
                     {
-                        if (r == a)
+                        bool found = false;
+                        foreach (string attemptPairChars in attempt.Split(" "))//for each attempt pair
                         {
-                            found = true;
-                            break;
+                            if (attemptPairChars == actualPairChars)//if they are equal
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)//if not found
+                        {
+                            return false;//return false
                         }
                     }
-                    if (!found)
-                    {
-                        return false;
-                    }
                 }
-            }
-            else
-            {
-                return false;
+                else
+                {
+                    return false;
+                }
             }
             return true;
         }
