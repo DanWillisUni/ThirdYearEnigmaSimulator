@@ -80,35 +80,52 @@ namespace SharedCL
             return rEM;
         }
 
+        /// <summary>
+        /// Converts the enigma rotors and relfector to a string
+        /// </summary>
+        /// <returns>string of rotor information</returns>
         public string toStringRotors()
         {
-            string r = this.reflector.rotor.name;
-            foreach (RotorModel rotor in this.rotors)
+            string r = this.reflector.rotor.name;//set the reflector name to the string
+            foreach (RotorModel rotor in this.rotors)//for each rotor
             {
-                r += "/";
-                r += rotor.ToString();
+                r += "/";//seperate by /
+                r += rotor.ToString();//add the to string of rotor model
             }
-            return r;
+            return r;//return the string
         }
+        /// <summary>
+        /// Converts the plugboard to string
+        /// </summary>
+        /// <returns>prints all plugboard pairs</returns>
         public string toStringPlugboard()
         {
             string r = "";
-            foreach (KeyValuePair<int, int> entry in this.plugboard)
+            Dictionary<int, int> newPlugboard = new Dictionary<int, int>();            
+            foreach (KeyValuePair<int, int> entry in this.plugboard)//for all the entries in the dictionary
             {
-                if (entry.Key < entry.Value)
+                if (entry.Key < entry.Value)//alphbetical order
                 {
-                    r += Convert.ToChar(entry.Key + 65);
-                    r += Convert.ToChar(entry.Value + 65);
+                    newPlugboard.Add(entry.Key, entry.Value);
                 }
                 else
                 {
-                    r += Convert.ToChar(entry.Value + 65);
-                    r += Convert.ToChar(entry.Key + 65);
+                    newPlugboard.Add(entry.Value, entry.Key);
                 }
-                r += " ";
+                r += " ";//add a space
+            }
+            var p = from entry in newPlugboard orderby entry.Key ascending select entry;//sort the plugboard using linq
+
+            foreach (KeyValuePair<int, int> entry in p)//for all the entries in the dictionary
+            {
+                r += $"{Convert.ToChar(entry.Key + 65)}{Convert.ToChar(entry.Value + 65)} ";//add key value chars
             }
             return r;
         }
+        /// <summary>
+        /// To string
+        /// </summary>
+        /// <returns>To string of rotors and plugboard</returns>
         public override string ToString()
         {
             return this.toStringRotors() + "/" + this.toStringPlugboard();

@@ -103,7 +103,7 @@ namespace EnigmaBreaker.Models
             foreach (KeyValuePair<int,double> entry in fileItemToUse.data)
             {
                 r = entry.Key;
-                if(entry.Value < 10)
+                if(entry.Value > 90)
                 {
                     break;
                 }
