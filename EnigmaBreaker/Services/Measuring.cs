@@ -40,7 +40,7 @@ namespace EnigmaBreaker.Services
         {
             //test();
             //testText(new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" });//3 seconds
-            //These are all run unrefined            
+            //These are all run unrefined
             //testLength(100, 4000, 100, Part.Plugboard, 250, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTest", true);//R 3.3 hours perfect
             //testLength(5, 500, 5, Part.Plugboard, 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/plugboardLengthTestClose", true);//R 9 hours perfect
             //testLength(100, 4000, 100, Part.Offset, 500, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/offsetLengthTest", true);//R 2.9 hours perfect
@@ -48,19 +48,19 @@ namespace EnigmaBreaker.Services
             //testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestClose", true);//R perfect
 
             //Then I take modify the breaker configuration to make the rules
-            //testLength(100, 4000, 100, Part.Plugboard, 250, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
-            //testLength(5, 500, 5, Part.Plugboard, 500, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
-            //testLength(100, 4000, 100, Part.Offset, 500, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//DONT RUN AS THEY ARE THE SAME
-            //testLength(100, 4000, 100, Part.Rotors, 100, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
-            //testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
+            testLength(100, 4000, 100, Part.Plugboard, 250, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
+            testLength(5, 500, 5, Part.Plugboard, 500, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
+            testLength(100, 4000, 100, Part.Offset, 500, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
+            testLength(100, 4000, 100, Part.Rotor, 100, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
             //Modify breaker configuration model, after that I set the indexes for every part
-            //testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
-            //testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
-            //testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
-            //testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            //testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
-            //testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
+            testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
+            testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
+            testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
+            testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
+            testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
+            testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
             //Now it is ready to test how it varies based on plugboard length
             //testPlugboardLength(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
