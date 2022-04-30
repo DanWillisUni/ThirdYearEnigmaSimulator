@@ -7,8 +7,8 @@
     <ProjectGuid>{08685C77-600D-4B73-842A-6C0D9876CA63}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EncodingService</RootNamespace>
-    <AssemblyName>EncodingService</AssemblyName>
+    <RootNamespace>SharedServices</RootNamespace>
+    <AssemblyName>SharedServices</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

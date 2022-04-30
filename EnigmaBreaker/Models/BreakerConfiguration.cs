@@ -47,7 +47,7 @@ namespace EnigmaBreaker.Models
             {
                 RotorFitness = "IOC";
                 OffsetFitness = "IOC";
-                PlugboardFitness = "IOC";
+                PlugboardFitness = "QUAD";
                 numberOfRotorsToKeep = 3;
                 numberOfSettingsPerRotorCombinationToKeep = 3;
                 numberOfOffsetToKeep = 10;
