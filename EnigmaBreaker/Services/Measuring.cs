@@ -48,31 +48,31 @@ namespace EnigmaBreaker.Services
             //testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" }, "Results/rotorLengthTestClose", true);//R perfect
 
             //Then I take modify the breaker configuration to make the rules
-            testLength(100, 4000, 100, Part.Plugboard, 250, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
-            testLength(5, 500, 5, Part.Plugboard, 500, new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
-            testLength(100, 4000, 100, Part.Offset, 500, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
-            testLength(100, 4000, 100, Part.Rotor, 100, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
-            testLength(10, 500, 10, Part.Rotor, 100, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
+            //testLength(100, 4000, 100, Part.Plugboard, 50, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
+            //testLength(5, 500, 5, Part.Plugboard, 50 , new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
+            //testLength(100, 4000, 100, Part.Offset, 50, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
+            testLength(100, 4000, 100, Part.Rotor, 10, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            //testLength(10, 500, 10, Part.Rotor, 50, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
             //Modify breaker configuration model, after that I set the indexes for every part
-            testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
-            testIndex(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
-            testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
-            testIndex(100, 4000, 100, Part.Offset, 250, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
-            testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
+            //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
+            //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
+            //testIndex(100, 2000, 100, Part.Offset, 250, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
+            //testIndex(100, 2000, 100, Part.Offset, 250, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
+            //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
+            //testIndex(100, 2000, 100, Part.Rotor, 100, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
             //Now it is ready to test how it varies based on plugboard length
-            //testPlugboardLength(100, 4000, 100, Part.Plugboard, 250, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
-            //testPlugboardLength(100, 4000, 100, Part.Offset, 500, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
-            //testPlugboardLength(100, 4000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
+            //testPlugboardLength(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            //testPlugboardLength(100, 2000, 100, Part.Offset, 500, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
+            //testPlugboardLength(100, 2000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
-            //testSpeed(100, 4000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
-            //testSpeed(100, 4000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
-            //testSpeed(100, 4000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
+            //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
+            //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
+            //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
 
-            //measureFullRunthrough(100, 4000, 100, 100, "Results/fullMeasureRefined");
-            //measureFullRunthrough(100, 4000, 100, 100, "Results/fullMeasureUnrefined", true);//40 hours
+            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureRefined");
+            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
         /// <summary>
