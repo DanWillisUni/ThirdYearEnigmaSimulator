@@ -1,5 +1,7 @@
-﻿using System;
+﻿using EnigmaBreaker.Configuration.Models;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace EnigmaBreaker.Models
@@ -20,7 +22,7 @@ namespace EnigmaBreaker.Models
         /// </summary>
         /// <param name="len">length of the ciphertext</param>
         /// <param name="withoutRefinement">This is useful for measuring test how much difference was made by the tests</param>
-        public BreakerConfiguration(int len,bool withoutRefinement=false)
+        public BreakerConfiguration(int len, IndexFiles indexFile,bool withoutRefinement=false)
         {            
             if (!withoutRefinement)//if it is refined
             {
@@ -39,49 +41,19 @@ namespace EnigmaBreaker.Models
                 //string plugboardFileName = "../resources/data/plugboardWeights.csv";
 
                 numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
-                numberOfSettingsPerRotorCombinationToKeep = 3;
+                numberOfSettingsPerRotorCombinationToKeep = getIndex(rotorSingleIndexFile, len,20);
                 
-                numberOfOffsetToKeep = 5; //altered because it increases the computing time as the plugboard is searching through a few of them
-                if(len < 2000)
-                {
-                    if (len > 1800)
-                    {
-                        numberOfOffsetToKeep = 7;
-                    }
-                    else if (len > 1700)
-                    {
-                        numberOfOffsetToKeep = 9;
-                    }
-                    else if (len > 1600)
-                    {
-                        numberOfOffsetToKeep = 12;
-                    }
-                    else if (len > 1400)
-                    {
-                        numberOfOffsetToKeep = 14;
-                    }
-                    else if (len > 1300)
-                    {
-                        numberOfOffsetToKeep = 15;
-                    }
-                    else if (len > 1200)
-                    {
-                        numberOfOffsetToKeep = 16;
-                    }
-                    else 
-                    {
-                        numberOfOffsetToKeep = 20;
-                    }
-                }
+                numberOfOffsetToKeep = getIndex(offsetIndexFile, len); //altered because it increases the computing time as the plugboard is searching through a few of them
                 numberOfSettingsPerRotationCombinationToKeep = 20;//set high because it makes little differnece to the timing
-                numberOfSinglePlugboardSettingsToKeep = 1;//set to 2 as it is only adds a few seconds        
+                
+                numberOfSinglePlugboardSettingsToKeep = 1;//set to 1 as it is far slower and hardly more accurate using 2        
                 numberOfPlugboardSettingsToKeep = 1;//keep only top 1 else the user would have to pick and only makes an average of 1.4% differnce changing it to 3
             }
             else//else set my original guess at a decent configuration in there
             {
                 RotorFitness = "IOC";
                 OffsetFitness = "IOC";
-                PlugboardFitness = "IOC";
+                PlugboardFitness = "QUAD";
                 numberOfRotorsToKeep = 3;
                 numberOfSettingsPerRotorCombinationToKeep = 3;
                 numberOfOffsetToKeep = 10;
@@ -91,7 +63,7 @@ namespace EnigmaBreaker.Models
             }
         }
 
-        private int getIndex(IndexFile indexFile,int length)
+        private int getIndex(IndexFile indexFile,int length,double acceptableMissRate =5)
         {
             int prevLength = 0;
             indexFileItem fileItemToUse = indexFile.IndexFiles[indexFile.IndexFiles.Count - 1];
@@ -108,7 +80,7 @@ namespace EnigmaBreaker.Models
             foreach (KeyValuePair<int,double> entry in fileItemToUse.data)
             {
                 r = entry.Key;
-                if(entry.Value > 90)
+                if(entry.Value > (100-acceptableMissRate))
                 {
                     break;
                 }

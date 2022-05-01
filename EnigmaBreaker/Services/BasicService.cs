@@ -25,13 +25,15 @@ namespace EnigmaBreaker.Services
         private List<Rotor> allRotors { get; set; }
         private List<Rotor> allReflectors { get; set; }
         private PhysicalConfiguration _physicalConfiguration { get; set; }
-        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,PhysicalConfiguration physicalConfiguration)
+        private FitnessConfiguration _fc { get; set; }
+        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,PhysicalConfiguration physicalConfiguration,FitnessConfiguration fc)
         {
             _logger = logger;
             _bc = bc;
             _encodingService = encodingService;
             _resolver = fitnessResolver;
             _physicalConfiguration = physicalConfiguration;
+            _fc = fc;
 
             setNumOfRotors(_bc.numberOfRotorsInUse);
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
@@ -62,7 +64,7 @@ namespace EnigmaBreaker.Services
 
             Stopwatch timer = new Stopwatch();//create new timer
             timer.Start();//start timer
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles);
             List<BreakerResult> rotorResults = getRotorResults(cipherArr,breakerConfiguration);//get the top results for rotor configurations
             if (includeLogging)
             {

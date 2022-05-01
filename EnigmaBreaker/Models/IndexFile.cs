@@ -10,9 +10,14 @@ namespace EnigmaBreaker.Models
         public IndexFile(string fileName)
         {
             IndexFiles = new List<indexFileItem>();
+            int count = 0;
             foreach (string line in System.IO.File.ReadLines(fileName))
             {
-                IndexFiles.Add(new indexFileItem(line));
+                if (count != 0)
+                {
+                    IndexFiles.Add(new indexFileItem(line));
+                }
+                count = count + 1;
             }
         }
     }

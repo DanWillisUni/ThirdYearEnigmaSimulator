@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EncodingService\SharedCL.csproj" />
+    <ProjectReference Include="..\SharedServices\SharedCL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
