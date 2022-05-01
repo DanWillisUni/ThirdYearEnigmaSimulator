@@ -23,7 +23,8 @@ namespace EnigmaBreaker.Services
         private readonly BasicService _bs;
         private readonly CSVReaderService<WeightFile> _csvReader;
         private readonly PhysicalConfiguration _physicalConfiguration;
-        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs,CSVReaderService<WeightFile> csvReader,PhysicalConfiguration physicalConfiguration) 
+        private readonly FitnessConfiguration _fc;
+        public Measuring(ILogger<Measuring> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,BasicService bs,CSVReaderService<WeightFile> csvReader,PhysicalConfiguration physicalConfiguration,FitnessConfiguration fc) 
         {
             _logger = logger;
             _bc = bc;
@@ -32,6 +33,7 @@ namespace EnigmaBreaker.Services
             _bs = bs;
             _csvReader = csvReader;
             _physicalConfiguration = physicalConfiguration;
+            _fc = fc;
         }
         /// <summary>
         /// All tests are run from here and uncommented when needed to be run
@@ -58,9 +60,9 @@ namespace EnigmaBreaker.Services
             //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexSingleTest",1,2,1, "S");//R 13.8 hours perfect
             //testIndex(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardIndexTest", 1, 3, 1, "F");//R 1 hour perfect     
             //testIndex(100, 2000, 100, Part.Offset, 250, "Results/offsetIndexSingleTest", 1, 20, 1, "S");//R 12 hours perfect
-            testIndex(100, 4000, 100, Part.Offset, 100, "Results/offsetIndexTest", 1, 20, 1, "F");//R 10.5 hours perfect
-            testIndex(100, 4000, 100, Part.Rotor, 100, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
-            testIndex(100, 4000, 100, Part.Rotor, 10, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
+            //testIndex(100, 2000, 100, Part.Offset, 100, "Results/offsetIndexTest", 1, 25, 1, "F");//R 10.5 hours perfect
+            //testIndex(100, 2000, 100, Part.Rotor, 10, "Results/rotorsIndexSingleTest", 1, 10, 1, "S"); // perfect
+            //testIndex(100, 2000, 100, Part.Rotor, 10, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
             //Now it is ready to test how it varies based on plugboard length
             //testPlugboardLength(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
@@ -135,7 +137,7 @@ namespace EnigmaBreaker.Services
 
                     _logger.LogDebug(em.ToString());
                     int[] cipherArr = _encodingService.encode(plainArr, em);//encode to get the cipher array
-                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);//get the configuration
+                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles,withoutRefinement);//get the configuration
                     Stopwatch stopWatchRotor = new Stopwatch();
                     stopWatchRotor.Start();//start the timer
                     List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));//get the rotors
@@ -325,8 +327,8 @@ namespace EnigmaBreaker.Services
                         EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//randomize enigma model
                         string emJson = JsonConvert.SerializeObject(em);
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, messageLength).ToArray(), em);//encode message at correct length
-                        BreakerConfiguration bc = new BreakerConfiguration(cipherArr.Length, true);//get unaltered breaker configuration
-                        BreakerConfiguration bcv2 = new BreakerConfiguration(cipherArr.Length);//get altered configuration
+                        BreakerConfiguration bc = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles, true);//get unaltered breaker configuration
+                        BreakerConfiguration bcv2 = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles);//get altered configuration
                         //set the fitness strings to the altered
                         bc.RotorFitness = bcv2.RotorFitness;
                         bc.OffsetFitness = bcv2.OffsetFitness;
@@ -473,7 +475,7 @@ namespace EnigmaBreaker.Services
                         string emJson = JsonConvert.SerializeObject(em);
                         int[] cipherArr = _encodingService.encode(plainArr.GetRange(0, lengthOfText).ToArray(), em);//encipher
                         
-                        BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length);//get the breaker configuration
+                        BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles);//get the breaker configuration
 
                         switch (toTest)//check which part of the enigma I am testing
                         {
@@ -635,7 +637,7 @@ namespace EnigmaBreaker.Services
             _logger.LogDebug(em.ToString());
             int[] cipherArr = _encodingService.encode(plaintext, em);//encode
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);//get configuration
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles, withoutRefinement);//get configuration
             if (fitnessStr != "") { breakerConfiguration.RotorFitness = fitnessStr; }//set the fitness string if specified
             List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr,breakerConfiguration));//get results from rotor
 
@@ -677,7 +679,7 @@ namespace EnigmaBreaker.Services
             }
             _logger.LogDebug($"Input: {em2.toStringRotors()}");
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);//get the configuration to break with
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles, withoutRefinement);//get the configuration to break with
             if (fitnessStr != "") { breakerConfiguration.OffsetFitness = fitnessStr; }//if the fitness string was specified set it
 
             List<BreakerResult> fullRotorOffset = _bs.getRotationOffsetResult(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,breakerConfiguration);//get the offset results
@@ -709,7 +711,7 @@ namespace EnigmaBreaker.Services
             _logger.LogDebug(em.ToString());
             int[] cipherArr = _encodingService.encode(plaintext, em);//encode
 
-            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,withoutRefinement);//get breaker configuration
+            BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles, withoutRefinement);//get breaker configuration
             if (fitnessStr != "") { breakerConfiguration.PlugboardFitness = fitnessStr; }//if fitness string is specified set it
             em2.plugboard = new Dictionary<int, int>();//set plugboard to empty             
             List<BreakerResult> finalResult = _bs.getPlugboardResults(new List<BreakerResult>() { new BreakerResult(cipherArr, double.MinValue, em2) }, cipherArr,breakerConfiguration);//get plugboard results

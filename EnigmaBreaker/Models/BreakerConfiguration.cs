@@ -1,5 +1,7 @@
-﻿using System;
+﻿using EnigmaBreaker.Configuration.Models;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace EnigmaBreaker.Models
@@ -20,7 +22,7 @@ namespace EnigmaBreaker.Models
         /// </summary>
         /// <param name="len">length of the ciphertext</param>
         /// <param name="withoutRefinement">This is useful for measuring test how much difference was made by the tests</param>
-        public BreakerConfiguration(int len,bool withoutRefinement=false)
+        public BreakerConfiguration(int len, IndexFiles indexFile,bool withoutRefinement=false)
         {            
             if (!withoutRefinement)//if it is refined
             {
@@ -28,9 +30,9 @@ namespace EnigmaBreaker.Models
                 RotorFitness = "RULE";
                 OffsetFitness = "RULE";
                 PlugboardFitness = "RULE";
-
-                string rotorSingleFileName = "../resources/data/rotorSingleIndex.csv";
-                string offsetFileName = "../resources/data/offsetIndex.csv";
+                
+                string rotorSingleFileName = Path.Combine(indexFile.dir, indexFile.rotorSingleIndexFileName)+ ".csv";
+                string offsetFileName = Path.Combine(indexFile.dir, indexFile.offsetIndexFileName) + ".csv";
                 IndexFile rotorSingleIndexFile = new IndexFile(rotorSingleFileName);
                 IndexFile offsetIndexFile = new IndexFile(offsetFileName);
 

@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngimaSimulator", "EngimaSimulator\EngimaSimulator.csproj", "{EC1205E4-8CCC-400B-973D-43269CC4E71D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedCL", "EncodingService\SharedCL.csproj", "{08685C77-600D-4B73-842A-6C0D9876CA63}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedCL", "SharedServices\SharedCL.csproj", "{08685C77-600D-4B73-842A-6C0D9876CA63}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "TestEncoding\UnitTests.csproj", "{6A051A30-4124-491C-99E7-3BE3588C7046}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "Tests\UnitTests.csproj", "{6A051A30-4124-491C-99E7-3BE3588C7046}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnigmaBreaker", "EnigmaBreaker\EnigmaBreaker.csproj", "{B1531360-76F5-4ABC-AEAE-70EDB8653045}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnigmaBreaker", "EnigmaBreaker\EnigmaBreaker.csproj", "{B1531360-76F5-4ABC-AEAE-70EDB8653045}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
