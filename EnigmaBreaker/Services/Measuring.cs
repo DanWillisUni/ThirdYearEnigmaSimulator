@@ -73,8 +73,8 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
 
-            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureRefined");
-            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureUnrefined", true);//40 hours
+            measureFullRunthrough(1000, 1200, 100, 2, "Results/fullMeasureRefined",false);
+            measureFullRunthrough(1000, 1200, 100, 2, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
         /// <summary>
