@@ -8,11 +8,14 @@ namespace EnigmaBreaker.Configuration.Models
     {
         public int numberOfRotorsInUse { get; set; }
         public int numberOfReflectorsInUse { get; set; }
-        public int maxPlugboardSettings { get; set; }        
-        
+        public int maxPlugboardSettings { get; set; } 
+
         public string textDir { get; set; }
         public List<string> textFileNames { get; set; }
 
         public int numberOfEndCharsToDisplay { get; set; }
+
+        public bool isMeasure { get; set; }
+        public string inputFormat { get; set; }
     }
 }

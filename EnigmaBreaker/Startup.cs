@@ -41,10 +41,17 @@ namespace EnigmaBreaker
         }
 
         public void runMyStuff()
-        {
-            var bs = _serviceProvider.GetRequiredService<Measuring>();
-            bs.root();
-            //bs.testRandom()
+        {            
+            if (_serviceProvider.GetRequiredService<BasicConfiguration>().isMeasure)//if the user wants to run experiments
+            {
+                var bs = _serviceProvider.GetRequiredService<Measuring>();//get the experiment class
+                bs.root();//run the experiment class
+            }
+            else
+            {
+                var bs = _serviceProvider.GetRequiredService<BasicService>();//get the basic decryption class
+                bs.root();//run the basic decryption class
+            }
             Stop();
         }
 

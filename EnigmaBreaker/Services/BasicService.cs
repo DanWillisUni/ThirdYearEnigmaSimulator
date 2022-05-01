@@ -38,12 +38,35 @@ namespace EnigmaBreaker.Services
             setNumOfRotors(_bc.numberOfRotorsInUse);
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
         }
+        public void root()
+        {
+            if(_bc.inputFormat == "RAND")
+            {
+                testRandom();
+            }
+            else if (_bc.inputFormat == "USER")
+            {
+                getUserInputCipherText();
+            }
+        }
 
         public void testRandom()
         {
             string plaintext = getText();//get a random plaintext as string
             EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
-            root(plaintext, em);
+            _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
+            _logger.LogInformation(em.ToString());//print the enigma model
+            string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext
+            decryption(ciphertext);
+        }
+
+        public void getUserInputCipherText()
+        {
+            Console.WriteLine("Please enter a ciphertext:\n");
+            string cipherText = Console.ReadLine();
+            string plainText = decryption(cipherText);
+            Console.WriteLine("Here is the plain text\n");
+            Console.WriteLine(plainText);
         }
 
         /// <summary>
@@ -54,11 +77,8 @@ namespace EnigmaBreaker.Services
         /// Break the ciphertext and print the attempt at plaintext
         /// Print the time taken
         /// </summary>
-        public void root(string plaintext, EnigmaModel em,bool includeLogging = false)            
-        {                        
-            _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
-            _logger.LogInformation(em.ToString());//print the enigma model
-            string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext
+        public string decryption(string ciphertext,bool includeLogging = false)            
+        { 
             _logger.LogInformation($"Ciphertext: {ciphertext.Length}\n" + ciphertext);//print the ciphertext
             int[] cipherArr = EncodingService.preProccessCiphertext(ciphertext);//convert the ciphertext into an array of integers
 
@@ -115,6 +135,7 @@ namespace EnigmaBreaker.Services
             TimeSpan ts = timer.Elapsed;//get the elapsed time as a TimeSpan value
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds,ts.Milliseconds);//format the timespan value
             _logger.LogInformation("Run time: " + elapsedTime);//print the time taken to crack the enigma
+            return attemptPlainText;
         }        
 
         #region rotors
