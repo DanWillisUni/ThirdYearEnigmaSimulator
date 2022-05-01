@@ -28,6 +28,11 @@ namespace EnigmaBreaker.Models
                 RotorFitness = "RULE";
                 OffsetFitness = "RULE";
                 PlugboardFitness = "RULE";
+                if (len < 300)
+                {
+                    PlugboardFitness = "WEIGHT";
+                    OffsetFitness = "WEIGHT";
+                }
 
                 //string rotorFileName = "../resources/data/rotorWeights.csv";
                 //string offsetFileName = "../resources/data/offsetWeights.csv";

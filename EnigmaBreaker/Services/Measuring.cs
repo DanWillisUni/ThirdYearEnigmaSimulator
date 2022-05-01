@@ -51,7 +51,7 @@ namespace EnigmaBreaker.Services
             //testLength(100, 4000, 100, Part.Plugboard, 50, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
             //testLength(5, 500, 5, Part.Plugboard, 50 , new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
             //testLength(100, 4000, 100, Part.Offset, 50, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
-            testLength(100, 4000, 100, Part.Rotor, 10, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            testLength(100, 2000, 100, Part.Rotor, 10, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
             //testLength(10, 500, 10, Part.Rotor, 50, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
             //Modify breaker configuration model, after that I set the indexes for every part
