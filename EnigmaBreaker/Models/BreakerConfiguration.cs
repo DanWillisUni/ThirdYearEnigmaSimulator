@@ -36,9 +36,10 @@ namespace EnigmaBreaker.Models
                     OffsetFitness = "WEIGHT";
                 }
 
-                //string rotorFileName = "../resources/data/rotorWeights.csv";
-                //string offsetFileName = "../resources/data/offsetWeights.csv";
-                //string plugboardFileName = "../resources/data/plugboardWeights.csv";
+                string rotorSingleFileName = Path.Combine(indexFile.dir, indexFile.rotorSingleIndexFileName) + ".csv";
+                string offsetFileName = Path.Combine(indexFile.dir, indexFile.offsetIndexFileName) + ".csv";
+                IndexFile rotorSingleIndexFile = new IndexFile(rotorSingleFileName);
+                IndexFile offsetIndexFile = new IndexFile(offsetFileName);
 
                 numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
                 numberOfSettingsPerRotorCombinationToKeep = getIndex(rotorSingleIndexFile, len,20);
