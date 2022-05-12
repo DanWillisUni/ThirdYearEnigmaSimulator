@@ -53,7 +53,7 @@ namespace EnigmaBreaker.Services
             //testLength(100, 4000, 100, Part.Plugboard, 50, new List<string>() { "RULE", "WEIGHT" },"Results/plugboardComparison");//R 3.5 hour perfect
             //testLength(5, 500, 5, Part.Plugboard, 50 , new List<string>() { "RULE", "WEIGHT" }, "Results/plugboardComparisonClose");//
             //testLength(100, 4000, 100, Part.Offset, 50, new List<string>() { "RULE", "WEIGHT" },"Results/offsetComparison");//R 3 hour
-            testLength(100, 2000, 100, Part.Rotor, 10, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
+            //testLength(100, 2000, 100, Part.Rotor, 10, new List<string>() { "RULE", "WEIGHT" },"Results/rotorComparison");//
             //testLength(10, 500, 10, Part.Rotor, 50, new List<string>() { "RULE","WEIGHT" }, "Results/rotorLengthTestClose");//R perfect
 
             //Modify breaker configuration model, after that I set the indexes for every part
@@ -72,9 +72,9 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
-
-            measureFullRunthrough(100, 2000, 100, 5, "Results/fullMeasureRefined",false);
-            measureFullRunthrough(100, 2000, 100, 5, "Results/fullMeasureUnrefined", true);//40 hours
+                        
+            measureFullRunthrough(100, 2000, 100, 50, "Results/fullMeasureUnrefined", true);//40 hours
+            measureFullRunthrough(100, 2000, 100, 50, "Results/fullMeasureRefined", false);
         }
 
         /// <summary>
@@ -208,9 +208,10 @@ namespace EnigmaBreaker.Services
                 _logger.LogDebug($"Rotor Success: {rotorSuccessRate}%");//RotorMiss = iteration - rotorSuccess
                 _logger.LogDebug($"Offset Success: {offsetSuccessRate}%");//OffsetMiss = (iterations - (iterations-rotorSuccess)) - offsetSuccess
                 _logger.LogDebug($"Plugboard Success: {plugboardSuccessRate}%");
-                _logger.LogDebug($"Success: {fullSuccessRate}%");
+                _logger.LogInformation($"Success: {fullSuccessRate}%");
                 string lineToFile = $"{lengthOfText},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate},{tsRotor.Hours}:{tsRotor.Minutes}:{tsRotor.Seconds}.{tsRotor.Milliseconds},{tsOffset.Hours}:{tsOffset.Minutes}:{tsOffset.Seconds}.{tsOffset.Milliseconds},{tsPlugboard.Hours}:{tsPlugboard.Minutes}:{tsPlugboard.Seconds}.{tsPlugboard.Milliseconds}";//set line to write to the csv file
                 linesToFile.Add(lineToFile);
+                _logger.LogInformation("Finished " + lengthOfText);
             }
 
             File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);//write line to csv file
