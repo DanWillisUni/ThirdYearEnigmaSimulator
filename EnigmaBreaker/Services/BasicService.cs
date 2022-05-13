@@ -21,12 +21,13 @@ namespace EnigmaBreaker.Services
         private readonly BasicConfiguration _bc;
         private readonly EncodingService _encodingService;
         private readonly IFitness.FitnessResolver _resolver;
+        private readonly SharedUtilities _sharedUtilities;
         
         private List<Rotor> allRotors { get; set; }
         private List<Rotor> allReflectors { get; set; }
         private PhysicalConfiguration _physicalConfiguration { get; set; }
         private FitnessConfiguration _fc { get; set; }
-        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,PhysicalConfiguration physicalConfiguration,FitnessConfiguration fc)
+        public BasicService(ILogger<BasicService> logger, BasicConfiguration bc, EncodingService encodingService, IFitness.FitnessResolver fitnessResolver,PhysicalConfiguration physicalConfiguration,FitnessConfiguration fc,SharedUtilities sharedUtilities)
         {
             _logger = logger;
             _bc = bc;
@@ -34,6 +35,7 @@ namespace EnigmaBreaker.Services
             _resolver = fitnessResolver;
             _physicalConfiguration = physicalConfiguration;
             _fc = fc;
+            _sharedUtilities = sharedUtilities;
 
             setNumOfRotors(_bc.numberOfRotorsInUse);
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
@@ -85,6 +87,7 @@ namespace EnigmaBreaker.Services
             Stopwatch timer = new Stopwatch();//create new timer
             timer.Start();//start timer
             BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles);
+            breakerConfiguration = sortBreakerRules(breakerConfiguration, cipherArr.Length);
             List<BreakerResult> rotorResults = getRotorResults(cipherArr,breakerConfiguration);//get the top results for rotor configurations
             if (includeLogging)
             {
@@ -599,6 +602,23 @@ namespace EnigmaBreaker.Services
                 reflectorStartIndex = 1;
             }
             allReflectors = reflectors.GetRange(reflectorStartIndex, num);
+        }
+
+        public BreakerConfiguration sortBreakerRules(BreakerConfiguration breakerConfiguration,int cipherLength)
+        {
+            if (breakerConfiguration.RotorFitness == "RULE")
+            {
+                breakerConfiguration.RotorFitness = _sharedUtilities.getRes(cipherLength, IFitness.Part.Rotor);
+            }
+            if (breakerConfiguration.OffsetFitness == "RULE")
+            {
+                breakerConfiguration.OffsetFitness = _sharedUtilities.getRes(cipherLength, IFitness.Part.Offset);
+            }
+            if (breakerConfiguration.PlugboardFitness == "RULE")
+            {
+                breakerConfiguration.PlugboardFitness = _sharedUtilities.getRes(cipherLength, IFitness.Part.Plugboard);
+            }
+            return breakerConfiguration;
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using EnigmaBreaker.Configuration.Models;
+using EnigmaBreaker.Services.Fitness;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +23,7 @@ namespace EnigmaBreaker.Models
         /// </summary>
         /// <param name="len">length of the ciphertext</param>
         /// <param name="withoutRefinement">This is useful for measuring test how much difference was made by the tests</param>
-        public BreakerConfiguration(int len, IndexFiles indexFile,bool withoutRefinement=false)
+        public BreakerConfiguration(int len, IndexFiles indexFile, bool withoutRefinement=false)
         {            
             if (!withoutRefinement)//if it is refined
             {
@@ -30,11 +31,11 @@ namespace EnigmaBreaker.Models
                 RotorFitness = "RULE";
                 OffsetFitness = "RULE";
                 PlugboardFitness = "RULE";
-                if (len < 300)
+                /*if (len < 300)
                 {
                     PlugboardFitness = "WEIGHT";
-                    OffsetFitness = "WEIGHT";
-                }
+                    RotorFitness = "WEIGHT";
+                }*/
 
                 string rotorSingleFileName = Path.Combine(indexFile.dir, indexFile.rotorSingleIndexFileName) + ".csv";
                 string offsetFileName = Path.Combine(indexFile.dir, indexFile.offsetIndexFileName) + ".csv";
@@ -43,7 +44,7 @@ namespace EnigmaBreaker.Models
 
                 numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
                 numberOfSettingsPerRotorCombinationToKeep = getIndex(rotorSingleIndexFile, len,20);
-                
+
                 numberOfOffsetToKeep = getIndex(offsetIndexFile, len); //altered because it increases the computing time as the plugboard is searching through a few of them
                 numberOfSettingsPerRotationCombinationToKeep = 20;//set high because it makes little differnece to the timing
                 

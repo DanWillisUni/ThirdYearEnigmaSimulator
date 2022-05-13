@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using EnigmaBreaker.Configuration.Models;
 using EnigmaBreaker.Models;
+using static EnigmaBreaker.Services.Fitness.IFitness;
 
 namespace EnigmaBreaker.Services.Fitness
 {
@@ -59,6 +60,22 @@ namespace EnigmaBreaker.Services.Fitness
                 r = wf[wf.Count - 1].weights[fitnessString];//if the file doesnt go high enough use the last one in the file
             }
             return r;
+        }
+
+        public string getRes(int len, Part part)
+        {
+            double highest = 0;
+            string highestString = null;
+            foreach (string fitnessStr in new List<string>() { "IOC", "S", "BI", "TRI", "QUAD" })//for every fitness functions
+            {
+                double current = getHitRate(len, fitnessStr, part);//get the hitrate at this length
+                if (current > highest) //if its higher than previous highest
+                {
+                    highest = current;//set the new highest
+                    highestString = fitnessStr;
+                }
+            }
+            return highestString;
         }
     }
 }

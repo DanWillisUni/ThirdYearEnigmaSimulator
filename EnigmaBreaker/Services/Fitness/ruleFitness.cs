@@ -23,19 +23,11 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {
             int len = input.Length;
-            double highest = 0;
-            string highestString = null;
-            foreach (string fitnessStr in new List<string>() { "IOC","S", "BI", "TRI", "QUAD" })//for every fitness functions
-            {
-                double current = _sharedUtilities.getHitRate(input.Length, fitnessStr, part);//get the hitrate at this length
-                if(current > highest) //if its higher than previous highest
-                {
-                    highest = current;//set the new highest
-                    highestString = fitnessStr;
-                }
-            }
+            string highestString = _sharedUtilities.getRes(len, part);
             IFitness newFit = _resolver(highestString);//resolve to get the highest
             return newFit.getFitness(input, Part.None);//get and return fitness of the other fitness function
         }
+
+        
     }
 }
