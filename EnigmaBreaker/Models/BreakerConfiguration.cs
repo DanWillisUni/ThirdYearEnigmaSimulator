@@ -43,9 +43,9 @@ namespace EnigmaBreaker.Models
                 IndexFile offsetIndexFile = new IndexFile(offsetFileName);
 
                 numberOfRotorsToKeep = 20; // higher because it makes very little difference to the computing time as 1 iteration of offset is under 4 seconds at 2000 chars
-                numberOfSettingsPerRotorCombinationToKeep = getIndex(rotorSingleIndexFile, len,20);
+                numberOfSettingsPerRotorCombinationToKeep = 20;//getIndex(rotorSingleIndexFile, len,20);
 
-                numberOfOffsetToKeep = getIndex(offsetIndexFile, len); //altered because it increases the computing time as the plugboard is searching through a few of them
+                numberOfOffsetToKeep = 20;//getIndex(offsetIndexFile, len); //altered because it increases the computing time as the plugboard is searching through a few of them
                 numberOfSettingsPerRotationCombinationToKeep = 20;//set high because it makes little differnece to the timing
                 
                 numberOfSinglePlugboardSettingsToKeep = 1;//set to 1 as it is far slower and hardly more accurate using 2        

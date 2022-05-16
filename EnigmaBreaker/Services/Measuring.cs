@@ -65,16 +65,28 @@ namespace EnigmaBreaker.Services
             //testIndex(100, 2000, 100, Part.Rotor, 10, "Results/rotorsIndexTest", 1, 10, 1, "F"); // perfect
 
             //Now it is ready to test how it varies based on plugboard length
-            //testPlugboardLength(100, 2000, 100, Part.Plugboard, 250, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
+            //testPlugboardLength(100, 2000, 100, Part.Plugboard, 100, "Results/plugboardPlugboardLengthTest", 0, 10, 1); //15 hours
             //testPlugboardLength(100, 2000, 100, Part.Offset, 500, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
             //testPlugboardLength(100, 2000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
             //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
-                                    
-            measureFullRunthrough(100, 2000, 100, 50, "Results/fullMeasureRefined", false);
-            measureFullRunthrough(100, 2000, 100, 50, "Results/fullMeasureUnrefined", true);//40 hours
+
+            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureUnrefined", true);//40 hours
+            File.WriteAllText("Results/fullMeasureRefined.csv", "");
+            List<int> left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
+            while(left.Count > 0){
+                try
+                {
+                    measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureRefined", false);
+                }
+                catch
+                {
+                    _logger.LogError("Failed refined");
+                }
+                left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
+            }
         }
 
         /// <summary>
@@ -119,7 +131,8 @@ namespace EnigmaBreaker.Services
             string plaintext = _bs.getText(to * 2);//gets the random text
             
             List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime" };
-            for (int lengthOfText = from; lengthOfText <= to; lengthOfText += step)//for each length of text
+            //for (int lengthOfText = from; lengthOfText <= to; lengthOfText += step)//for each length of text
+            foreach(int lengthOfText in getLengthsToDo(from,to,step,filePathAndName + ".csv"))
             {                
                 int[] plainArr = EncodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, lengthOfText).ToArray();//cut the text to size required
                 //set the success counts and timers to 0
@@ -135,7 +148,7 @@ namespace EnigmaBreaker.Services
                     string emJson = JsonConvert.SerializeObject(em);
                     EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(emJson);//get copy of the enigma model to compare to
 
-                    _logger.LogDebug(em.ToString());
+                    //_logger.LogDebug(em.ToString());
                     int[] cipherArr = _encodingService.encode(plainArr, em);//encode to get the cipher array
                     BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles,withoutRefinement);//get the configuration
                     breakerConfiguration = _bs.sortBreakerRules(breakerConfiguration, cipherArr.Length);
@@ -220,11 +233,37 @@ namespace EnigmaBreaker.Services
                 _logger.LogInformation($"Success: {fullSuccessRate}%");
                 string lineToFile = $"{lengthOfText},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate},{tsRotor.Hours}:{tsRotor.Minutes}:{tsRotor.Seconds}.{tsRotor.Milliseconds},{tsOffset.Hours}:{tsOffset.Minutes}:{tsOffset.Seconds}.{tsOffset.Milliseconds},{tsPlugboard.Hours}:{tsPlugboard.Minutes}:{tsPlugboard.Seconds}.{tsPlugboard.Milliseconds}";//set line to write to the csv file
                 linesToFile.Add(lineToFile);
+                File.AppendAllLines(filePathAndName + ".csv", new List<string>() { lineToFile + "\n" });
                 _logger.LogInformation("Finished " + lengthOfText);
             }
 
-            File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);//write line to csv file
+            //File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);//write line to csv file
+            //File.Delete(filePathAndName + ".csv");
             _logger.LogInformation("Writing to file");
+        }
+
+        private List<int> getLengthsToDo(int start,int stop,int interval,string filename)
+        {
+            List<int> r = new List<int>();
+            List<string> lines = File.ReadAllLines(filename).ToList();
+            for(int i = start;i<= stop; i += interval)
+            {
+                bool found = false;
+                foreach (string line in lines)
+                {
+                    string[] lineSplit = line.Split(",");
+                    if (lineSplit[0] == i.ToString())
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    r.Add(i);
+                }
+            }            
+            return r;
         }
         
         #region tests
