@@ -72,14 +72,13 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
-
-            //measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureUnrefined", true);//40 hours
-            File.WriteAllText("Results/fullMeasureRefined.csv", "");
+                        
+            File.WriteAllText("Results/fullMeasureRefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime");
             List<int> left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
             while(left.Count > 0){
                 try
                 {
-                    measureFullRunthrough(100, 2000, 100, 100, "Results/fullMeasureRefined", false);
+                    measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureRefined", false);
                 }
                 catch
                 {
@@ -87,6 +86,7 @@ namespace EnigmaBreaker.Services
                 }
                 left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
             }
+            measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace EnigmaBreaker.Services
                 _logger.LogInformation($"Success: {fullSuccessRate}%");
                 string lineToFile = $"{lengthOfText},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate},{tsRotor.Hours}:{tsRotor.Minutes}:{tsRotor.Seconds}.{tsRotor.Milliseconds},{tsOffset.Hours}:{tsOffset.Minutes}:{tsOffset.Seconds}.{tsOffset.Milliseconds},{tsPlugboard.Hours}:{tsPlugboard.Minutes}:{tsPlugboard.Seconds}.{tsPlugboard.Milliseconds}";//set line to write to the csv file
                 linesToFile.Add(lineToFile);
-                File.AppendAllLines(filePathAndName + ".csv", new List<string>() { lineToFile + "\n" });
+                File.AppendAllLines(filePathAndName + ".csv", new List<string>() { lineToFile });
                 _logger.LogInformation("Finished " + lengthOfText);
             }
 
