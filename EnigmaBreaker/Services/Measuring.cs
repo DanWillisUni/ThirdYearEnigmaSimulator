@@ -69,9 +69,9 @@ namespace EnigmaBreaker.Services
             //testPlugboardLength(100, 2000, 100, Part.Offset, 500, "Results/offsetPlugboardLengthTest", 0, 10, 1);//10 hour
             //testPlugboardLength(100, 2000, 100, Part.Rotor, 100, "Results/rotorPlugboardLengthTest",0,10,1);//16 hour
 
-            //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
-            //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
-            //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
+            //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 1, 1);//R 16mins perfect
+            //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 20, 20, 1);//R 1.5 perfect
+            //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 20, 20, 1);//R 18 hours perfect
 
             File.WriteAllText("Results/fullMeasureRefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
             File.WriteAllText("Results/fullMeasureUnrefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
@@ -81,8 +81,8 @@ namespace EnigmaBreaker.Services
             {
                 try
                 {
-                    measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureRefined", false);
-                    measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
+                    measureFullRunthrough(100, 2000, 100, 10, "Results/fullMeasureRefined", false);
+                    measureFullRunthrough(100, 2000, 100, 10, "Results/fullMeasureUnrefined", true);//40 hours
                 }
                 catch
                 {
