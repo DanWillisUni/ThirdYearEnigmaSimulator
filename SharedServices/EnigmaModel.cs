@@ -112,7 +112,6 @@ namespace SharedCL
                 {
                     newPlugboard.Add(entry.Value, entry.Key);
                 }
-                r += " ";//add a space
             }
             var p = from entry in newPlugboard orderby entry.Key ascending select entry;//sort the plugboard using linq
 

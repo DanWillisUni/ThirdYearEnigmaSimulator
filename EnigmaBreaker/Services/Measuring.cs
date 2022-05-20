@@ -72,21 +72,25 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, Part.Plugboard, 5, "Results/plugboardSpeedTest", 1, 2, 1);//R 16mins perfect
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 1, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 1, 10, 1);//R 18 hours perfect
-                        
-            File.WriteAllText("Results/fullMeasureRefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime");
+
+            File.WriteAllText("Results/fullMeasureRefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
+            File.WriteAllText("Results/fullMeasureUnrefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
             List<int> left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
-            while(left.Count > 0){
+            List<int> leftUn = getLengthsToDo(100, 2000, 100, "Results/fullMeasureUnrefined.csv");
+            while (left.Count > 0 | leftUn.Count > 0)
+            {
                 try
                 {
                     measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureRefined", false);
+                    measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
                 }
                 catch
                 {
-                    _logger.LogError("Failed refined");
+                    _logger.LogError("Failed");
                 }
                 left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
+                leftUn = getLengthsToDo(100, 2000, 100, "Results/fullMeasureUnrefined.csv");
             }
-            measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureUnrefined", true);//40 hours
         }
 
         /// <summary>
@@ -129,12 +133,11 @@ namespace EnigmaBreaker.Services
         public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName,bool withoutRefinement)
         {
             string plaintext = _bs.getText(to * 2);//gets the random text
-            
-            List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime" };
+            List<int> plainList = EncodingService.preProccessCiphertext(plaintext).ToList();//convert plaintext to int list
             //for (int lengthOfText = from; lengthOfText <= to; lengthOfText += step)//for each length of text
             foreach(int lengthOfText in getLengthsToDo(from,to,step,filePathAndName + ".csv"))
             {                
-                int[] plainArr = EncodingService.preProccessCiphertext(plaintext).ToList().GetRange(0, lengthOfText).ToArray();//cut the text to size required
+                int[] plainArr = plainList.GetRange(0, lengthOfText).ToArray();//cut the text to size required
                 //set the success counts and timers to 0
                 int rotorSuccess = 0;
                 int offsetSuccess = 0;
@@ -150,11 +153,11 @@ namespace EnigmaBreaker.Services
 
                     //_logger.LogDebug(em.ToString());
                     int[] cipherArr = _encodingService.encode(plainArr, em);//encode to get the cipher array
-                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles,withoutRefinement);//get the configuration
-                    breakerConfiguration = _bs.sortBreakerRules(breakerConfiguration, cipherArr.Length);
+                    BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length, _fc.indexFiles, withoutRefinement);//get configuration
+                    breakerConfiguration = _bs.sortBreakerRules(breakerConfiguration, cipherArr.Length); 
                     Stopwatch stopWatchRotor = new Stopwatch();
                     stopWatchRotor.Start();//start the timer
-                    List<BreakerResult> initialRotorSetupResults = _bs.sortBreakerList(_bs.getRotorResults(cipherArr, breakerConfiguration));//get the rotors
+                    List<BreakerResult> initialRotorSetupResults = _bs.getRotorResults(cipherArr, breakerConfiguration);//get the rotors
                     stopWatchRotor.Stop();//stop the timer
                     TimeSpan tsRotorSingle = stopWatchRotor.Elapsed;
                     rotorTS = rotorTS.Add(tsRotorSingle);
@@ -206,25 +209,19 @@ namespace EnigmaBreaker.Services
                 TimeSpan tsRotor = new TimeSpan(rotorTS.Ticks / iterations);
                 TimeSpan tsOffset = TimeSpan.Zero;
                 TimeSpan tsPlugboard = TimeSpan.Zero;
-                if (iterations - (iterations - rotorSuccess) > 0)
-                {
-                    tsOffset = new TimeSpan(offsetTS.Ticks / (iterations - (iterations - rotorSuccess)));
-                }
-                if ((iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)) > 0)
-                {
-                    tsPlugboard = new TimeSpan(plugboardTS.Ticks / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
-                }
-                
+                                
                 double rotorSuccessRate = (double)(rotorSuccess * 100 / iterations);
                 double offsetSuccessRate = 0;
                 if(rotorSuccessRate > 0)
                 {
                     offsetSuccessRate = (double)(offsetSuccess * 100 / (iterations - (iterations - rotorSuccess)));
+                    tsOffset = new TimeSpan(offsetTS.Ticks / (iterations - (iterations - rotorSuccess)));
                 }
                 double plugboardSuccessRate = 0;
                 if (offsetSuccessRate > 0)
                 {
                     plugboardSuccessRate = (double)(plugboardSuccess * 100 / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
+                    tsPlugboard = new TimeSpan(plugboardTS.Ticks / (iterations - (iterations - rotorSuccess) - ((iterations - (iterations - rotorSuccess)) - offsetSuccess)));
                 }                
                 double fullSuccessRate = (double)(plugboardSuccess * 100 / iterations);
                 _logger.LogDebug($"Rotor Success: {rotorSuccessRate}%");//RotorMiss = iteration - rotorSuccess
@@ -232,7 +229,7 @@ namespace EnigmaBreaker.Services
                 _logger.LogDebug($"Plugboard Success: {plugboardSuccessRate}%");
                 _logger.LogInformation($"Success: {fullSuccessRate}%");
                 string lineToFile = $"{lengthOfText},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate},{tsRotor.Hours}:{tsRotor.Minutes}:{tsRotor.Seconds}.{tsRotor.Milliseconds},{tsOffset.Hours}:{tsOffset.Minutes}:{tsOffset.Seconds}.{tsOffset.Milliseconds},{tsPlugboard.Hours}:{tsPlugboard.Minutes}:{tsPlugboard.Seconds}.{tsPlugboard.Milliseconds}";//set line to write to the csv file
-                linesToFile.Add(lineToFile);
+                
                 File.AppendAllLines(filePathAndName + ".csv", new List<string>() { lineToFile });
                 _logger.LogInformation("Finished " + lengthOfText);
             }

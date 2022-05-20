@@ -134,21 +134,23 @@ namespace UnitTests
                                                 actualRotors.Add(new RotorModel(right, r));
                                                 EnigmaModel emActual = new EnigmaModel(actualRotors, new RotorModel(refl), new Dictionary<int, int>());
 
-                                                for (int lv = -1; l <= 1; l++)
+                                                for (int lv = -1; lv <= 1; lv++)
                                                 {
-                                                    for (int mv = -1; m <= 1; m++)
+                                                    for (int mv = -1; mv <= 1; mv++)
                                                     {
-                                                        for (int rv = -1; r <= 1; r++)
+                                                        for (int rv = -1; rv <= 1; rv++)
                                                         {
                                                             List<RotorModel> attemptRotors = new List<RotorModel>();
                                                             attemptRotors.Add(new RotorModel(left, EncodingService.mod26(l + lv)));
                                                             attemptRotors.Add(new RotorModel(middle, EncodingService.mod26(m + mv)));
                                                             attemptRotors.Add(new RotorModel(right, EncodingService.mod26(r + rv)));
                                                             EnigmaModel emAttempt = new EnigmaModel(attemptRotors, new RotorModel(refl), new Dictionary<int, int>());
+                                                            
                                                             Assert.IsTrue(Measuring.compareRotors(emActual, emAttempt));
+                                                                                                                      
                                                         }
                                                     }
-                                                }
+                                                } 
                                             }
                                         }
                                     }
@@ -343,12 +345,11 @@ namespace UnitTests
                 }
             }
         }
-
         [Test]
         public void testRotorComparisonFalse()
         {
-            int iterations = 1000;
-            for(int i =0;i< iterations;i++)
+            int iterations = 100000;
+            for (int i = 0; i < iterations; i++)
             {
                 EnigmaModel actual = EnigmaModel.randomizeEnigma(pc);
                 actual.plugboard = new Dictionary<int, int>();
@@ -358,9 +359,9 @@ namespace UnitTests
                 string emJson = JsonConvert.SerializeObject(actual);
 
                 EnigmaModel changeRefl = JsonConvert.DeserializeObject<EnigmaModel>(emJson);//copy enigma
-                foreach(Rotor refl in pc.reflectors)
+                foreach (Rotor refl in pc.reflectors)
                 {
-                    if(refl.name != actual.reflector.rotor.name)
+                    if (refl.name != actual.reflector.rotor.name)
                     {
                         RotorModel currentReflector = new RotorModel(refl);
                         changeRefl.reflector = currentReflector;
@@ -369,7 +370,7 @@ namespace UnitTests
                 }
 
                 EnigmaModel changeRotor = JsonConvert.DeserializeObject<EnigmaModel>(emJson);//copy enigma
-                for(int rIndex = 0;rIndex< 3; rIndex++)
+                for (int rIndex = 0; rIndex < 3; rIndex++)
                 {
                     foreach (Rotor rotor in pc.rotors)
                     {
@@ -380,15 +381,15 @@ namespace UnitTests
                             Assert.IsFalse(Measuring.compareRotors(actual, changeRotor));
                         }
                     }
-                } 
-                
+                }
+
                 EnigmaModel changeRotation = JsonConvert.DeserializeObject<EnigmaModel>(emJson);//copy enigma
                 for (int rIndex = 0; rIndex < 3; rIndex++)
                 {
-                    for(int rotationChange = 2;rotationChange < 24;rotationChange++)
-                    {        
-                        changeRotation.rotors[rIndex].rotation = EncodingService.mod26(actual.rotors[rIndex].rotation-rotationChange);
-                        Assert.IsFalse(Measuring.compareRotors(actual, changeRotation));                        
+                    for (int rotationChange = 2; rotationChange < 24; rotationChange++)
+                    {
+                        changeRotation.rotors[rIndex].rotation = EncodingService.mod26(actual.rotors[rIndex].rotation - rotationChange);
+                        Assert.IsFalse(Measuring.compareRotors(actual, changeRotation));
                     }
                 }
             }
