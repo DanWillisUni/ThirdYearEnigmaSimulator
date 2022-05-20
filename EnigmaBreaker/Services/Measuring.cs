@@ -73,24 +73,8 @@ namespace EnigmaBreaker.Services
             //testSpeed(100, 2000, 100, Part.Offset, 5, "Results/offsetSpeedTest", 20, 20, 1);//R 1.5 perfect
             //testSpeed(100, 2000, 100, Part.Rotor, 5, "Results/rotorsSpeedTest", 20, 20, 1);//R 18 hours perfect
 
-            File.WriteAllText("Results/fullMeasureRefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
-            File.WriteAllText("Results/fullMeasureUnrefined.csv", ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime\n");
-            List<int> left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
-            List<int> leftUn = getLengthsToDo(100, 2000, 100, "Results/fullMeasureUnrefined.csv");
-            while (left.Count > 0 | leftUn.Count > 0)
-            {
-                try
-                {
-                    measureFullRunthrough(100, 2000, 100, 10, "Results/fullMeasureRefined", false);
-                    measureFullRunthrough(100, 2000, 100, 10, "Results/fullMeasureUnrefined", true);//40 hours
-                }
-                catch
-                {
-                    _logger.LogError("Failed");
-                }
-                left = getLengthsToDo(100, 2000, 100, "Results/fullMeasureRefined.csv");
-                leftUn = getLengthsToDo(100, 2000, 100, "Results/fullMeasureUnrefined.csv");
-            }
+            measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureRefined", false);
+            measureFullRunthrough(100, 2000, 100, 1000, "Results/fullMeasureUnrefined", true);
         }
 
         /// <summary>
@@ -132,10 +116,10 @@ namespace EnigmaBreaker.Services
         /// <param name="withoutRefinement"></param> True if you want to use the most recent version else false
         public void measureFullRunthrough(int from, int to, int step, int iterations, string filePathAndName,bool withoutRefinement)
         {
+            List<string> linesToFile = new List<string>() { ",RotorSuccess,OffsetSuccess,PlugboardSuccess,FullSuccess,RotorTime,OffsetTime,PlugboardTime" };
             string plaintext = _bs.getText(to * 2);//gets the random text
             List<int> plainList = EncodingService.preProccessCiphertext(plaintext).ToList();//convert plaintext to int list
-            //for (int lengthOfText = from; lengthOfText <= to; lengthOfText += step)//for each length of text
-            foreach(int lengthOfText in getLengthsToDo(from,to,step,filePathAndName + ".csv"))
+            for (int lengthOfText = from; lengthOfText <= to; lengthOfText += step)//for each length of text
             {                
                 int[] plainArr = plainList.GetRange(0, lengthOfText).ToArray();//cut the text to size required
                 //set the success counts and timers to 0
@@ -229,39 +213,14 @@ namespace EnigmaBreaker.Services
                 _logger.LogDebug($"Plugboard Success: {plugboardSuccessRate}%");
                 _logger.LogInformation($"Success: {fullSuccessRate}%");
                 string lineToFile = $"{lengthOfText},{rotorSuccessRate},{offsetSuccessRate},{plugboardSuccessRate},{fullSuccessRate},{tsRotor.Hours}:{tsRotor.Minutes}:{tsRotor.Seconds}.{tsRotor.Milliseconds},{tsOffset.Hours}:{tsOffset.Minutes}:{tsOffset.Seconds}.{tsOffset.Milliseconds},{tsPlugboard.Hours}:{tsPlugboard.Minutes}:{tsPlugboard.Seconds}.{tsPlugboard.Milliseconds}";//set line to write to the csv file
-                
-                File.AppendAllLines(filePathAndName + ".csv", new List<string>() { lineToFile });
+                linesToFile.Add(lineToFile);                
                 _logger.LogInformation("Finished " + lengthOfText);
             }
 
-            //File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);//write line to csv file
+            File.WriteAllLines(filePathAndName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv", linesToFile);//write line to csv file
             //File.Delete(filePathAndName + ".csv");
             _logger.LogInformation("Writing to file");
-        }
-
-        private List<int> getLengthsToDo(int start,int stop,int interval,string filename)
-        {
-            List<int> r = new List<int>();
-            List<string> lines = File.ReadAllLines(filename).ToList();
-            for(int i = start;i<= stop; i += interval)
-            {
-                bool found = false;
-                foreach (string line in lines)
-                {
-                    string[] lineSplit = line.Split(",");
-                    if (lineSplit[0] == i.ToString())
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    r.Add(i);
-                }
-            }            
-            return r;
-        }
+        }        
         
         #region tests
         /// <summary>
