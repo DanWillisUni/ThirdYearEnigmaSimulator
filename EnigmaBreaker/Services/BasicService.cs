@@ -40,6 +40,9 @@ namespace EnigmaBreaker.Services
             setNumOfRotors(_bc.numberOfRotorsInUse);
             setNumOfReflectors(_bc.numberOfReflectorsInUse);
         }
+       /// <summary>
+       /// The root method for this service which is the only one that should be called externally
+       /// </summary>
         public void root()
         {
             if(_bc.inputFormat == "RAND")
@@ -51,8 +54,10 @@ namespace EnigmaBreaker.Services
                 getUserInputCipherText();
             }
         }
-
-        public void testRandom()
+        /// <summary>
+        /// Tests a random peice of ciphertext
+        /// </summary>
+        private void testRandom()
         {
             string plaintext = getText();//get a random plaintext as string
             EnigmaModel em = EnigmaModel.randomizeEnigma(_physicalConfiguration, _bc.numberOfRotorsInUse, _bc.numberOfReflectorsInUse, _bc.maxPlugboardSettings);//get a new random enigma model
@@ -62,7 +67,7 @@ namespace EnigmaBreaker.Services
             decryption(ciphertext);
         }
 
-        public void getUserInputCipherText()
+        private void getUserInputCipherText()
         {
             Console.WriteLine("Please enter a ciphertext:\n");
             string cipherText = Console.ReadLine();
@@ -72,13 +77,11 @@ namespace EnigmaBreaker.Services
         }
 
         /// <summary>
-        /// Randomly select a plaintext
-        /// Randomly generate an Enigma configuration
-        /// Encrypt the plaintext with the Engma configuration
-        /// 
-        /// Break the ciphertext and print the attempt at plaintext
-        /// Print the time taken
+        /// Decrypts the ciphertext
         /// </summary>
+        /// <param name="ciphertext">text to decypher</param>
+        /// <param name="includeLogging"></param>
+        /// <returns></returns>
         public string decryption(string ciphertext,bool includeLogging = false)            
         { 
             _logger.LogInformation($"Ciphertext: {ciphertext.Length}\n" + ciphertext);//print the ciphertext

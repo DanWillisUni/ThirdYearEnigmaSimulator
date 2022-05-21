@@ -73,7 +73,7 @@ namespace UnitTests
             Dictionary<string,double> inputs = new Dictionary<string, double>()
             {
                 {"abcdefghijklmnopqrstuvwxyz",0.0 },
-                {"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",1.0 },
+                {"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",0.51 },
                 {"a",26.0 },
                 {"aa",26.0 },
                 { "aaabbc",6.93},
@@ -85,7 +85,7 @@ namespace UnitTests
                 Assert.AreEqual(entry.Value, Math.Round(actual, 2));
             }
         }
-        [Test]
+        /*[Test]
         public void S()
         {
 
@@ -104,7 +104,7 @@ namespace UnitTests
         public void QUAD()
         {
 
-        }
+        }*/
 
         //Test Comparisons
         [Test]

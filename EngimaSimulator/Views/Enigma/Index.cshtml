@@ -11,25 +11,25 @@
         <p>Please go to the Configuration tab to configure your enigma</p>
     </div>
 }
-<!--If the rotors are null-->
-else if (Model.enigmaModel.rotors?.Count == 0)
+else if (Model.enigmaModel.rotors?.Count == 0) 
 {
+    <!--If the rotors are null-->
     <!--Tell the users to configure the rotors-->
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your rotors</p>
     </div>
 }
-<!--If reflector is null-->
 else if (Model.enigmaModel.reflector == null)
 {
+    <!--If reflector is null-->
     <!--Tell the user to configure a reflector-->
     <div class="text-center">
         <p>Please go to the Configuration tab to configure your reflector</p>
     </div>
 }
-<!--No plugboard requirement as it is possible to not have a plugboard-->
 else
 {
+    <!--No plugboard requirement as it is possible to not have a plugboard-->
     <table class="table table-striped table-bordered table-sm small">
         <!--Table for info on each rotor-->
         <thead>

@@ -35,13 +35,13 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {
             double fitness = 0;
-            int current = 0;
-            int next = input[0];
+            int a = 0;
+            int b = input[0];
             for (int i = 1; i < input.Length; i++)//for each letter
             {
-                current = next;//set the previous
-                next = input[i];//set the next
-                fitness += bigrams[biIndex(current, next)];//add the value from the bigrams to the fitness to return
+                a = b;//set the previous
+                b = input[i];//set the next
+                fitness += bigrams[biIndex(a, b)];//add the value from the bigrams to the fitness to return
             }
             return fitness;
         }

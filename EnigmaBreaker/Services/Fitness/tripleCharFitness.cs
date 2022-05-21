@@ -32,15 +32,15 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {
             double fitness = 0;
-            int current = 0;
-            int next1 = input[0];
-            int next2 = input[1];
+            int a = 0;
+            int b = input[0];
+            int c = input[1];
             for (int i = 2; i < input.Length; i++)//for every 3 consecutive letters
             {
-                current = next1;
-                next1 = next2;
-                next2 = input[i];
-                fitness += trigrams[triIndex(current, next1, next2)];//get the score for those letter and add to the sum
+                a = b;
+                b = c;
+                c = input[i];
+                fitness += trigrams[triIndex(a, b, c)];//get the score for those letter and add to the sum
             }
             return fitness;
         }

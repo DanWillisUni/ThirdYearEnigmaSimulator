@@ -33,17 +33,17 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {
             double fitness = 0;
-            int current = 0;
-            int next1 = input[0];
-            int next2 = input[1];
-            int next3 = input[2];
+            int a = 0;
+            int b = input[0];
+            int c = input[1];
+            int d = input[2];
             for (int i = 3; i < input.Length; i++)//for each group for 4 letters
             {
-                current = next1;
-                next1 = next2;
-                next2 = next3;
-                next3 = input[i];
-                fitness += quadgrams[quadIndex(current, next1, next2,next3)];//add the value of the quadgram to that
+                a = b;
+                b = c;
+                c = d;
+                d = input[i];
+                fitness += quadgrams[quadIndex(a, b, c,d)];//add the value of the quadgram to that
             }
             return fitness;
         }
