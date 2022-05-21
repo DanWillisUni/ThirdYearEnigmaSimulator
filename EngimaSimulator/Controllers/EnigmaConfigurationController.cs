@@ -104,10 +104,14 @@ namespace EngimaSimulator.Controllers
                     foreach (RotorModel r in currentSave.rotors)// for each rotor in the current model
                     {
                         modelOut.liveRotorsNames.Add(r.rotor.name);//add the names to the model out
+                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//set teh rotation on the out model
+                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//set the offset on the out model
                     }
                     _logger.LogInformation("Previous Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
                     //order swap
                     List<string> tempRotors = new List<string>();
+                    List<string> tempRotation = new List<string>();
+                    List<string> tempOffset = new List<string>();
                     for(int newRotorOrderIndex = 0; newRotorOrderIndex<=newRotorOrder.Count - 1; newRotorOrderIndex++)//for every new rotor
                     {
                         int counterSwap = 0;
@@ -116,33 +120,41 @@ namespace EngimaSimulator.Controllers
                             if(newRotorOrderItem-1 == newRotorOrderIndex)//if the item -1 is equal to the index
                             {
                                 tempRotors.Add(modelOut.liveRotorsNames[counterSwap]);//add the swap that needs to happen to the temp rotors
+                                tempRotation.Add(modelOut.rotorStepOffset[2 * counterSwap]);
+                                tempOffset.Add(modelOut.rotorStepOffset[2 * counterSwap + 1]);
                                 break;//break the for each item
                             }
                             counterSwap++;//increase the counter swap
                         }
                     }                    
                     modelOut.liveRotorsNames = tempRotors;//set the model out rotors to the new order
+                    modelOut.rotorStepOffset = new List<string>();
+                    for(int i = 0;i < tempRotation.Count; i++)
+                    {
+                        modelOut.rotorStepOffset.Add(tempRotation[i]);
+                        modelOut.rotorStepOffset.Add(tempOffset[i]);
+                    }
                     _logger.LogInformation("New Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
                     //update the enigma model rotor order
-                    foreach (string rn in modelOut.liveRotorsNames)//for each rotor name in the new order
+                    for(int i = 0; i< modelOut.liveRotorsNames.Count;i++)//for each rotor name in the new order
                     {
                         foreach (Rotor r in _physicalConfiguration.rotors)//for each rotor in the physical configuration
                         {
-                            if (r.name == rn)//if the rotor name matches
+                            if (r.name == modelOut.liveRotorsNames[i])//if the rotor name matches
                             {
-                                enigmaModel.rotors.Add(new RotorModel(r));//add the rotor model to the enigma rotors
+                                enigmaModel.rotors.Add(new RotorModel(r, (int)Convert.ToChar(modelOut.rotorStepOffset[2 * i]) - 65, Convert.ToInt16(modelOut.rotorStepOffset[2 * i + 1])));//add the rotor model to the enigma rotors
                                 break;//break the for
                             }
                         }
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes of the enigma model
                     //modelOut.liveRotorsNames = new List<string>();
-                    foreach (RotorModel r in enigmaModel.rotors)//for each rotor
+                    /*foreach (RotorModel r in enigmaModel.rotors)//for each rotor
                     {
                         //modelOut.liveRotorsNames.Add(r.rotor.name);
                         modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//add the rotation to the out model
                         modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//add the ringoffset to the out model
-                    }
+                    }*/
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
                     return View(modelOut);
                 case "rotorSaveEdit"://edit offset and step
