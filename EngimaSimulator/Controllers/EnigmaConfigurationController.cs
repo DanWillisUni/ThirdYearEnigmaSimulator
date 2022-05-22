@@ -144,7 +144,7 @@ namespace EngimaSimulator.Controllers
                             {
                                 enigmaModel.rotors.Add(new RotorModel(r, (int)Convert.ToChar(modelOut.rotorStepOffset[2 * i]) - 65, Convert.ToInt16(modelOut.rotorStepOffset[2 * i + 1])));//add the rotor model to the enigma rotors
                                 break;//break the for
-                            }
+                            } 
                         }
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes of the enigma model

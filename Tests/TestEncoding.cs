@@ -65,123 +65,113 @@ namespace UnitTests
 
             encodingService = new EncodingService();
         }
-
-        /// <summary>
-        /// Double encodes a pangram with all possible rotations
-        /// </summary>
-        [Test]
-        public void MirrorForAllRotations()
-        {
-            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";//pangram
-            //for each rotation combination
-            for (int l = 0; l <= 25; l++)
-            {
-                for (int m = 0; m <= 25; m++)
-                {
-                    for (int r = 0; r <= 25; r++)
-                    {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomize enigma
-                        //set the rotation
-                        em.rotors[0].rotation = l;
-                        em.rotors[1].rotation = m;
-                        em.rotors[2].rotation = r;
-                        string json = JsonConvert.SerializeObject(em);//deep copy
-                        EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                        string outFirst = encodingService.encode(qbfjold, em);//use first enigma model to do 1 encoding
-                        string outFromDoubleEncode = encodingService.encode(outFirst, em2);//put the output of the first encoding into the second and use the copy of the enigma model
-                        Assert.AreEqual(qbfjold, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
-                    }
-                }
-            }
-        }
-        /// <summary>
-        /// Double encode a pangram with all possible rotor ring offsets
-        /// </summary>
-        [Test]
-        public void MirrorForAllRingSettings()
-        {
-            const string qbfjold = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG";//pangram
-            //for each offset combination
-            for (int l = 0; l <= 25; l++)
-            {
-                for (int m = 0; m <= 25; m++)
-                {
-                    for (int r = 0; r <= 25; r++)
-                    {
-                        EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//create a random enigma as we only care about the offset
-                        //set each offset
-                        em.rotors[0].ringOffset = l;
-                        em.rotors[1].ringOffset = m;
-                        em.rotors[2].ringOffset = r;
-                        string json = JsonConvert.SerializeObject(em);//deep copy
-                        EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                        string outFirst = encodingService.encode(qbfjold, em);//use first enigma model to do 1 encoding
-                        string outFromDoubleEncode = encodingService.encode(outFirst, em2);//put the output of the first encoding into the second and use the copy of the enigma model
-                        Assert.AreEqual(qbfjold, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
-                    }
-                }
-            }
-        }
-        /// <summary>
-        /// Tests encoding each individual character on every ringsetting of random rotors
-        /// </summary>
-        [Test]
-        public void EncodeOneCharRingSettings()
-        {
-            //for every offset ring setting combinaiton
-            for (int l = 0; l <= 25; l++)
-            {
-                for (int m = 0; m <= 25; m++)
-                {
-                    for (int r = 0; r <= 25; r++)
-                    {
-                        for (int i = 0; i <= 25; i++)
-                        {
-                            EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//create a random enigma model
-                            //set the offset
-                            em.rotors[0].ringOffset = l;
-                            em.rotors[1].ringOffset = m;
-                            em.rotors[2].ringOffset = r;
-                            string json = JsonConvert.SerializeObject(em);//deep copy
-                            EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                            int outFirst = encodingService.encodeOneChar(em, i);//encode on char
-                            int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);//encode out from first encode
-                            Assert.AreEqual(i, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
-                        }
-                    }
-                }
-            }
-        }
         /// <summary>
         /// Tests encoding each character on every rotor rotation of random rotors
         /// </summary>
         [Test]
         public void EncodeOneCharRotation()
         {
-            //For every combinaiton of rotor rotation
-            for (int l = 0; l <= 25; l++)
+            foreach (Rotor refl in pc.reflectors)
             {
-                for (int m = 0; m <= 25; m++)
+                //for each combination of rotors
+                foreach (Rotor left in pc.rotors)
                 {
-                    for (int r = 0; r <= 25; r++)
+                    foreach (Rotor middle in pc.rotors)
                     {
-                        for (int i = 0; i <= 25; i++)//for every char
+                        if (middle.name != left.name)
                         {
-                            EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomise enigma
-                            //set the rotations
-                            em.rotors[0].rotation = l;
-                            em.rotors[1].rotation = m;
-                            em.rotors[2].rotation = r;
-                            string json = JsonConvert.SerializeObject(em);//deep copy
-                            EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                            int outFirst = encodingService.encodeOneChar(em, i);//encode one char
-                            int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);//encode output from first with copy
-                            Assert.AreEqual(i, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
+                            foreach (Rotor right in pc.rotors)
+                            {
+                                if (left.name != right.name && middle.name != right.name)
+                                {
+                                    //For every combinaiton of rotor rotation
+                                    for (int l = 0; l <= 25; l++)
+                                    {
+                                        for (int m = 0; m <= 25; m++)
+                                        {
+                                            for (int r = 0; r <= 25; r++)
+                                            {
+                                                for (int i = 0; i <= 25; i++)//for every char
+                                                {
+                                                    List<RotorModel> rotors = new List<RotorModel>();
+                                                    Random rand = new Random();
+                                                    rotors.Add(new RotorModel(left, l, rand.Next(26)));
+                                                    rotors.Add(new RotorModel(middle, m, rand.Next(26)));
+                                                    rotors.Add(new RotorModel(right, r, rand.Next(26)));
+                                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomise enigma model
+                                                    em.rotors = rotors;//set the rotors
+                                                    em.reflector = new RotorModel(refl);
+                                                    string json = JsonConvert.SerializeObject(em);//deep copy
+                                                    EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
+                                                    int outFirst = encodingService.encodeOneChar(em, i);//encode one char
+                                                    int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);//encode output from first with copy
+                                                    Assert.AreEqual(i, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Tests encoding each individual character on every ringsetting of random rotors
+        /// </summary>
+        [Test]
+        public void EncodeOneCharRingSettings()
+        {
+            foreach (Rotor refl in pc.reflectors)
+            {
+                //for each combination of rotors
+                foreach (Rotor left in pc.rotors)
+                {
+                    foreach (Rotor middle in pc.rotors)
+                    {
+                        if (middle.name != left.name)
+                        {
+                            foreach (Rotor right in pc.rotors)
+                            {
+                                if (left.name != right.name && middle.name != right.name)
+                                {
+                                    //for every offset ring setting combinaiton
+                                    for (int l = 0; l <= 25; l++)
+                                    {
+                                        for (int m = 0; m <= 25; m++)
+                                        {
+                                            for (int r = 0; r <= 25; r++)
+                                            {
+                                                for (int i = 0; i <= 25; i++)
+                                                {
+                                                    List<RotorModel> rotors = new List<RotorModel>();
+                                                    Random rand = new Random();
+                                                    rotors.Add(new RotorModel(left, rand.Next(26),l));
+                                                    rotors.Add(new RotorModel(middle, rand.Next(26),m));
+                                                    rotors.Add(new RotorModel(right, rand.Next(26),r));
+                                                    EnigmaModel em = EnigmaModel.randomizeEnigma(pc);//randomise enigma model
+                                                    em.rotors = rotors;//set the rotors
+                                                    em.reflector = new RotorModel(refl);
+
+                                                    string json = JsonConvert.SerializeObject(em);//deep copy
+                                                    EnigmaModel em2 = JsonConvert.DeserializeObject<EnigmaModel>(json);
+                                                    int outFirst = encodingService.encodeOneChar(em, i);//encode on char
+                                                    int outFromDoubleEncode = encodingService.encodeOneChar(em2, outFirst);//encode out from first encode
+                                                    Assert.AreEqual(i, outFromDoubleEncode);//check the output from the second encoding and the input of the first are the same
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         /// <summary>
         /// Test encode and inverse are opposites
         /// </summary>
@@ -205,23 +195,18 @@ namespace UnitTests
                     }
                 }
             }
-            foreach (Rotor rotors in pc.rotors)
-            {
-                for (int r = 0; r <= 25; r++)
+            foreach (Rotor reflector in pc.reflectors)
+            {                
+                for (int i = 0; i <= 25; i++)
                 {
-                    for (int o = 0; o <= 25; o++)
-                    {
-                        for (int i = 0; i <= 25; i++)
-                        {
-                            RotorModel rm = new RotorModel(rotors, r, o);
-                            RotorModel rm2 = new RotorModel(rotors, r, o);
-                            int outFirst = encodingService.rotorEncode(rm, i);
-                            int outFromDoubleEncode = encodingService.rotorEncodeInverse(rm2, outFirst);
-                            Assert.AreEqual(i, outFromDoubleEncode);
-                        }
-                    }
+                    RotorModel rm = new RotorModel(reflector);
+                    RotorModel rm2 = new RotorModel(reflector);
+                    int outFirst = encodingService.rotorEncode(rm, i);
+                    int outFromDoubleEncode = encodingService.rotorEncodeInverse(rm2, outFirst);
+                    Assert.AreEqual(i, outFromDoubleEncode);
                 }
             }
+                
         }
 
         /// <summary>
@@ -401,10 +386,10 @@ namespace UnitTests
         [Test]
         public void TextTransformations()
         {
-            for (int i = 0;i<= 1000; i++)//run 1000 times
+            for (int i = 0;i<= 1000000; i++)//run 1000000 times
             {
                 string expected = "";
-                for (int l = 0; l <= 100; l++)//word length 100
+                for (int l = 0; l < 100; l++)//word length 100
                 {
                     Random rand = new Random();
                     expected += Convert.ToChar(rand.Next(26) + 65);//randomize character
