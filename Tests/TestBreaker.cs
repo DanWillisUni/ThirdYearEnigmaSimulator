@@ -126,7 +126,7 @@ namespace UnitTests
                                     {
                                         for (int m = 0; m <= 25; m++)
                                         {
-                                            for (int r = 0; r <= 25; r++)
+                                            for (int r = 0; r <= 26; r++)
                                             {
                                                 List<RotorModel> actualRotors = new List<RotorModel>();
                                                 actualRotors.Add(new RotorModel(left, l));
@@ -164,48 +164,27 @@ namespace UnitTests
         [Test]
         public void testOffsetComparisonTrue()
         {
-            foreach (Rotor refl in pc.reflectors)
+            for (int lr = 0; lr <= 25; lr++)
             {
-                foreach (Rotor left in pc.rotors)
+                for (int mr = 0; mr <= 25; mr++)
                 {
-                    foreach (Rotor middle in pc.rotors)
+                    for (int rr = 0; rr <= 25; rr++)
                     {
-                        if (middle.name != left.name)
+                        EnigmaModel emActual = EnigmaModel.randomizeEnigma(pc);
+                        emActual.rotors[0].rotation = lr;
+                        emActual.rotors[1].rotation = mr;
+                        emActual.rotors[2].rotation = rr;
+                        string json = JsonConvert.SerializeObject(emActual);
+
+                        for (int mov = -1; mov <= 1; mov++)
                         {
-                            foreach (Rotor right in pc.rotors)
+                            for (int rov = -1; rov <= 1; rov++)
                             {
-                                if (left.name != right.name && middle.name != right.name)
-                                {
-                                    for (int lr = 0; lr <= 25; lr++)
-                                    {
-                                        for (int mr = 0; mr <= 25; mr++)
-                                        {
-                                            for (int rr = 0; rr <= 25; rr++)
-                                            {
-                                                for (int lo = 0; lo <= 25; lo++)
-                                                {
-                                                    for (int mo = 0; mo <= 25; mo++)
-                                                    {
-                                                        for (int ro = 0; ro <= 25; ro++)
-                                                        {
-                                                            List<RotorModel> actualRotors = new List<RotorModel>();
-                                                           
-                                                            actualRotors.Add(new RotorModel(left, lr, lo));
-                                                            actualRotors.Add(new RotorModel(middle, mr, mo));
-                                                            actualRotors.Add(new RotorModel(right, rr, ro));
-                                                            EnigmaModel emActual = new EnigmaModel(actualRotors, new RotorModel(refl), new Dictionary<int, int>());
-                                                            List<RotorModel> attemptRotors = actualRotors;
-                                                            attemptRotors[0].rotation = (26 + lr - lo) % 26;
-                                                            attemptRotors[0].ringOffset = 0;
-                                                            EnigmaModel emAttempt = new EnigmaModel(attemptRotors, new RotorModel(refl), new Dictionary<int, int>());
-                                                            Assert.IsTrue(Measuring.compareOffset(emActual, emAttempt));
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                EnigmaModel emAttempt = JsonConvert.DeserializeObject<EnigmaModel>(json);
+                                emAttempt.rotors[0].ringOffset = EncodingService.mod26();
+                                emAttempt.rotors[1].ringOffset = EncodingService.mod26(mov + emActual.rotors[1].ringOffset);
+                                emAttempt.rotors[2].ringOffset = EncodingService.mod26(rov + emActual.rotors[2].ringOffset);
+                                Assert.IsTrue(Measuring.compareOffset(emActual, emAttempt));
                             }
                         }
                     }
@@ -401,61 +380,38 @@ namespace UnitTests
         }
         [Test]
         public void testOffsetComparisonFalse()
-        {
-            foreach (Rotor refl in pc.reflectors)
+        {            
+            for (int lr = 0; lr <= 25; lr++)
             {
-                foreach (Rotor left in pc.rotors)
+                for (int mr = 0; mr <= 25; mr++)
                 {
-                    foreach (Rotor middle in pc.rotors)
+                    for (int rr = 0; rr <= 25; rr++)
                     {
-                        if (middle.name != left.name)
-                        {
-                            foreach (Rotor right in pc.rotors)
-                            {
-                                if (left.name != right.name && middle.name != right.name)
-                                {
-                                    for (int lr = 0; lr <= 25; lr++)
-                                    {
-                                        for (int mr = 0; mr <= 25; mr++)
-                                        {
-                                            for (int rr = 0; rr <= 25; rr++)
-                                            {
-                                                for (int mo = 0; mo <= 25; mo++)
-                                                {
-                                                    for (int ro = 0; ro <= 25; ro++)
-                                                    {
-                                                        List<RotorModel> actualRotors = new List<RotorModel>();
-                                                        actualRotors.Add(new RotorModel(left, lr, 0));
-                                                        actualRotors.Add(new RotorModel(middle, mr, mo));
-                                                        actualRotors.Add(new RotorModel(right, rr, ro));
-                                                        EnigmaModel emActual = new EnigmaModel(actualRotors, new RotorModel(refl), new Dictionary<int, int>());
+                        EnigmaModel emActual = EnigmaModel.randomizeEnigma(pc);
+                        emActual.rotors[0].rotation = lr;
+                        emActual.rotors[1].rotation = mr;
+                        emActual.rotors[2].rotation = rr;
+                        string json = JsonConvert.SerializeObject(emActual);
 
-                                                        for (int lov = 1; lov <= 25; lov++)
-                                                        {
-                                                            for (int mov = 2; mov < 25; mov++)
-                                                            {
-                                                                for (int rov = 2; rov < 25; rov++)
-                                                                {
-                                                                    List<RotorModel> attemptRotors = new List<RotorModel>();
-                                                                    attemptRotors.Add(new RotorModel(left, lr, lov));
-                                                                    attemptRotors.Add(new RotorModel(middle, mr, EncodingService.mod26(mo+mov)));
-                                                                    attemptRotors.Add(new RotorModel(right, rr, EncodingService.mod26(ro+rov)));
-                                                                    EnigmaModel emAttempt = new EnigmaModel(attemptRotors, new RotorModel(refl), new Dictionary<int, int>());
-                                                                    Assert.IsFalse(Measuring.compareOffset(emActual, emAttempt));
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                        for (int lov = 1; lov <= 25; lov++)
+                        {
+                            for (int mov = 2; mov < 25; mov++)
+                            {
+                                for (int rov = 2; rov < 25; rov++)
+                                {
+                                    EnigmaModel emAttempt = JsonConvert.DeserializeObject<EnigmaModel>(json);
+                                    emAttempt.rotors[0].ringOffset = lov;
+                                    emAttempt.rotors[1].ringOffset = EncodingService.mod26(mov + emActual.rotors[1].ringOffset);
+                                    emAttempt.rotors[2].ringOffset = EncodingService.mod26(rov + emActual.rotors[2].ringOffset);
+                                    Assert.IsFalse(Measuring.compareOffset(emActual, emAttempt));
                                 }
                             }
                         }
+                            
                     }
                 }
             }
+                               
         }
         [Test]
         public void testPlugboardComparisonFalse()
