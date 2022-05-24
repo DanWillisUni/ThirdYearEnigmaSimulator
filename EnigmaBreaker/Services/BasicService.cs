@@ -184,7 +184,14 @@ namespace EnigmaBreaker.Services
 
             Parallel.For<List<BreakerResult>>(0, rotorConfigurationsToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multithreaded for loop
             {
-                threadResults.AddRange(getIndividualRotorResults(cipherArr, rotorConfigurationsToCheck[(int)i], fitness,breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
+                /*if (_fc.useFastRotor)
+                {
+                    threadResults.AddRange(getIndividualRotorResultsFast(cipherArr, rotorConfigurationsToCheck[(int)i], fitness, breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
+                }
+                else
+                {*/
+                threadResults.AddRange(getIndividualRotorResults(cipherArr, rotorConfigurationsToCheck[(int)i], fitness, breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
+                //}                
                 return threadResults;//return the thread results
             },
             (threadResults) => { 
@@ -265,6 +272,151 @@ namespace EnigmaBreaker.Services
             }
             return results;//return the results list
         }
+        /*
+        public List<BreakerResult> getIndividualRotorResultsFast(int[] cipherArr, string emStr, IFitness fitness, int n)
+        {
+            int toGoTo = n < 5 ? n : 5;
+            List<BreakerResult> leftResults = new List<BreakerResult>();//create results list
+            double lowestResult = double.MinValue;//store the lowest rank in as the minimum value
+            for (int l = 0; l <= 25; l++)//for each left rotor rotation
+            {                
+                EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+                em.rotors[0].rotation = l;//set the rotation of the left rotor
+                em.rotors[1].rotation = 0;//set the rotation of the middle rotor
+                em.rotors[2].rotation = 0;//set the rotation of the right rotor
+                int[] attemptPlainText = _encodingService.encode(cipherArr, em);//get the integer array of the attempt at decoding with the current enigma setup
+                double rating = fitness.getFitness(attemptPlainText, IFitness.Part.Rotor);//rate how english the attempt is using the fitness function
+
+                if (rating > lowestResult)//if the rating is higher than the current lowest result scored
+                {
+                    em.rotors[0].rotation = l;//reset the rotation for the left rotor
+                    em.rotors[1].rotation = 0;//reset the rotation for the middle rotor
+                    em.rotors[2].rotation = 0;//reset the rotation of the right rotor
+                    BreakerResult br = new BreakerResult(attemptPlainText, rating, em);//create a result object
+                    bool stillSubtract = leftResults.Count + 1 > n;//if there is to many objects in the list
+                    while (stillSubtract)//while there is too many objects in the list
+                    {
+                        double nextLowest = rating;
+                        BreakerResult lowest = null;
+                        foreach (BreakerResult result in leftResults)//for all the results
+                        {
+                            if (result.score <= lowestResult && lowest == null)//if the score is less than or equal to the lowest result
+                            {
+                                lowest = result;//set the lowest result to current
+                            }
+                            else if (result.score < nextLowest)//else if the current score is less than the next lowest
+                            {
+                                nextLowest = result.score;//set the next lowest to the current score
+                            }
+                        }
+                        leftResults.Remove(lowest);//remove the lowest result from the list
+                        lowestResult = nextLowest;//set the lowest result score to the new lowest score
+                        if (leftResults.Count + 1 <= n || lowest == null)//if the list is still too long or no object could be removed
+                        {
+                            stillSubtract = false;//break the while loop
+                        }
+                    }
+                    leftResults.Add(br);//add the new result to the list
+                }                  
+            }
+            leftResults = sortBreakerList(leftResults);
+            List<BreakerResult> middleResults = new List<BreakerResult>();//create results list
+            lowestResult = double.MinValue;
+            for (int i = 0; i < toGoTo; i++)
+            {
+                BreakerResult currentResult = leftResults[i];
+                emStr = JsonConvert.SerializeObject(currentResult.enigmaModel);
+                for (int m = 0; m <= 25; m++)//for each left rotor rotation
+                {
+                    EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+                    em.rotors[1].rotation = m;//set the rotation of the middle rotor
+                    em.rotors[2].rotation = 0;//set the rotation of the right rotor
+                    int[] attemptPlainText = _encodingService.encode(cipherArr, em);//get the integer array of the attempt at decoding with the current enigma setup
+                    double rating = fitness.getFitness(attemptPlainText, IFitness.Part.Rotor);//rate how english the attempt is using the fitness function
+
+                    if (rating > lowestResult)//if the rating is higher than the current lowest result scored
+                    {
+                        em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+                        em.rotors[1].rotation = m;//set the rotation of the middle rotor
+                        em.rotors[2].rotation = 0;//set the rotation of the right rotor
+                        BreakerResult br = new BreakerResult(attemptPlainText, rating, em);//create a result object
+                        bool stillSubtract = middleResults.Count + 1 > n;//if there is to many objects in the list
+                        while (stillSubtract)//while there is too many objects in the list
+                        {
+                            double nextLowest = rating;
+                            BreakerResult lowest = null;
+                            foreach (BreakerResult result in middleResults)//for all the results
+                            {
+                                if (result.score <= lowestResult && lowest == null)//if the score is less than or equal to the lowest result
+                                {
+                                    lowest = result;//set the lowest result to current
+                                }
+                                else if (result.score < nextLowest)//else if the current score is less than the next lowest
+                                {
+                                    nextLowest = result.score;//set the next lowest to the current score
+                                }
+                            }
+                            middleResults.Remove(lowest);//remove the lowest result from the list
+                            lowestResult = nextLowest;//set the lowest result score to the new lowest score
+                            if (middleResults.Count + 1 <= n || lowest == null)//if the list is still too long or no object could be removed
+                            {
+                                stillSubtract = false;//break the while loop
+                            }
+                        }
+                        middleResults.Add(br);//add the new result to the list
+                    }
+                }
+            }
+            middleResults = sortBreakerList(middleResults);
+            List<BreakerResult> results = new List<BreakerResult>();//create results list
+            lowestResult = double.MinValue;
+            for (int i = 0; i < toGoTo; i++)
+            {
+                BreakerResult currentResult = middleResults[i];
+                emStr = JsonConvert.SerializeObject(currentResult.enigmaModel);
+                for (int m = 0; m <= 25; m++)//for each left rotor rotation
+                {
+                    EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+                    em.rotors[1].rotation = m;//set the rotation of the middle rotor
+                    em.rotors[2].rotation = 0;//set the rotation of the right rotor
+                    int[] attemptPlainText = _encodingService.encode(cipherArr, em);//get the integer array of the attempt at decoding with the current enigma setup
+                    double rating = fitness.getFitness(attemptPlainText, IFitness.Part.Rotor);//rate how english the attempt is using the fitness function
+
+                    if (rating > lowestResult)//if the rating is higher than the current lowest result scored
+                    {
+                        em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+                        em.rotors[1].rotation = m;//set the rotation of the middle rotor
+                        em.rotors[2].rotation = 0;//set the rotation of the right rotor
+                        BreakerResult br = new BreakerResult(attemptPlainText, rating, em);//create a result object
+                        bool stillSubtract = results.Count + 1 > n;//if there is to many objects in the list
+                        while (stillSubtract)//while there is too many objects in the list
+                        {
+                            double nextLowest = rating;
+                            BreakerResult lowest = null;
+                            foreach (BreakerResult result in results)//for all the results
+                            {
+                                if (result.score <= lowestResult && lowest == null)//if the score is less than or equal to the lowest result
+                                {
+                                    lowest = result;//set the lowest result to current
+                                }
+                                else if (result.score < nextLowest)//else if the current score is less than the next lowest
+                                {
+                                    nextLowest = result.score;//set the next lowest to the current score
+                                }
+                            }
+                            results.Remove(lowest);//remove the lowest result from the list
+                            lowestResult = nextLowest;//set the lowest result score to the new lowest score
+                            if (results.Count + 1 <= n || lowest == null)//if the list is still too long or no object could be removed
+                            {
+                                stillSubtract = false;//break the while loop
+                            }
+                        }
+                        results.Add(br);//add the new result to the list
+                    }
+                }
+            }
+            return results;//return the results list
+        }*/
         #endregion
 
         #region offset and Rotation

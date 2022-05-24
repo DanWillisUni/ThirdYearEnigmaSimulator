@@ -10,6 +10,7 @@ namespace EnigmaBreaker.Configuration.Models
         public Dictionary<string, double> fitnessWeights { get; set; }
         public WeightFiles weightFiles { get; set; }
         public IndexFiles indexFiles { get; set; }
+        //public bool useFastRotor { get; set; }
     }
 
     public class gramFiles
