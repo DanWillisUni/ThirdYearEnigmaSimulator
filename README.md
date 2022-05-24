@@ -22,5 +22,29 @@ This contains all the services and models that are used for both the breaker and
 It contains the EncodingService, EnigmaModel, PhysicalConfiguration and RotorModel.
 ### 4. Tests
 This project has all the Unit tests that I wrote to test all the aspects of the projects.
-
+## To Clone/Run
+### Clone project
+This project was made in Visual Studio so below are the steps to clone this project for Visual Studio community edition 2022.
+1. Download and open Visual Studio
+2. On the Get started tab click "Clone a repository"
+3. Enter the Repository location (https://github.com/DanWillisUni/EnigmaSimulator.git)
+4. Enter the location locally to clone the project to.
+5. Click Clone
+Alternatively see this documentation: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
+### Run Simulator
+Once the project is cloned and open in Visual Studio
+1. Select the "EnigmaSimulator" project
+2. Right click
+3. Then click "Set as Startup project"
+4. Click run
+A new browser window will pop up with the main simulator page on
+### Run Breaker
+Once the project is cloned and open in Visual Studio
+1. Select the "EnigmaBreaker" project
+2. Right click
+3. Then click "Set as Startup project"
+4. Open the appsettings.json file
+5. If you want to run tests in the Services.Measure class set BasicSettings.isMeasure to true, else false
+6. If you want to input the ciphertext into the console set BasicSettings.inputFormat to "USER" else set to "RAND" for random text with random Enigma configuration
+7. Click run
 ## Documentation
