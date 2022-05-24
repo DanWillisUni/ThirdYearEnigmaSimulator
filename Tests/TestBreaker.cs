@@ -126,7 +126,7 @@ namespace UnitTests
                                     {
                                         for (int m = 0; m <= 25; m++)
                                         {
-                                            for (int r = 0; r <= 26; r++)
+                                            for (int r = 0; r <= 25; r++)
                                             {
                                                 List<RotorModel> actualRotors = new List<RotorModel>();
                                                 actualRotors.Add(new RotorModel(left, l));
@@ -145,12 +145,12 @@ namespace UnitTests
                                                             attemptRotors.Add(new RotorModel(middle, EncodingService.mod26(m + mv)));
                                                             attemptRotors.Add(new RotorModel(right, EncodingService.mod26(r + rv)));
                                                             EnigmaModel emAttempt = new EnigmaModel(attemptRotors, new RotorModel(refl), new Dictionary<int, int>());
-                                                            
+
                                                             Assert.IsTrue(Measuring.compareRotors(emActual, emAttempt));
-                                                                                                                      
+
                                                         }
                                                     }
-                                                } 
+                                                }
                                             }
                                         }
                                     }
@@ -160,31 +160,47 @@ namespace UnitTests
                     }
                 }
             }
-        }        
+        }
         [Test]
         public void testOffsetComparisonTrue()
         {
-            for (int lr = 0; lr <= 25; lr++)
+            foreach (Rotor refl in pc.reflectors)
             {
-                for (int mr = 0; mr <= 25; mr++)
+                foreach (Rotor left in pc.rotors)
                 {
-                    for (int rr = 0; rr <= 25; rr++)
+                    foreach (Rotor middle in pc.rotors)
                     {
-                        EnigmaModel emActual = EnigmaModel.randomizeEnigma(pc);
-                        emActual.rotors[0].rotation = lr;
-                        emActual.rotors[1].rotation = mr;
-                        emActual.rotors[2].rotation = rr;
-                        string json = JsonConvert.SerializeObject(emActual);
-
-                        for (int mov = -1; mov <= 1; mov++)
+                        if (middle.name != left.name)
                         {
-                            for (int rov = -1; rov <= 1; rov++)
+                            foreach (Rotor right in pc.rotors)
                             {
-                                EnigmaModel emAttempt = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                                emAttempt.rotors[0].ringOffset = EncodingService.mod26();
-                                emAttempt.rotors[1].ringOffset = EncodingService.mod26(mov + emActual.rotors[1].ringOffset);
-                                emAttempt.rotors[2].ringOffset = EncodingService.mod26(rov + emActual.rotors[2].ringOffset);
-                                Assert.IsTrue(Measuring.compareOffset(emActual, emAttempt));
+                                if (left.name != right.name && middle.name != right.name)
+                                {
+                                    for (int lr = 0; lr <= 25; lr++)
+                                    {
+                                        for (int mr = 0; mr <= 25; mr++)
+                                        {
+                                            for (int rr = 0; rr <= 25; rr++)
+                                            {
+                                                for (int mo = 0; mo <= 25; mo++)
+                                                {
+                                                    for (int ro = 0; ro <= 26; ro++)
+                                                    {
+                                                        List<RotorModel> actualRotors = new List<RotorModel>();
+                                                        actualRotors.Add(new RotorModel(left, lr, 0));
+                                                        actualRotors.Add(new RotorModel(middle, mr, mo));
+                                                        actualRotors.Add(new RotorModel(right, rr, ro));
+                                                        EnigmaModel emActual = new EnigmaModel(actualRotors, new RotorModel(refl), new Dictionary<int, int>());
+
+                                                        EnigmaModel emAttempt = new EnigmaModel(actualRotors, new RotorModel(refl), new Dictionary<int, int>());
+                                                        Assert.IsTrue(Measuring.compareOffset(emActual, emAttempt));
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -283,7 +299,7 @@ namespace UnitTests
                                                                                                                                                                         Dictionary<int, int> attemptPlugboard = actualPlugboard.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
                                                                                                                                                                         string attemptPlugboardString = "";
                                                                                                                                                                         foreach (KeyValuePair<int, int> entry in attemptPlugboard)//for all the entries in the dictionary
-                                                                                                                                                                        {                                                                                                                                                                            
+                                                                                                                                                                        {
                                                                                                                                                                             attemptPlugboardString += $"{Convert.ToChar(entry.Key + 65)}{Convert.ToChar(entry.Value + 65)} ";//add key value chars
                                                                                                                                                                         }
 
@@ -336,7 +352,7 @@ namespace UnitTests
             for (int i = 0; i < iterations; i++)
             {
                 EnigmaModel actual = EnigmaModel.randomizeEnigma(pc);
-                actual.plugboard = new Dictionary<int, int>();
+                //actual.plugboard = new Dictionary<int, int>();
                 actual.rotors[0].ringOffset = 0;
                 actual.rotors[1].ringOffset = 0;
                 actual.rotors[2].ringOffset = 0;
@@ -380,38 +396,30 @@ namespace UnitTests
         }
         [Test]
         public void testOffsetComparisonFalse()
-        {            
-            for (int lr = 0; lr <= 25; lr++)
+        {
+            int iterations = 100000;
+            for (int i = 0; i < iterations; i++)
             {
-                for (int mr = 0; mr <= 25; mr++)
+                EnigmaModel actual = EnigmaModel.randomizeEnigma(pc);
+                actual.plugboard = new Dictionary<int, int>();                
+                for (int lv = 1; lv <= 25; lv++)
                 {
-                    for (int rr = 0; rr <= 25; rr++)
+                    for (int mv = 1; mv <= 25; mv++)
                     {
-                        EnigmaModel emActual = EnigmaModel.randomizeEnigma(pc);
-                        emActual.rotors[0].rotation = lr;
-                        emActual.rotors[1].rotation = mr;
-                        emActual.rotors[2].rotation = rr;
-                        string json = JsonConvert.SerializeObject(emActual);
-
-                        for (int lov = 1; lov <= 25; lov++)
+                        for (int rv = 1; rv <= 25; rv++)
                         {
-                            for (int mov = 2; mov < 25; mov++)
-                            {
-                                for (int rov = 2; rov < 25; rov++)
-                                {
-                                    EnigmaModel emAttempt = JsonConvert.DeserializeObject<EnigmaModel>(json);
-                                    emAttempt.rotors[0].ringOffset = lov;
-                                    emAttempt.rotors[1].ringOffset = EncodingService.mod26(mov + emActual.rotors[1].ringOffset);
-                                    emAttempt.rotors[2].ringOffset = EncodingService.mod26(rov + emActual.rotors[2].ringOffset);
-                                    Assert.IsFalse(Measuring.compareOffset(emActual, emAttempt));
-                                }
-                            }
+                            List<RotorModel> attemptRotors = new List<RotorModel>();
+                            attemptRotors.Add(new RotorModel(actual.rotors[0].rotor, actual.rotors[0].rotation ,lv));
+                            attemptRotors.Add(new RotorModel(actual.rotors[1].rotor, actual.rotors[1].rotation,EncodingService.mod26(actual.rotors[1].ringOffset + mv)));
+                            attemptRotors.Add(new RotorModel(actual.rotors[2].rotor, actual.rotors[2].rotation,EncodingService.mod26(actual.rotors[2].ringOffset + rv)));
+                            EnigmaModel emAttempt = new EnigmaModel(attemptRotors, actual.reflector,new Dictionary<int, int>());
+
+                            Assert.IsFalse(Measuring.compareOffset(actual, emAttempt));
+
                         }
-                            
                     }
-                }
+                }            
             }
-                               
         }
         [Test]
         public void testPlugboardComparisonFalse()
@@ -501,30 +509,18 @@ namespace UnitTests
                                                                                                                                                                             actualPlugboardString += $"{Convert.ToChar(entry.Key + 65)}{Convert.ToChar(entry.Value + 65)} ";//add key value chars
                                                                                                                                                                         }
 
-                                                                                                                                                                        List<int> l = new List<int>() { aa,ab,ba,bb,ca,cb,da,db,ea,eb,fa,fb,ga,gb,ha,hb,ia,ib,ja,jb};
+                                                                                                                                                                        List<int> l = new List<int>() { aa, ab, ba, bb, ca, cb, da, db, ea, eb, fa, fb, ga, gb, ha, hb, ia, ib, ja, jb };
                                                                                                                                                                         Random rand = new Random();
-                                                                                                                                                                        Dictionary<int, int> attemptPlugboard = new Dictionary<int, int>(); 
-                                                                                                                                                                        int a = 2*rand.Next(10);
-                                                                                                                                                                        int b = 2*rand.Next(10);
-                                                                                                                                                                        while (a == b)
-                                                                                                                                                                        {
-                                                                                                                                                                            b = 2 * rand.Next(10);
-                                                                                                                                                                        }
+                                                                                                                                                                        Dictionary<int, int> attemptPlugboard = new Dictionary<int, int>();
+                                                                                                                                                                        int a = 2 * rand.Next(10);
+                                                                                                                                                                        int b = 2 * rand.Next(10);
                                                                                                                                                                         attemptPlugboard.Add(l[a], l[b]);
-                                                                                                                                                                        if (a > b)
-                                                                                                                                                                        {
-                                                                                                                                                                            l.RemoveAt(a);
-                                                                                                                                                                            l.RemoveAt(b);
-                                                                                                                                                                        }
-                                                                                                                                                                        else
-                                                                                                                                                                        {
-                                                                                                                                                                            l.RemoveAt(b);
-                                                                                                                                                                            l.RemoveAt(a);
-                                                                                                                                                                        }                                                                                                                                                                        
+                                                                                                                                                                        l.RemoveAt(a);
+                                                                                                                                                                        l.RemoveAt(b);
                                                                                                                                                                         for (int i = 0; i < 9; i++)
                                                                                                                                                                         {
-                                                                                                                                                                            attemptPlugboard.Add(l[0],l[1]);
-                                                                                                                                                                            l.RemoveRange(0,2);
+                                                                                                                                                                            attemptPlugboard.Add(l[0], l[1]);
+                                                                                                                                                                            l.RemoveRange(0, 2);
                                                                                                                                                                         }
                                                                                                                                                                         attemptPlugboard = attemptPlugboard.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
                                                                                                                                                                         string attemptPlugboardString = "";
