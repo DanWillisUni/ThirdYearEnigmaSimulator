@@ -16,9 +16,15 @@ namespace EngimaSimulator.Controllers
 {
     public class EnigmaConfigurationController : Controller
     {
-        private readonly PhysicalConfiguration _physicalConfiguration;
-        private readonly ILogger<EnigmaConfigurationController> _logger;
-        private readonly BasicConfiguration _basicConfiguration;
+        private readonly PhysicalConfiguration _physicalConfiguration;//physical configurations of all the rotor configured
+        private readonly ILogger<EnigmaConfigurationController> _logger;//logger to log the events
+        private readonly BasicConfiguration _basicConfiguration;//configuration of the application
+        /// <summary>
+        /// DI constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="physicalConfiguration"></param>
+        /// <param name="basicConfiguration"></param>
         public EnigmaConfigurationController(ILogger<EnigmaConfigurationController> logger,PhysicalConfiguration physicalConfiguration,BasicConfiguration basicConfiguration)
         {
             _logger = logger;
@@ -39,7 +45,7 @@ namespace EngimaSimulator.Controllers
             EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//load the current state of the enigma model
             _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(currentSave));
             RotorViewModel rvm = new RotorViewModel(currentSave.rotors,_physicalConfiguration);//construct a new rotor model from the physical configuration and the enigma model
-            return View(rvm);
+            return View(rvm);//return Rotors view
         }
         /// <summary>
         /// Processes all the post requests from the Rotors View
@@ -54,8 +60,8 @@ namespace EngimaSimulator.Controllers
             _logger.LogInformation("Post rotors");
             RotorViewModel modelOut = new RotorViewModel();//construct new model
             modelOut._physicalConfiguration = this._physicalConfiguration;//set the Physical configuration
-            EnigmaModel enigmaModel = new EnigmaModel();
-            switch (modelIn.Command)
+            EnigmaModel enigmaModel = new EnigmaModel();//create Enigma model
+            switch (modelIn.Command)//switchcase for the command
             {
                 case "rotorSave"://edit which rotors are selected
                     _logger.LogInformation("Save the rotors");
@@ -85,20 +91,20 @@ namespace EngimaSimulator.Controllers
                     //get new order
                     bool continueOn = true;
                     int counter = 1;
-                    List<int> newRotorOrder = new List<int>();
+                    List<int> newRotorOrder = new List<int>();//construct new list of order
                     do
                     {//do while previous was not null
                         var newItem = Request.Form[$"rotorOrder_{counter}"].ToString();//request item
-                        if (String.IsNullOrEmpty(newItem))
+                        if (String.IsNullOrEmpty(newItem))//if that item in the form didnt exist or is null
                         {
-                            continueOn = false;
+                            continueOn = false;//do not continue
                         }
                         else
                         {
                             newRotorOrder.Add(Convert.ToInt32(newItem));//add the string to new order
                         }
                         counter++;//increase the counter
-                    } while (continueOn); 
+                    } while (continueOn);
                     //get previous order
                     EnigmaModel currentSave = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//load the current save of the enigma model
                     foreach (RotorModel r in currentSave.rotors)// for each rotor in the current model
@@ -120,8 +126,8 @@ namespace EngimaSimulator.Controllers
                             if(newRotorOrderItem-1 == newRotorOrderIndex)//if the item -1 is equal to the index
                             {
                                 tempRotors.Add(modelOut.liveRotorsNames[counterSwap]);//add the swap that needs to happen to the temp rotors
-                                tempRotation.Add(modelOut.rotorStepOffset[2 * counterSwap]);
-                                tempOffset.Add(modelOut.rotorStepOffset[2 * counterSwap + 1]);
+                                tempRotation.Add(modelOut.rotorStepOffset[2 * counterSwap]);//add the item that needs to swap to the temp
+                                tempOffset.Add(modelOut.rotorStepOffset[2 * counterSwap + 1]);//add the offset that needs to swap to the temp
                                 break;//break the for each item
                             }
                             counterSwap++;//increase the counter swap
@@ -129,10 +135,10 @@ namespace EngimaSimulator.Controllers
                     }                    
                     modelOut.liveRotorsNames = tempRotors;//set the model out rotors to the new order
                     modelOut.rotorStepOffset = new List<string>();
-                    for(int i = 0;i < tempRotation.Count; i++)
+                    for(int i = 0;i < tempRotation.Count; i++)//for the nunber of rotors
                     {
-                        modelOut.rotorStepOffset.Add(tempRotation[i]);
-                        modelOut.rotorStepOffset.Add(tempOffset[i]);
+                        modelOut.rotorStepOffset.Add(tempRotation[i]);//add the rotation
+                        modelOut.rotorStepOffset.Add(tempOffset[i]);//then add the offset
                     }
                     _logger.LogInformation("New Rotor order: " + String.Join(", ", modelOut.liveRotorsNames.ToArray()));
                     //update the enigma model rotor order
@@ -148,13 +154,7 @@ namespace EngimaSimulator.Controllers
                         }
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes of the enigma model
-                    //modelOut.liveRotorsNames = new List<string>();
-                    /*foreach (RotorModel r in enigmaModel.rotors)//for each rotor
-                    {
-                        //modelOut.liveRotorsNames.Add(r.rotor.name);
-                        modelOut.rotorStepOffset.Add(Convert.ToString(Convert.ToChar(65 + r.rotation)));//add the rotation to the out model
-                        modelOut.rotorStepOffset.Add(r.ringOffset.ToString());//add the ringoffset to the out model
-                    }*/
+                    
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
                     return View(modelOut);
                 case "rotorSaveEdit"://edit offset and step
@@ -179,7 +179,7 @@ namespace EngimaSimulator.Controllers
                     enigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//get the current model                    
                     _logger.LogInformation("Current save: " + JsonConvert.SerializeObject(enigmaModel));
                     MainViewModel mainviewmodel = new MainViewModel(enigmaModel);//creare a new MainView model from the enigma model
-                    return View("../Enigma/Index", mainviewmodel);
+                    return View("../Enigma/Index", mainviewmodel);//return the enigma main page
                 default://unknown command
                     return View(modelOut);
             }            
@@ -274,9 +274,9 @@ namespace EngimaSimulator.Controllers
                     {
                         var a = Request.Form[$"Pair {i} A"].ToString();
                         var b = Request.Form[$"Pair {i} B"].ToString();
-                        if (a != "" && b != "") // should always be true, but nice to double check
+                        if (a != "" && b != "")//if there is a pair entered
                         {
-                            enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) - 65);
+                            enigmaModel.plugboard.Add(Convert.ToInt16(Convert.ToChar(a)) - 65, Convert.ToInt16(Convert.ToChar(b)) - 65);//add the letters converted to integers
                         }
                     }
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the changes to the plugboard with the current state

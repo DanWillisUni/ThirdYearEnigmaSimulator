@@ -3,9 +3,6 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-#Ignore logs
-*/logs/*
-
 # User-specific files
 *.suo
 *.user
@@ -334,5 +331,11 @@ ASALocalRun/
 .mfractor/
 
 
+#Ignore logs
+*/logs/*
+
 #Others
 appsettings.smtp.Json
+*/Saves/*
+
+

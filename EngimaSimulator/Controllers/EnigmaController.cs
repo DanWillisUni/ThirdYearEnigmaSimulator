@@ -23,7 +23,13 @@ namespace EngimaSimulator.Controllers
         private readonly BasicConfiguration _basicConfiguration;
         private readonly EncodingService _encodingService;
         private readonly PhysicalConfiguration _physicalConfiguration;
-
+        /// <summary>
+        /// DI Constructor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="basicConfiguration"></param>
+        /// <param name="encodingService"></param>
+        /// <param name="physicalConfiguration"></param>
         public EnigmaController(ILogger<EnigmaController> logger, BasicConfiguration basicConfiguration, EncodingService encodingService, PhysicalConfiguration physicalConfiguration)
         {
             _logger = logger;
@@ -63,18 +69,15 @@ namespace EngimaSimulator.Controllers
                     modelOut.enigmaModel = enigmaModel;//set the out model enigma model
                     string tempOut = _encodingService.encode(modelIn.inputTextBox, enigmaModel);//encode the text
                     //setting spaces every 5 chars
-                    int count = 0;
                     modelOut.outputTextBox = "";//set output to empty string
-                    foreach (char c in tempOut) {//for every char encoded
-                        modelOut.outputTextBox += c;//add the char to the output
-                        count += 1;//increase counter
-                        if (count >= 5)//if the counter is greater than or equal to 5
+                    for (int i = 1;i <= tempOut.Length;i++) {//for every char encoded
+                        modelOut.outputTextBox += tempOut[i-1];//add the char to the output                        
+                        if (i % 5 == 0)//if the counter is divisable by 5
                         {
-                            count = 0;//reset count to 0
                             modelOut.outputTextBox += " ";//add a space to the output
                         }
                     }
-                    //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
+                    //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//This line saves the enigma model after the conversion making it not reset
                     break;
                 case "Randomize"://Randomise the enigma model
                     modelOut.enigmaModel = EnigmaModel.randomizeEnigma(_physicalConfiguration);//randomise the model

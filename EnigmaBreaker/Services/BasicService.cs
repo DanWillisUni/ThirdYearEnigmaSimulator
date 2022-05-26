@@ -45,12 +45,14 @@ namespace EnigmaBreaker.Services
        /// </summary>
         public void root()
         {
-            if(_bc.inputFormat == "RAND")
+            if(_bc.inputFormat == "RAND")//if the input format is random
             {
+                _logger.LogDebug("Selected Random Input");
                 testRandom();
             }
-            else if (_bc.inputFormat == "USER")
+            else if (_bc.inputFormat == "USER")//if the input format is user
             {
+                _logger.LogDebug("Selected User Input");
                 getUserInputCipherText();
             }
         }
@@ -67,6 +69,9 @@ namespace EnigmaBreaker.Services
             decryption(ciphertext);
         }
 
+        /// <summary>
+        /// The user is asked to enter the ciphertext and it then  decypts it
+        /// </summary>
         private void getUserInputCipherText()
         {
             Console.WriteLine("Please enter a ciphertext:\n");
@@ -184,21 +189,14 @@ namespace EnigmaBreaker.Services
 
             Parallel.For<List<BreakerResult>>(0, rotorConfigurationsToCheck.Count, () => new List<BreakerResult>(), (i, loop, threadResults) => //multithreaded for loop
             {
-                /*if (_fc.useFastRotor)
-                {
-                    threadResults.AddRange(getIndividualRotorResultsFast(cipherArr, rotorConfigurationsToCheck[(int)i], fitness, breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
-                }
-                else
-                {*/
                 threadResults.AddRange(getIndividualRotorResults(cipherArr, rotorConfigurationsToCheck[(int)i], fitness, breakerConfiguration.numberOfSettingsPerRotorCombinationToKeep));//add to the thread results the top results for that configuration of rotors
-                //}                
                 return threadResults;//return the thread results
             },
-            (threadResults) => { 
-                    lock (rotorListLock)//lock the list
-                    {
-                        results.AddRange(threadResults);//add the thread results to the results list
-                    }
+            (threadResults) => {
+                lock (rotorListLock)//lock the list
+                {
+                    results.AddRange(threadResults);//add the thread results to the results list
+                }
             });
 
             results = sortBreakerList(results);

@@ -11,7 +11,7 @@ namespace EngimaSimulator.Configuration.Models
     }
     public class FilePath
     {
-        public string dir { get; set; }
-        public string fileName { get; set; }
+        public string dir { get; set; }  //directory of the filepath
+        public string fileName { get; set; } //filename
     }
 }
