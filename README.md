@@ -36,8 +36,8 @@ Once the project is cloned and open in Visual Studio
 1. Select the "EnigmaSimulator" project
 2. Right click
 3. Then click "Set as Startup project"
-4. Click run
-A new browser window will pop up with the main simulator page on
+4. Click run. 
+5. If Debug is selected this will open a new browser window with the main simulator page on. If it is Release an Executable called "EnigmaSimulator" will be generated in \EngimaSimulator\bin\Release\netcoreapp3.1
 ### Run Breaker
 Once the project is cloned and open in Visual Studio
 1. Select the "EnigmaBreaker" project
@@ -47,4 +47,4 @@ Once the project is cloned and open in Visual Studio
 5. If you want to run tests in the Services.Measure class set BasicSettings.isMeasure to true, else false
 6. If you want to input the ciphertext into the console set BasicSettings.inputFormat to "USER" else set to "RAND" for random text with random Enigma configuration
 7. Click run
-## Documentation
+8. If Debug is selected this will run the code in a new Console window. If it is Release an Executable called "EnigmaBreaker" will be generated in \EngimaBreaker\bin\Release\netcoreapp3.1
