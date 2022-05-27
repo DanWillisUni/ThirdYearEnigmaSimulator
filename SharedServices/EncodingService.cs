@@ -50,14 +50,14 @@ namespace SharedCL
         public int encodeOneChar(EnigmaModel em, int input)
         {
             int current = plugboardSwap(em.plugboard, input);//do the plugboard swap
-            foreach (RotorModel r in em.rotors.Reverse<RotorModel>())//for each rotor right to left
+            for (int i = em.rotors.Count - 1; i >= 0; --i)//for each rotor right to left
             {
-                current = rotorEncode(r, current);//encode through the rotor
+                current = rotorEncode(em.rotors[i], current);//encode through the rotor
             }
             current = rotorEncode(em.reflector, current);//encode through the reflector
-            foreach (RotorModel r in em.rotors)//for each rotor left to right
+            for (int i = 0; i < em.rotors.Count; ++i) //for each rotor left to right
             {
-                current = rotorEncodeInverse(r, current);//encode inverse
+                current = rotorEncodeInverse(em.rotors[i], current);//encode inverse
             }
             current = plugboardSwap(em.plugboard, current);//do the plugboard swap
             return current;//return the end result
@@ -169,6 +169,20 @@ namespace SharedCL
                 r[i] = Convert.ToInt16(formattedInput[i]) - 65;//set the integer array value at the same index to the int of the char
             }
             return r;//return the array
+        }
+
+        public static string addSpacesEveryFive(string text)
+        {
+            string r = "";
+            for (int i = 1; i <= text.Length; i++)
+            {//for every char encoded
+                r += text[i - 1];//add the char to the output                        
+                if (i % 5 == 0)//if the counter is divisable by 5
+                {
+                    r += " ";//add a space to the output
+                }
+            }
+            return r;
         }
         #endregion
     }

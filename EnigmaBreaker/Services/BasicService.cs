@@ -88,10 +88,9 @@ namespace EnigmaBreaker.Services
         /// <param name="includeLogging"></param>
         /// <returns></returns>
         public string decryption(string ciphertext,bool includeLogging = false)            
-        { 
-            _logger.LogInformation($"Ciphertext: {ciphertext.Length}\n" + ciphertext);//print the ciphertext
-            int[] cipherArr = EncodingService.preProccessCiphertext(ciphertext);//convert the ciphertext into an array of integers
-
+        {             
+            int[] cipherArr = EncodingService.preProccessCiphertext(ciphertext);//convert the ciphertext into an array of integers            
+            _logger.LogInformation($"Ciphertext: {cipherArr.Length}\n" + EncodingService.addSpacesEveryFive(EncodingService.getStringFromIntArr(cipherArr)));//print the ciphertext
             Stopwatch timer = new Stopwatch();//create new timer
             timer.Start();//start timer
             BreakerConfiguration breakerConfiguration = new BreakerConfiguration(cipherArr.Length,_fc.indexFiles);
@@ -146,6 +145,7 @@ namespace EnigmaBreaker.Services
             TimeSpan ts = timer.Elapsed;//get the elapsed time as a TimeSpan value
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds,ts.Milliseconds);//format the timespan value
             _logger.LogInformation("Run time: " + elapsedTime);//print the time taken to crack the enigma
+            _logger.LogInformation(plugboardResults[attemptedPlainText.IndexOf(attemptPlainText)].enigmaModel.ToString());
             return attemptPlainText;
         }        
 
@@ -221,16 +221,14 @@ namespace EnigmaBreaker.Services
         {
             List<BreakerResult> results = new List<BreakerResult>();//create results list
             double lowestResult = double.MinValue;//store the lowest rank in as the minimum value
+            EnigmaModel emToTest = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
             for (int l = 0; l <= 25; l++)//for each left rotor rotation
             {
                 for (int m = 0; m <= 25; m++)//for each middle rotor rotation
                 {
                     for (int r = 0; r <= 25; r++)//for each right rotor rotation
                     {
-                        EnigmaModel em = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
-                        em.rotors[0].rotation = l;//set the rotation of the left rotor
-                        em.rotors[1].rotation = m;//set the rotation of the middle rotor
-                        em.rotors[2].rotation = r;//set the rotation of the right rotor
+                        EnigmaModel em = new EnigmaModel(new List<RotorModel>() { new RotorModel(emToTest.rotors[0].rotor, l), new RotorModel(emToTest.rotors[1].rotor, m), new RotorModel(emToTest.rotors[2].rotor, r) },emToTest.reflector,new Dictionary<int, int>());
                         int[] attemptPlainText = _encodingService.encode(cipherArr, em);//get the integer array of the attempt at decoding with the current enigma setup
                         double rating = fitness.getFitness(attemptPlainText,IFitness.Part.Rotor);//rate how english the attempt is using the fitness function
 

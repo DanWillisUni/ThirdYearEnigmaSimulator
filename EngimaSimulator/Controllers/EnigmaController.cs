@@ -69,14 +69,8 @@ namespace EngimaSimulator.Controllers
                     modelOut.enigmaModel = enigmaModel;//set the out model enigma model
                     string tempOut = _encodingService.encode(modelIn.inputTextBox, enigmaModel);//encode the text
                     //setting spaces every 5 chars
-                    modelOut.outputTextBox = "";//set output to empty string
-                    for (int i = 1;i <= tempOut.Length;i++) {//for every char encoded
-                        modelOut.outputTextBox += tempOut[i-1];//add the char to the output                        
-                        if (i % 5 == 0)//if the counter is divisable by 5
-                        {
-                            modelOut.outputTextBox += " ";//add a space to the output
-                        }
-                    }
+                    modelOut.outputTextBox = EncodingService.addSpacesEveryFive(tempOut);//set output to empty string
+                    
                     //modelOut.enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(modelOut.enigmaModel,Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//This line saves the enigma model after the conversion making it not reset
                     break;
                 case "Randomize"://Randomise the enigma model
