@@ -164,7 +164,7 @@ namespace EnigmaBreaker.Services
         {            
             IFitness fitness = _resolver(breakerConfiguration.RotorFitness);//get the fitness function from the resolver string
             List<BreakerResult> results = new List<BreakerResult>();//create new results list
-            List<string> rotorConfigurationsToCheck = new List<string>();//create new list for the rotor combinations to check
+            List<EnigmaModel> rotorConfigurationsToCheck = new List<EnigmaModel>();//create new list for the rotor combinations to check
 
             foreach (Rotor refl in allReflectors)//for all reflectors
             {
@@ -179,7 +179,7 @@ namespace EnigmaBreaker.Services
                                 if (left.name != right.name && middle.name != right.name)//if the right rotor is not equal to the left or the middle one
                                 {
                                     List<RotorModel> rotors = new List<RotorModel>() { new RotorModel(left), new RotorModel(middle), new RotorModel(right) };//set the rotor list for the enigma model
-                                    rotorConfigurationsToCheck.Add(JsonConvert.SerializeObject(new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>())));//add the serilised string of the enigma settings to the settings to check list
+                                    rotorConfigurationsToCheck.Add(new EnigmaModel(rotors, new RotorModel(refl), new Dictionary<int, int>()));//add the serilised string of the enigma settings to the settings to check list
                                 }
                             }
                         }
@@ -212,16 +212,15 @@ namespace EnigmaBreaker.Services
         /// </summary>
         /// <param name="cipherArr"></param>
         /// The ciphertext in integer array
-        /// <param name="emStr"></param>
-        /// The enigma configuration to check as a json string
+        /// <param name="emToTest"></param>
+        /// The enigma configuration to check
         /// <param name="fitness"></param>
         /// Fitness function to use when checking
         /// <returns>The top few rotation settings for this rotor combination</returns>
-        public List<BreakerResult> getIndividualRotorResults(int[] cipherArr,string emStr,IFitness fitness,int n)
+        public List<BreakerResult> getIndividualRotorResults(int[] cipherArr, EnigmaModel emToTest, IFitness fitness,int n)
         {
             List<BreakerResult> results = new List<BreakerResult>();//create results list
-            double lowestResult = double.MinValue;//store the lowest rank in as the minimum value
-            EnigmaModel emToTest = JsonConvert.DeserializeObject<EnigmaModel>(emStr);//get the Rotors to check from the Json string
+            double lowestResult = double.MinValue;//store the lowest rank in as the minimum value            
             for (int l = 0; l <= 25; l++)//for each left rotor rotation
             {
                 for (int m = 0; m <= 25; m++)//for each middle rotor rotation
