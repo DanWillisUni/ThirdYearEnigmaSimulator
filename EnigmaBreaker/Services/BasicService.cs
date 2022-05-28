@@ -66,7 +66,7 @@ namespace EnigmaBreaker.Services
             _logger.LogInformation($"Plaintext: {plaintext.Length}\n" + plaintext);//print the plaintext
             _logger.LogInformation(em.ToString());//print the enigma model
             string ciphertext = _encodingService.encode(plaintext, em);//get the ciphertext
-            decryption(ciphertext);
+            decryption(ciphertext,true);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace EnigmaBreaker.Services
             string cipherText = Console.ReadLine();
             string plainText = decryption(cipherText);
             Console.WriteLine("Here is the plain text\n");
-            Console.WriteLine(plainText);
+            Console.WriteLine(plainText,true);
         }
 
         /// <summary>

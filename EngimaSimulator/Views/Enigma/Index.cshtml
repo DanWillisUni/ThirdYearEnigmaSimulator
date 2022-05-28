@@ -65,7 +65,7 @@ else
             <!--Display the plugboard pairs across all the columns at the bottom of the table-->
             <tr>
                 <td colspan="5">
-                    Plugboard Pairs: @Model.plugboardPairs
+                    Plugboard Pairs: @Model.enigmaModel.toStringPlugboard()
                 </td>
             </tr>
         </tbody>
@@ -73,17 +73,26 @@ else
 }
 <form asp-controller="Enigma" asp-action="Index" method="post">
     <!--Text boxes-->
-    <div class="col-md-12">
-        <input type="text" name="inputTextBox" value="@Model.inputTextBox" rows="8" cols="50" />
-        <textarea name="outputTextBox" rows="8" cols="50">@Model.outputTextBox</textarea>
-        <br><br>
-    </div>
-    <!--Randomize button-->
-    <div class="col-sm-4">
-        <button type="submit" name="Command" value="Randomize" class="btn btn-primary">Randomize</button>
-    </div>
-    <!--Convert button-->
-    <div class="col-sm-4">
-        <button type="submit" name="Command" value="Convert" class="btn btn-primary">Convert</button>
-    </div>
+    <table>
+        <tr>
+            <td>
+                <textarea name="inputTextBox" rows="8" cols="50" placeholder="Plaintext...">@Model.inputTextBox</textarea> 
+            </td>
+            <td>
+                <!--Randomize button-->
+                <div class="col-sm-4">
+                    <button type="submit" name="Command" value="Randomize" class="btn btn-primary">Randomize</button>
+                </div>
+                </br>
+                </br>
+                <!--Convert button-->
+                <div class="col-sm-4">
+                    <button type="submit" name="Command" value="Convert" class="btn btn-primary">Convert</button>
+                </div>
+            </td>
+            <td>
+                <textarea name="outputTextBox" rows="8" cols="50" placeholder="Ciphertext...">@Model.outputTextBox</textarea>
+            </td>
+        </tr>
+    </table>
 </form>

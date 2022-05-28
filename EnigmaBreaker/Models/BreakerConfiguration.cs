@@ -22,6 +22,7 @@ namespace EnigmaBreaker.Models
         /// Provides a full configuration on the ideal way to break the enigma the fastest and most accurate based upon all my tests
         /// </summary>
         /// <param name="len">length of the ciphertext</param>
+        /// <param name="indexFile">Files with all the index data in</param>
         /// <param name="withoutRefinement">This is useful for measuring test how much difference was made by the tests</param>
         public BreakerConfiguration(int len, IndexFiles indexFile, bool withoutRefinement=false)
         {            

@@ -11,11 +11,11 @@ namespace EnigmaBreaker.Models
         {
             IndexFiles = new List<indexFileItem>();
             int count = 0;
-            foreach (string line in System.IO.File.ReadLines(fileName))
+            foreach (string line in System.IO.File.ReadLines(fileName))//for each line
             {
                 if (count != 0)
                 {
-                    IndexFiles.Add(new indexFileItem(line));
+                    IndexFiles.Add(new indexFileItem(line));//create new item
                 }
                 count = count + 1;
             }
@@ -28,12 +28,12 @@ namespace EnigmaBreaker.Models
         public Dictionary<int, double> data { get; set; }
         public indexFileItem(string line)
         {
-            var ls = line.Split(",");
-            length = Convert.ToInt16(ls[0]);
-            data = new Dictionary<int, double>();
-            for (int i = 1; i < ls.Length; i++)
+            var ls = line.Split(",");//split by comma
+            length = Convert.ToInt16(ls[0]);//first item is the length
+            data = new Dictionary<int, double>();//rest is the data
+            for (int i = 1; i < ls.Length; i++)//for the rest
             {
-                data.Add(i-1, Convert.ToDouble(ls[i]));
+                data.Add(i-1, Convert.ToDouble(ls[i]));//add to data dictionary
             }
         }
     }

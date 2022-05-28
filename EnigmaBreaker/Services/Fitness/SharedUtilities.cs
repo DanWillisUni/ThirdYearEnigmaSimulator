@@ -18,9 +18,9 @@ namespace EnigmaBreaker.Services.Fitness
         {
             _fc = fc;
             _csvR = csvR;
-            rotorWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.rotorFileName);
-            offsetWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.offsetFileName);
-            plugboardWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.plugboardFileName);
+            rotorWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.rotorFileName);//set the rotor weight file
+            offsetWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.offsetFileName);//set the offset weight file
+            plugboardWeightFile = _csvR.readFromFile(_fc.weightFiles.dir, _fc.weightFiles.plugboardFileName);//set the plugboard weight file
         }
         /// <summary>
         /// Get the accuracy of a given fitness function for a specific part of the at a set length

@@ -23,7 +23,7 @@ namespace EnigmaBreaker.Services.Fitness
         public double getFitness(int[] input, Part part)
         {
             int len = input.Length;
-            string highestString = _sharedUtilities.getRes(len, part);
+            string highestString = _sharedUtilities.getRes(len, part);//get the highest fitness of string
             IFitness newFit = _resolver(highestString);//resolve to get the highest
             return newFit.getFitness(input, Part.None);//get and return fitness of the other fitness function
         }

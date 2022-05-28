@@ -20,6 +20,7 @@ namespace EnigmaBreaker
         private Microsoft.Extensions.Logging.ILogger logger;
         public void Start()
         {
+            //create new logger
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
@@ -27,11 +28,11 @@ namespace EnigmaBreaker
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
-            RegisterServices();
+            RegisterServices();//register services for DI function
 
             logger = _serviceProvider.GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Start");
-            runMyStuff();
+            runMyStuff();//run my code
         }
         public void Stop()
         {
@@ -57,12 +58,13 @@ namespace EnigmaBreaker
 
         private static void RegisterServices()
         {
+            //read json file
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
             _serviceCollection = new ServiceCollection();
-
+            //get objects from json and register them
             var BasicSettings = new BasicConfiguration();
             configuration.Bind("BasicSettings", BasicSettings);
             _serviceCollection.AddSingleton(BasicSettings);
@@ -72,14 +74,14 @@ namespace EnigmaBreaker
             var physicalSettings = new PhysicalConfiguration();
             configuration.Bind("PhysicalConfiguration", physicalSettings);
             _serviceCollection.AddSingleton(physicalSettings);
-
+            //register all the classes
             _serviceCollection.AddSingleton<Program>();
             _serviceCollection.AddLogging(cfg => cfg.AddSerilog()).Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Debug);
             _serviceCollection.AddSingleton<BasicService>();
             _serviceCollection.AddSingleton<EncodingService>();
             _serviceCollection.AddSingleton<Measuring>();
             _serviceCollection.AddSingleton<CSVReaderService<Models.WeightFile>>();
-
+            //register fitness functions
             _serviceCollection.AddSingleton<SharedUtilities>();
             _serviceCollection.AddTransient<indexOfCoincidence>();
             _serviceCollection.AddTransient<singleCharFitness>();
@@ -88,7 +90,7 @@ namespace EnigmaBreaker
             _serviceCollection.AddTransient<fourCharFitness>();
             _serviceCollection.AddTransient<ruleFitness>();
             _serviceCollection.AddTransient<weightFitness>(); 
-
+            //create IFitness resolver
             _serviceCollection.AddTransient<IFitness.FitnessResolver>(serviceProvider => key =>
             {
                 switch (key)

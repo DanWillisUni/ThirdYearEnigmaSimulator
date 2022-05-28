@@ -18,10 +18,8 @@ namespace EngimaSimulator.Models.EnigmaConfiguration
             liveRotorsNames = new List<string>();//empty list for rotor names
             rotorStepOffset = new List<string>();//empty list for offset and rotaions
         }
-        public RotorViewModel(List<RotorModel> rotors, PhysicalConfiguration physicalConfiguration)
+        public RotorViewModel(List<RotorModel> rotors, PhysicalConfiguration physicalConfiguration) : this()
         {
-            liveRotorsNames = new List<string>();//empty list for rotor names
-            rotorStepOffset = new List<string>();//empty list for offset and rotaions
             if (rotors != null)//if the rotors are not null
             {
                 foreach (RotorModel r in rotors)//for each rotor
