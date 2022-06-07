@@ -66,17 +66,29 @@ namespace EngimaSimulator.Controllers
                 case "rotorSave"://edit which rotors are selected
                     _logger.LogInformation("Save the rotors");
                     _logger.LogInformation("Saving rotors to: " + String.Join(", ", modelIn.liveRotorsNames.ToArray()));
+                    EnigmaModel oldEnigmaModel = Services.FileHandler.getCurrentSave(Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));
                     foreach (string rn in modelIn.liveRotorsNames)//for each rotor name
                     {
+                        int rotation = 0;
+                        int offset = 0;
+                        foreach(RotorModel oldR in oldEnigmaModel.rotors)
+                        {
+                            if(oldR.rotor.name == rn)
+                            {
+                                rotation = oldR.rotation;
+                                offset = oldR.ringOffset;
+                                break;
+                            }
+                        }
                         foreach (Rotor r in _physicalConfiguration.rotors) //for each rotor in physical configurations
                         {
                             if (r.name == rn)//if the physical configuration name is the same as the name
                             {
-                                enigmaModel.rotors.Add(new RotorModel(r));//add the rotor from the physical configuration
+                                enigmaModel.rotors.Add(new RotorModel(r,rotation,offset));//add the rotor from the physical configuration
                                 break;//break the for loop of physical configuration
                             }
                         }
-                    }
+                    } 
                     enigmaModel = Services.FileHandler.mergeEnigmaConfiguration(enigmaModel, Path.Combine(_basicConfiguration.tempConfig.dir, _basicConfiguration.tempConfig.fileName));//merge the rotors with the last configuration saved
                     foreach (RotorModel r in enigmaModel.rotors) //for each new rotor
                     {
